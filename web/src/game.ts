@@ -1,5 +1,10 @@
 import { LevelData, TileInfoData, TILE, TILE_FLAG_MASK } from "./assets";
-import { Input } from "./input";
+
+/** The part of the keyboard state the simulation needs. `Input` satisfies it structurally. */
+export interface InputState {
+  isDown(...codes: string[]): boolean;
+  wasPressed(...codes: string[]): boolean;
+}
 
 // Physics values are product decisions; the reference table lives in
 // docs/design.md.
@@ -11,6 +16,9 @@ const JUMP_SPEED = 300;
 const MAX_FALL = 520;
 const BULLET_SPEED = 380;
 const BULLET_LIFE = 40;
+/** Drawn as 3x1, but the hit box is two pixels tall so edge-on shots still land. */
+const BULLET_W = 3;
+const BULLET_H = 2;
 const SHOT_COOLDOWN = 8;
 const RELOAD_TICKS = 26;
 
@@ -106,13 +114,21 @@ function moveBody(level: Level, body: Body, dx: number, dy: number): void {
     if (signY) {
       const ny = body.y + move * signY;
       if (blocked(level, body, body.x, ny, signY > 0 ? "down" : "up")) {
-        if (signY > 0) body.onGround = true;
         body.vy = 0;
         break;
       }
       body.y = ny;
     }
   }
+}
+
+/**
+ * Ground contact is probed one pixel below the feet instead of being derived
+ * from a blocked step: gravity moves in fractions of a pixel, so the blocked
+ * step only happens every other tick and `onGround` would flicker.
+ */
+function touchesGround(level: Level, body: Body): boolean {
+  return blocked(level, body, body.x, body.y + 1, "down");
 }
 
 export class Player implements Body {
@@ -133,10 +149,11 @@ export class Player implements Body {
   get cx(): number { return this.x + this.w / 2; }
   get cy(): number { return this.y + this.h / 2; }
 
-  update(dt: number, level: Level, input: Input): void {
+  update(dt: number, level: Level, input: InputState): void {
     this.cooldown = Math.max(0, this.cooldown - 1);
     this.invuln = Math.max(0, this.invuln - 1);
-    if (this.cooldown === 0 && this.ammo === 0) {
+    // Reload only while standing: docs/design.md. Progress freezes in the air.
+    if (this.cooldown === 0 && this.ammo === 0 && this.onGround) {
       this.reload++;
       if (this.reload >= RELOAD_TICKS) { this.ammo = 8; this.reload = 0; }
     }
@@ -162,8 +179,8 @@ export class Player implements Body {
     this.vy = Math.min(MAX_FALL, this.vy + GRAVITY * dt);
 
     moveBody(level, this, this.vx * dt, 0);
-    this.onGround = false;
     moveBody(level, this, 0, this.vy * dt);
+    this.onGround = touchesGround(level, this);
   }
 }
 
@@ -177,6 +194,8 @@ export class Enemy implements Body {
   sprite = 0;
   fly = false;
   speed = 30;
+  /** `walker` turns at ledges, `charger` runs straight off them. */
+  turnsAtLedge = true;
   private phase = Math.random() * Math.PI * 2;
 
   constructor(public type: number, public x: number, public y: number, public vx = 0) {
@@ -203,17 +222,16 @@ export class Enemy implements Body {
     moveBody(level, this, this.vx * dt, 0);
     if (this.x === beforeX && this.vx === 0) this.dir = -this.dir;
 
-    this.onGround = false;
     moveBody(level, this, 0, this.vy * dt);
+    this.onGround = touchesGround(level, this);
 
     // turn at ledges
-    if (this.onGround) {
+    if (this.onGround && this.turnsAtLedge) {
       const probeX = this.dir > 0 ? this.x + this.w + 1 : this.x - 1;
       const tx = Math.floor(probeX / TILE);
       const ty = Math.floor((this.y + this.h + 1) / TILE);
       if (!level.blocks(tx, ty, "down")) this.dir = -this.dir;
     }
-    if (this.y > level.pixelHeight + 32) this.alive = false;
   }
 }
 
@@ -294,6 +312,7 @@ export class Game {
         e.speed = 26;
       } else if (id === 6 || id === 7 || id === 9) {
         e.speed = 40;
+        e.turnsAtLedge = false;
       } else {
         e.speed = 30;
       }
@@ -302,7 +321,7 @@ export class Game {
     this.updateCamera();
   }
 
-  update(dt: number, input: Input): void {
+  update(dt: number, input: InputState): void {
     this.tick++;
     const p = this.player;
     p.update(dt, this.level, input);
@@ -312,7 +331,7 @@ export class Game {
       p.cooldown = SHOT_COOLDOWN;
       const vx = p.facing * BULLET_SPEED;
       const vy = p.aim * BULLET_SPEED * 0.75;
-      this.bullets.push(new Bullet(p.cx + p.facing * 6, p.cy - 4 + p.aim * 6, vx, vy));
+      this.bullets.push(new Bullet(p.cx + p.facing * 6, p.cy + p.aim * 6, vx, vy));
     }
 
     for (const b of this.bullets) {
@@ -324,7 +343,10 @@ export class Game {
       if (this.level.blocks(tx, ty, "left") || this.level.blocks(tx, ty, "right")) b.life = 0;
       for (const e of this.enemies) {
         if (!e.alive) continue;
-        if (b.x > e.x && b.x < e.x + e.w && b.y > e.y && b.y < e.y + e.h) {
+        if (
+          b.x + BULLET_W > e.x && b.x < e.x + e.w &&
+          b.y + BULLET_H > e.y && b.y < e.y + e.h
+        ) {
           e.alive = false;
           b.life = 0;
           this.score += 100;

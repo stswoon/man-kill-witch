@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "esbuild": "^0.28.2",
-    "pixi.js": "^8.23.0",
+    "phaser": "^4.2.1",
     "typescript": "^7.0.2"
   },
   "name": "man-kill-witch",
@@ -11,6 +11,10 @@
     "build": "esbuild web/src/main.ts --bundle --format=esm --outfile=web/bundle.js --target=es2020",
     "watch": "esbuild web/src/main.ts --bundle --format=esm --outfile=web/bundle.js --target=es2020 --watch",
     "dev": "npm run build && node tools/serve.mjs",
+    "test": "tsc -p tsconfig.test.json && node tools/build-tests.mjs && node --test \".temp/tests/*.test.mjs\"",
     "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6"
   }
 }
