@@ -8,7 +8,7 @@ export const TILE_TEXTURE = "tiles";
 export const TITLE_TEXTURE = "title";
 export const BULLET_TEXTURE = "bullet";
 
-export const SPRITE_NAMES = ["hero", "chunk1", "chunk2", "frank", "master"] as const;
+export const SPRITE_NAMES = ["hero", "chunk1", "chunk2"] as const;
 
 export interface LevelData {
   width: number;

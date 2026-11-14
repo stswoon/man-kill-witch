@@ -15,6 +15,20 @@ const ASSETS = resolve(process.cwd(), "web/public/assets");
 const LEVEL_DIR = join(ASSETS, "levels");
 const DIRS: Dir[] = ["up", "down", "left", "right"];
 
+/** Legacy files removed in S02: no code or test loads them. */
+const REMOVED_ASSETS = [
+  "PROGPIC.bin",
+  "STARPIC.bin",
+  "title2.png",
+  join("sprites", "s_frank.png"),
+  join("sprites", "s_frank.json"),
+  join("sprites", "s_master.png"),
+  join("sprites", "s_master.json"),
+  join("sprites", "s_hero.json"),
+  join("sprites", "s_chunk1.json"),
+  join("sprites", "s_chunk2.json"),
+];
+
 const info = JSON.parse(readFileSync(join(ASSETS, "tileinfo.json"), "utf8")) as TileInfoData;
 const levelFiles = readdirSync(LEVEL_DIR)
   .filter((name) => name.endsWith(".json"))
@@ -110,6 +124,12 @@ describe("asset manifest", () => {
 
     for (const file of expected) {
       expect(existsSync(join(ASSETS, file)), `missing asset: ${file}`).toBe(true);
+    }
+  });
+
+  test("does not contain the removed legacy files", () => {
+    for (const file of REMOVED_ASSETS) {
+      expect(existsSync(join(ASSETS, file)), `stale asset must be deleted: ${file}`).toBe(false);
     }
   });
 });
