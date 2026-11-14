@@ -1,0 +1,24 @@
+.gitignore
+  s_be52a67a6ec4ca::t_ce331d1d986743 24-25
+  s_be52a67a6ec4ca::t_197020e95dd197 1-23,26-28
+README.md
+  s_be52a67a6ec4ca::t_80e3f98fc6abc3 1-45
+.gitattributes
+  s_be52a67a6ec4ca::t_b4e6d258f63ebf 1-9
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "788fd408e4e938cae00beb8b303015f63fa06e8a",
+  "prompts": {},
+  "sessions": {
+    "s_be52a67a6ec4ca": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e25bf24baffeIs3M82iGxQI0Ep",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    }
+  }
+}
