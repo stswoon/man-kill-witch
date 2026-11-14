@@ -1,0 +1,44 @@
+README.md
+  s_1d138cd3e820f7::t_902cdcbf7343b1 1,3-4,6-15,21,32-39
+.opencode/agents/music-agent.md
+  s_b8376564621c41::t_5a01ad39ff24b0 3
+package.json
+  s_1d138cd3e820f7::t_e1981e0335819d 7
+.gitignore
+  s_1d138cd3e820f7::t_1c71875e7967d2 1,7,11-16
+.opencode/agents/ui-designer-agent.md
+  s_b8376564621c41::t_895f49c6e2ca7d 3
+docs/design.md
+  s_1d138cd3e820f7::t_bf1ca2e781a4c9 1-85
+LICENSE
+  s_1d138cd3e820f7::t_11f337a30db24e 1-24
+AGENTS.md
+  s_1d138cd3e820f7::t_701394548d7bc4 4,8,15-18,51-52,54-55,64,66-67,73,77-81,102-103,105
+  s_b8376564621c41::t_b47eacd7dcf875 21-22
+web/index.html
+  s_1d138cd3e820f7::t_d4efbea0847aa1 5
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "724252d0ffd2a5a17f584eb4c17d6168978fc130",
+  "prompts": {},
+  "sessions": {
+    "s_1d138cd3e820f7": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e25bce072ffemSpV5i5CsyEVf7",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_b8376564621c41": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e258de919ffeZ0uY3dRl5zrJiQ",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    }
+  }
+}
