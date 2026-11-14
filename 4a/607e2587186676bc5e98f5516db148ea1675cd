@@ -1,0 +1,47 @@
+README.md
+  s_805e596b73e702::t_b8920e7186d598 41-42
+  s_805e596b73e702::t_0a08b0c33ea25a 22-23
+AGENTS.md
+  s_805e596b73e702::t_9a68665b5f3c13 64-65
+  s_805e596b73e702::t_f60b6ce1f2462b 41-43,126
+  s_805e596b73e702::t_c86cb620d25c58 61-63
+  s_805e596b73e702::t_954a83fbd68933 66-67
+  s_f7e281d101a3ad::t_dc2aec7e4f8929 12-13,34-36,52-60
+.gitignore
+  s_805e596b73e702::t_8c97b94395fb98 5
+package.json
+  s_805e596b73e702::t_aa916795d12367 11-12
+tools/serve.mjs
+  s_805e596b73e702::t_57775acdd28b1d 2,7,23
+tools/build.mjs
+  s_805e596b73e702::t_10e2845bca8b9a 1-38
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "4a607e2587186676bc5e98f5516db148ea1675cd",
+  "prompts": {},
+  "humans": {
+    "h_06e01297fc405a": {
+      "author": "stswoon <xx@xx.xx>"
+    }
+  },
+  "sessions": {
+    "s_805e596b73e702": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e2545b592ffeVRwyfTI9XJ2WAo",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_f7e281d101a3ad": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e25b90a2cffeB1AXtJgVs2UYZj",
+        "model": "unknown"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    }
+  }
+}
