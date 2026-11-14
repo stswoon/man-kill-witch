@@ -1,0 +1,47 @@
+.opencode/agents/ui-designer-agent.md
+  s_b8376564621c41::t_1b6544805ba3ec 1,3-38
+  s_b8376564621c41::t_fa71b6fe33b347 2
+tools/serve.mjs
+  s_7e8217eba55bae::t_ef89e43bcb6b7f 37-61
+  s_7e8217eba55bae::t_eadb93d94094c2 18
+  s_7e8217eba55bae::t_ef5c5e62d18b85 8-9
+.opencode/agents/music-agent.md
+  s_b8376564621c41::t_b7b3911e169fc7 1-40
+AGENTS.md
+  s_e7445db379c42e::t_691bbb825d5331 1-16,26-29,31-127,130-147
+  s_7e8217eba55bae::t_07eeb1906336a0 30
+  s_b8376564621c41::t_a5d6e0b1d9d21b 17-25
+  s_e7445db379c42e::t_54cdfe9f9902ba 128-129
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "85a5465fc7db9e5bf6b48c776ab27b89746394a5",
+  "prompts": {},
+  "sessions": {
+    "s_7e8217eba55bae": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e25851070ffeVtjeNvehkDYLmt",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_b8376564621c41": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e258de919ffeZ0uY3dRl5zrJiQ",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_e7445db379c42e": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e2593a885ffe46Dmy7LMNogrZ6",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    }
+  }
+}
