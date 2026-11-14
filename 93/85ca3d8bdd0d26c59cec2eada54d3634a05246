@@ -1,0 +1,68 @@
+docs/plan/S02-remove-unused-assets.md
+  s_6d10b5741483ee::t_d85926e7f1510a 3
+docs/plan/artifacts/review-notes-S02.md
+  s_cd5bed88b5ea7e::t_6a04e0453f4b32 1-62
+tests/content.test.ts
+  s_e57587da8c985a::t_8ca1bc2bfc4267 129-134
+  s_e57587da8c985a::t_ea771fc961e6ad 18-31
+docs/plan/artifacts/decisions-S02.md
+  s_6d10b5741483ee::t_91bce1cc650a00 1-10
+docs/plan/README.md
+  s_6d10b5741483ee::t_d0850fa2c075b5 4-5,14
+  s_6d10b5741483ee::t_ab79869b78e55a 11
+  s_6d10b5741483ee::t_3c9c85ea9908c5 12
+  s_6d10b5741483ee::t_f3ab6773cae832 13
+web/src/assets.ts
+  s_e57587da8c985a::t_8ffe9a98a8e5ff 11
+docs/plan/artifacts/bug-report-S02.md
+  s_7dc9e69d9943e8::t_381a98a526e515 1-14,16-17,19,24-25,27-39,41-65
+  s_7dc9e69d9943e8::t_92a016dbb8b774 20
+  s_7dc9e69d9943e8::t_6cb26186081899 21
+  s_7dc9e69d9943e8::t_f0c2f2a0ef465c 22
+  s_7dc9e69d9943e8::t_39d3433fb14162 18
+  s_7dc9e69d9943e8::t_acda653a64fd16 26
+  s_7dc9e69d9943e8::t_13861d9d2f27b0 15
+  s_7dc9e69d9943e8::t_5d10603833fcca 40
+  s_7dc9e69d9943e8::t_18b33956f5125e 66-73
+  s_7dc9e69d9943e8::t_d32e349c8832ac 23
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "9385ca3d8bdd0d26c59cec2eada54d3634a05246",
+  "prompts": {},
+  "sessions": {
+    "s_6d10b5741483ee": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e249e0225ffeQwrASalLP6z4ZW",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_7dc9e69d9943e8": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e24947e30ffe2JmqWL1QNnkErL",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_cd5bed88b5ea7e": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e248bdb0bffeiUwtGNnIxvQBu1",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_e57587da8c985a": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e249b704affd1yyspBl9JWvZte",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    }
+  }
+}
