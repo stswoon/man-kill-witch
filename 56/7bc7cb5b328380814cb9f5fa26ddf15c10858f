@@ -1,0 +1,122 @@
+web/src/scenes/boot-scene.ts
+  s_170f07c65cc0ab::t_b33b3ed4fbe8cc 1-53
+web/src/phaser-view.ts
+  s_170f07c65cc0ab::t_e28e3eb17ce7f6 1-272
+tools/build-tests.mjs
+  s_b057b68d60235a::t_557c6f138bae39 1-31
+package.json
+  s_b057b68d60235a::t_3f55037864721a 16-18
+  s_b057b68d60235a::t_43fd1512c69113 14
+  s_170f07c65cc0ab::t_ab452e2fe5fcc9 4
+tests/level.test.ts
+  s_b057b68d60235a::t_c79390362dc6df 1-93
+web/src/scenes/game-scene.ts
+  s_170f07c65cc0ab::t_20beb3da4a5be5 1-141
+README.md
+  s_170f07c65cc0ab::t_495941e93713d6 13-14
+  s_170f07c65cc0ab::t_d9163db270f704 6
+  s_170f07c65cc0ab::t_345a23dfc9b004 33-34,36-37,39
+AGENTS.md
+  s_170f07c65cc0ab::t_a552d57a2a3fdd 61
+  s_170f07c65cc0ab::t_a070e79745cc49 52-57
+  s_b057b68d60235a::t_12d3135f11bc71 36,43-46
+  s_b057b68d60235a::t_cf2c128e1b3ec4 62-63
+  s_170f07c65cc0ab::t_b57dfbfa970466 117
+  s_170f07c65cc0ab::t_8190191fd30fce 8,11,13
+  s_170f07c65cc0ab::t_ed7c46706c1ddd 110,113
+  s_170f07c65cc0ab::t_005550e521edfc 68-71,73-75
+  s_170f07c65cc0ab::t_9a68bd0d1b6dac 86-87
+  s_b057b68d60235a::t_791c11cf1969cc 120-122
+  s_b057b68d60235a::t_f18aeb13637629 47
+  s_170f07c65cc0ab::t_31367f5e8cecdf 108-109
+  s_b057b68d60235a::t_43ad0484000e34 99,101-104,106
+web/src/main.ts
+  s_170f07c65cc0ab::t_e102a0ffae2858 1-13,15-33,35-47,50-51
+.opencode/agents/ui-designer-agent.md
+  s_170f07c65cc0ab::t_086345110e2d3b 16,18-19
+  s_170f07c65cc0ab::t_b20f0667ade017 24
+  s_170f07c65cc0ab::t_da6dae8716202f 17
+docs/design.md
+  s_170f07c65cc0ab::t_77435181778d47 11
+tests/enemy.test.ts
+  s_b057b68d60235a::t_4a4dd06e81f212 84-85,94-95,97
+  s_b057b68d60235a::t_36a893383acac9 127-128,134-135
+  s_b057b68d60235a::t_77c0445da7b08c 32,35
+  s_b057b68d60235a::t_6b3f47fdf8358b 1-4,6-31,33-34,36-52,54,64-83,86-93,96,98-99,101-126,129-133,136-173
+  s_b057b68d60235a::t_debcbb621fcfd1 53,55-63,100
+  s_b057b68d60235a::t_f235a2ccf13a17 5
+tests/game.test.ts
+  s_b057b68d60235a::t_547a388d7b1f77 1-70,89-337
+  s_b057b68d60235a::t_edc7249a13c18d 71-88
+web/public/assets/levels/06.json
+  s_b057b68d60235a::t_c00d9428d37f4b 1
+tests/helpers.ts
+  s_b057b68d60235a::t_2557880f01c40a 1-131
+web/index.html
+  s_170f07c65cc0ab::t_aeda959cf97114 5
+web/public/assets/levels/02.json
+  s_b057b68d60235a::t_cb2749271e760e 1
+tsconfig.test.json
+  s_b057b68d60235a::t_e9bff101b585a0 1-7
+web/src/assets.ts
+  s_170f07c65cc0ab::t_3c62a0951dca75 7-11,35-37
+  s_170f07c65cc0ab::t_039daa2a1d4187 6
+tests/smoke.test.ts
+  s_b057b68d60235a::t_0f765a1ec34566 1-39
+web/src/game.ts
+  s_b057b68d60235a::t_bf9887c49e560a 197-198
+  s_b057b68d60235a::t_e79ae5328c9b04 152,155-156
+  s_b057b68d60235a::t_a1758f6cd2e1c4 19-21,334
+  s_b057b68d60235a::t_091dd14071f08a 125-131
+  s_b057b68d60235a::t_0106f7c60305af 183
+  s_b057b68d60235a::t_306be705dfdeb9 226
+  s_b057b68d60235a::t_4bbe2b7de71ccd 229
+  s_b057b68d60235a::t_e787566180a338 315
+  s_b057b68d60235a::t_1575985d41b115 324
+  s_b057b68d60235a::t_5712902794c6e1 2-7,132
+  s_b057b68d60235a::t_f595864c831f44 346-349
+  s_b057b68d60235a::t_feb8651d713537 133
+.opencode/agents/music-agent.md
+  s_170f07c65cc0ab::t_f8f3f294a5ff37 15
+  s_170f07c65cc0ab::t_fe782418edb6bd 24,26,30
+web/public/assets/levels/08.json
+  s_b057b68d60235a::t_c00d9428d37f4b 1
+tests/content.test.ts
+  s_b057b68d60235a::t_b72115c266da0c 1-7,9-36,38-63,66-115
+  s_b057b68d60235a::t_3666eb8a57ae2d 8,64-65
+  s_b057b68d60235a::t_a4bcc56d4d03bd 37
+tests/architecture.test.ts
+  s_b057b68d60235a::t_7cbf899b397bb5 1-20
+tests/player.test.ts
+  s_b057b68d60235a::t_79569231cbd1e6 153
+  s_b057b68d60235a::t_0d76cddc6db1a8 35
+  s_b057b68d60235a::t_657db6cea2c5aa 1-34,36-76,78-152,154-195,198,201-220
+  s_b057b68d60235a::t_6ac8d2b485fa6f 196-197,199-200
+  s_b057b68d60235a::t_ade01641c181f4 77
+package-lock.json
+  s_b057b68d60235a::t_eb7d6908347eaa 2,7,10,12-14,433-441,810-813,816,852-858
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "567bc7cb5b328380814cb9f5fa26ddf15c10858f",
+  "prompts": {},
+  "sessions": {
+    "s_170f07c65cc0ab": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e2575254bffeshIDf5QE3UHPcN",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_b057b68d60235a": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e257516b0ffeMR8V1QBJ4AlWnA",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    }
+  }
+}
