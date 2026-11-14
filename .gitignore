@@ -1,0 +1,16 @@
+# dependencies
+node_modules/
+
+# build output
+web/bundle.js
+
+# scratch space
+.temp/
+work/
+
+# OS / editor
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+desktop.ini

@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <title>Man Kill Witch</title>
+  <style>
+    html, body { margin: 0; height: 100%; background: #000; overflow: hidden; }
+    canvas#screen { image-rendering: pixelated; display: block; }
+    #hint {
+      position: absolute; left: 8px; bottom: 6px; z-index: 5;
+      color: #555; font: 11px monospace; user-select: none; pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="hint">←/→ ходьба · ↑/↓ прицел · Space прыжок · Ctrl выстрел · 1–8 уровень</div>
+  <script type="module" src="./bundle.js"></script>
+</body>
+</html>

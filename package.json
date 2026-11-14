@@ -1,0 +1,16 @@
+{
+  "dependencies": {
+    "esbuild": "^0.28.2",
+    "pixi.js": "^8.23.0",
+    "typescript": "^7.0.2"
+  },
+  "name": "man-kill-witch",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "esbuild web/src/main.ts --bundle --format=esm --outfile=web/bundle.js --target=es2020",
+    "watch": "esbuild web/src/main.ts --bundle --format=esm --outfile=web/bundle.js --target=es2020 --watch",
+    "dev": "npm run build && node tools/serve.mjs",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  }
+}
