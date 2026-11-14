@@ -16,6 +16,7 @@ interface DebugApi {
   startLevel: (index: number) => void;
   renderer: PhaserView;
   step: (dt: number) => void;
+  tick: (count: number, dt?: number) => void;
   getState: () => State;
 }
 
@@ -57,6 +58,7 @@ export class GameScene extends Phaser.Scene {
       startLevel: (index: number) => this.startLevel(index),
       renderer: this.view,
       step: (dt: number) => this.step(dt),
+      tick: (count: number, dt?: number) => this.tick(count, dt ?? DT),
       getState: () => this.state,
     };
   }
@@ -86,6 +88,21 @@ export class GameScene extends Phaser.Scene {
     this.state = next;
     this.stateTimer = 0;
     this.view.showMessage(title, subtitle);
+  }
+
+  /**
+   * Test-only hook for `e2e/physics.spec.ts`: advances the simulation exactly
+   * `count` fixed steps and clears one-shot presses after every step, so a
+   * single key press cannot stick to the whole batch. It does not render and
+   * leaves the normal frame loop untouched, which still calls `endFrame` and
+   * `view.render` once per rendered frame.
+   */
+  private tick(count: number, dt: number): void {
+    const steps = Math.max(0, Math.floor(count));
+    for (let i = 0; i < steps; i++) {
+      this.step(dt);
+      this.controls.endFrame();
+    }
   }
 
   private step(dt: number): void {
