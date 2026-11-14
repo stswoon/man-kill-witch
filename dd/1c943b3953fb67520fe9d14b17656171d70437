@@ -1,0 +1,14 @@
+docs/future.md
+  h_06e01297fc405a 1-22
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "dd1c943b3953fb67520fe9d14b17656171d70437",
+  "prompts": {},
+  "humans": {
+    "h_06e01297fc405a": {
+      "author": "stswoon <xx@xx.xx>"
+    }
+  }
+}
