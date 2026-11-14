@@ -1,0 +1,14 @@
+.gitignore
+  h_06e01297fc405a 1,7,10,16
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "7bf529419ee5d0557fc76f014ad6c06effbeb582",
+  "prompts": {},
+  "humans": {
+    "h_06e01297fc405a": {
+      "author": "stswoon <xx@xx.xx>"
+    }
+  }
+}
