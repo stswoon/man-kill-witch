@@ -3,8 +3,7 @@
 Ретро-платформер: охотник с дробовиком пробивается через проклятый лес, болото,
 избушку и склеп ведьмы, чтобы вернуть брата.
 
-Phaser 4 + TypeScript, внутреннее разрешение **320×200**, целочисленный апскейл,
-фиксированный шаг логики **1/70 с**.
+Phaser 4 + TypeScript, фиксированный шаг логики **1/70 с**.
 
 ## Статус
 
@@ -21,8 +20,13 @@ Phaser 4 + TypeScript, внутреннее разрешение **320×200**, �
 npm install
 npm run dev        # сборка в build/ + сервер на http://localhost:5173
 npm run build      # только сборка в build/
+npm test           # vitest: юнит-тесты логики и данных
+npm run test:e2e   # playwright: браузерные сценарии
 npm run typecheck  # tsc --noEmit
 ```
+
+Перед первым запуском браузерных тестов: `npx playwright install chromium`.
+Playwright сам собирает `build/` и поднимает статический сервер на 4173.
 
 Управление: ←/→ ходьба, ↑/↓ прицел, Space прыжок, Ctrl выстрел, 1–8 — переключение уровня.
 
@@ -36,8 +40,10 @@ npm run typecheck  # tsc --noEmit
 | `web/src/phaser-view.ts` | отрисовка: tilemap, спрайты, камера, HUD, сообщения |
 | `web/src/assets.ts` | константы, типы и имена текстур |
 | `web/src/input.ts`, `sfx.ts` | клавиатура, синтезированные звуки |
-| `web/src/main.ts` | boot Phaser, конфиг рендера, целочисленный апскейл |
+| `web/src/main.ts` | boot Phaser, конфиг рендера |
 | `web/public/assets/` | временные ассеты: тайлсет, уровни, атласы спрайтов |
 | `build/` | собранная игра: `bundle.js`, `index.html`, `assets/` (не коммитится) |
 | `tools/serve.mjs`, `tools/build.mjs` | статический сервер и сборка в `build/` |
+| `tests/` | юнит-тесты vitest: физика, враги, правила, данные уровней |
+| `e2e/` | браузерные тесты Playwright: boot, управление, уровни, канвас |
 | `docs/design.md` | дизайн: правила, ощущение, враги, уровни |

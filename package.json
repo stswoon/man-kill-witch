@@ -11,10 +11,14 @@
     "build": "node tools/build.mjs",
     "watch": "node tools/build.mjs --watch",
     "dev": "npm run build && node tools/serve.mjs",
-    "test": "tsc -p tsconfig.test.json && node tools/build-tests.mjs && node --test \".temp/tests/*.test.mjs\"",
-    "typecheck": "tsc --noEmit -p tsconfig.json"
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.test.json"
   },
   "devDependencies": {
-    "@types/node": "^26.6.6"
+    "@playwright/test": "^1.65.1",
+    "@types/node": "^26.6.6",
+    "vitest": "^5.1.0"
   }
 }

@@ -1,5 +1,4 @@
-import assert from "node:assert/strict";
-import { describe, test } from "node:test";
+import { describe, expect, test } from "vitest";
 import { TILE } from "../web/src/assets";
 import { Bullet, Game, type Level } from "../web/src/game";
 import {
@@ -46,13 +45,13 @@ describe("Game.spawn", () => {
   test("places the player on the spawn marker with short invulnerability", () => {
     const game = new Game(makeArena());
 
-    assert.equal(game.player.x, SPAWN_X);
-    assert.equal(game.player.y, SPAWN_Y);
-    assert.equal(game.player.vx, 0);
-    assert.equal(game.player.vy, 0);
-    assert.equal(game.player.invuln, 30);
-    assert.equal(game.lives, 3);
-    assert.equal(game.score, 0);
+    expect(game.player.x).toBe(SPAWN_X);
+    expect(game.player.y).toBe(SPAWN_Y);
+    expect(game.player.vx).toBe(0);
+    expect(game.player.vy).toBe(0);
+    expect(game.player.invuln).toBe(30);
+    expect(game.lives).toBe(3);
+    expect(game.score).toBe(0);
   });
 });
 
@@ -64,11 +63,11 @@ describe("Shooting", () => {
     input.press("ControlLeft");
     tick(game, input, 1);
 
-    assert.equal(game.player.ammo, 7);
-    assert.equal(game.bullets.length, 1);
-    assert.equal(game.bullets[0].vx, 380);
-    assert.equal(game.bullets[0].vy, 0);
-    assert.equal(game.bullets[0].y, game.player.cy, "the shot leaves at gun height");
+    expect(game.player.ammo).toBe(7);
+    expect(game.bullets).toHaveLength(1);
+    expect(game.bullets[0].vx).toBe(380);
+    expect(game.bullets[0].vy).toBe(0);
+    expect(game.bullets[0].y, "the shot leaves at gun height").toBe(game.player.cy);
   });
 
   test("hits an enemy standing on the same floor", () => {
@@ -84,8 +83,8 @@ describe("Shooting", () => {
     input.press("ControlLeft");
     tick(game, input, 20);
 
-    assert.equal(game.enemies[0].alive, false);
-    assert.equal(game.score, 100);
+    expect(game.enemies[0].alive).toBe(false);
+    expect(game.score).toBe(100);
   });
 
   test("respects the shot cooldown", () => {
@@ -94,18 +93,18 @@ describe("Shooting", () => {
 
     input.press("ControlLeft");
     tick(game, input, 1);
-    assert.equal(game.player.ammo, 7);
+    expect(game.player.ammo).toBe(7);
 
     input.press("ControlLeft");
     tick(game, input, 1);
-    assert.equal(game.player.ammo, 7, "second shot must be blocked by the cooldown");
-    assert.equal(game.bullets.length, 1);
+    expect(game.player.ammo, "second shot must be blocked by the cooldown").toBe(7);
+    expect(game.bullets).toHaveLength(1);
 
     tick(game, input, 8);
     input.press("ControlLeft");
     tick(game, input, 1);
-    assert.equal(game.player.ammo, 6);
-    assert.equal(game.bullets.length, 2);
+    expect(game.player.ammo).toBe(6);
+    expect(game.bullets).toHaveLength(2);
   });
 
   test("aims diagonally with the vertical keys", () => {
@@ -116,7 +115,7 @@ describe("Shooting", () => {
     input.press("ControlLeft");
     tick(game, input, 1);
 
-    assert.equal(game.bullets[0].vy, -285);
+    expect(game.bullets[0].vy).toBe(-285);
   });
 
   test("does not fire without ammo", () => {
@@ -128,7 +127,7 @@ describe("Shooting", () => {
     input.press("ControlLeft");
     tick(game, input, 1);
 
-    assert.equal(game.bullets.length, 0);
+    expect(game.bullets).toHaveLength(0);
   });
 });
 
@@ -147,9 +146,9 @@ describe("Bullets", () => {
 
     tick(game, input, 1);
 
-    assert.equal(enemy.alive, false);
-    assert.equal(game.score, 100);
-    assert.equal(game.bullets.length, 0);
+    expect(enemy.alive).toBe(false);
+    expect(game.score).toBe(100);
+    expect(game.bullets).toHaveLength(0);
   });
 
   test("die on a wall", () => {
@@ -164,8 +163,8 @@ describe("Bullets", () => {
 
     tick(game, input, 20);
 
-    assert.equal(game.bullets.length, 0);
-    assert.equal(game.score, 0);
+    expect(game.bullets).toHaveLength(0);
+    expect(game.score).toBe(0);
   });
 });
 
@@ -178,10 +177,10 @@ describe("Damage", () => {
 
     tick(game, input, 1);
 
-    assert.equal(game.lives, 2);
-    assert.equal(game.player.invuln, 60);
-    assert.equal(game.player.x, SPAWN_X);
-    assert.equal(game.player.y, SPAWN_Y);
+    expect(game.lives).toBe(2);
+    expect(game.player.invuln).toBe(60);
+    expect(game.player.x).toBe(SPAWN_X);
+    expect(game.player.y).toBe(SPAWN_Y);
   });
 
   test("does not stack while invulnerable", () => {
@@ -190,12 +189,12 @@ describe("Damage", () => {
     tick(game, input, 30);
     touchEnemy(game);
     tick(game, input, 1);
-    assert.equal(game.lives, 2);
+    expect(game.lives).toBe(2);
 
     touchEnemy(game);
     tick(game, input, 10);
 
-    assert.equal(game.lives, 2);
+    expect(game.lives).toBe(2);
   });
 
   test("ends the game when the last life is gone", () => {
@@ -207,8 +206,8 @@ describe("Damage", () => {
 
     tick(game, input, 1);
 
-    assert.equal(game.lives, 0);
-    assert.equal(game.gameOver, true);
+    expect(game.lives).toBe(0);
+    expect(game.gameOver).toBe(true);
   });
 });
 
@@ -226,9 +225,9 @@ describe("Pickups", () => {
 
       tick(game, input, 1);
 
-      assert.equal(game.score, score);
-      assert.equal(game.level.tileAt(2, 11), 0);
-      assert.deepEqual(game.tilePatches, [{ x: 2, y: 11, index: 0 }]);
+      expect(game.score).toBe(score);
+      expect(game.level.tileAt(2, 11)).toBe(0);
+      expect(game.tilePatches).toEqual([{ x: 2, y: 11, index: 0 }]);
     }
   });
 
@@ -236,11 +235,11 @@ describe("Pickups", () => {
     const game = new Game(makeArena({ tiles: [[2, 11, AMMO]] }));
     game.player.ammo = 7;
     tick(game, fakeInput(), 1);
-    assert.equal(game.player.ammo, 8);
+    expect(game.player.ammo).toBe(8);
 
     const full = new Game(makeArena({ tiles: [[2, 11, AMMO]] }));
     tick(full, fakeInput(), 1);
-    assert.equal(full.player.ammo, 8);
+    expect(full.player.ammo).toBe(8);
   });
 });
 
@@ -250,21 +249,21 @@ describe("Exit door", () => {
     const input = fakeInput();
 
     tick(game, input, 1);
-    assert.equal(game.levelComplete, false);
-    assert.equal(game.tilePatches.length, 0);
+    expect(game.levelComplete).toBe(false);
+    expect(game.tilePatches).toHaveLength(0);
 
     tick(game, input, 5);
-    assert.equal(game.tilePatches.length, 6);
-    assert.equal(game.levelComplete, false);
+    expect(game.tilePatches).toHaveLength(6);
+    expect(game.levelComplete).toBe(false);
 
     tick(game, input, 5);
-    assert.equal(game.tilePatches.length, 12);
+    expect(game.tilePatches).toHaveLength(12);
 
     tick(game, input, 5);
-    assert.equal(game.tilePatches.length, 12);
-    assert.equal(game.levelComplete, true);
-    assert.equal(game.score, 1000);
-    assert.deepEqual(game.tilePatches[0], { x: 1, y: 10, index: 78 });
+    expect(game.tilePatches).toHaveLength(12);
+    expect(game.levelComplete).toBe(true);
+    expect(game.score).toBe(1000);
+    expect(game.tilePatches[0]).toEqual({ x: 1, y: 10, index: 78 });
   });
 });
 
@@ -275,8 +274,8 @@ describe("Score", () => {
 
     tick(game, fakeInput(), 1);
 
-    assert.equal(game.score, 5000);
-    assert.equal(game.lives, 4);
+    expect(game.score).toBe(5000);
+    expect(game.lives).toBe(4);
   });
 });
 
@@ -287,15 +286,15 @@ describe("Level bounds", () => {
 
     game.player.x = -50;
     tick(game, input, 1);
-    assert.equal(game.player.x, 0);
+    expect(game.player.x).toBe(0);
 
     game.player.x = game.level.pixelWidth + 50;
     tick(game, input, 1);
-    assert.equal(game.player.x, game.level.pixelWidth - game.player.w);
+    expect(game.player.x).toBe(game.level.pixelWidth - game.player.w);
 
     game.player.y = game.level.pixelHeight + 10;
     tick(game, input, 1);
-    assert.equal(game.player.y, 2 * TILE);
+    expect(game.player.y).toBe(2 * TILE);
   });
 
   test("clamps the camera to the level bounds", () => {
@@ -303,12 +302,12 @@ describe("Level bounds", () => {
     const input = fakeInput();
 
     tick(game, input, 1);
-    assert.equal(game.cameraX, 0);
-    assert.equal(game.cameraY, game.level.pixelHeight - 200);
+    expect(game.cameraX).toBe(0);
+    expect(game.cameraY).toBe(game.level.pixelHeight - 200);
 
     game.player.x = game.level.pixelWidth - 20;
     tick(game, input, 1);
-    assert.equal(game.cameraX, game.level.pixelWidth - 320);
+    expect(game.cameraX).toBe(game.level.pixelWidth - 320);
   });
 
   test("keeps the camera fixed on a level smaller than the screen", () => {
@@ -319,8 +318,8 @@ describe("Level bounds", () => {
     game.player.x = 5 * TILE;
     tick(game, input, 1);
 
-    assert.equal(game.cameraX, 0);
-    assert.equal(game.cameraY, 0);
+    expect(game.cameraX).toBe(0);
+    expect(game.cameraY).toBe(0);
   });
 });
 
@@ -332,6 +331,6 @@ describe("Tile patches", () => {
 
     tick(game, input, 1);
 
-    assert.ok(game.tilePatches.some((patch) => patch.x === tx && patch.y === ty && patch.index === 0));
+    expect(game.tilePatches).toContainEqual({ x: tx, y: ty, index: 0 });
   });
 });

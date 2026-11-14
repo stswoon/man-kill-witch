@@ -20,7 +20,6 @@ const game = new Phaser.Game({
   width: SCREEN_W,
   height: SCREEN_H,
   backgroundColor: 0x000000,
-  pixelArt: true,
   banner: false,
   audio: { noAudio: true },
   scale: {
@@ -33,12 +32,11 @@ const game = new Phaser.Game({
 });
 
 game.canvas.id = "screen";
-game.canvas.style.imageRendering = "pixelated";
 
 function resize(): void {
-  const scale = Math.max(1, Math.min(
-    Math.floor(window.innerWidth / SCREEN_W),
-    Math.floor(window.innerHeight / SCREEN_H),
+  const scale = Math.max(0.1, Math.min(
+    window.innerWidth / SCREEN_W,
+    window.innerHeight / SCREEN_H,
   ));
   game.canvas.style.width = `${SCREEN_W * scale}px`;
   game.canvas.style.height = `${SCREEN_H * scale}px`;

@@ -8,6 +8,11 @@ build/
 .temp/
 work/
 
+# test artifacts
+test-results/
+playwright-report/
+blob-report/
+
 # OS / editor
 .idea/
 .vscode/

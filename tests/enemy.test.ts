@@ -1,5 +1,4 @@
-import assert from "node:assert/strict";
-import { describe, test } from "node:test";
+import { describe, expect, test, vi } from "vitest";
 import { TILE } from "../web/src/assets";
 import { Enemy, Game } from "../web/src/game";
 import { DT, SPAWN, SOLID, makeArena, makeLevel } from "./helpers";
@@ -51,16 +50,16 @@ describe("Enemy spawn mapping", () => {
     const game = new Game(level);
 
     const byType = new Map(game.enemies.map((enemy) => [enemy.type, enemy]));
-    assert.equal(game.enemies.length, 3);
-    assert.equal(byType.get(1)?.sprite, 2);
-    assert.equal(byType.get(6)?.sprite, 5);
-    assert.equal(byType.get(14)?.sprite, 9);
-    assert.equal(byType.get(1)?.speed, 26);
-    assert.equal(byType.get(6)?.speed, 40);
-    assert.equal(byType.get(14)?.speed, 34);
-    assert.equal(byType.get(1)?.fly, false);
-    assert.equal(byType.get(6)?.fly, false);
-    assert.equal(byType.get(14)?.fly, true);
+    expect(game.enemies).toHaveLength(3);
+    expect(byType.get(1)?.sprite).toBe(2);
+    expect(byType.get(6)?.sprite).toBe(5);
+    expect(byType.get(14)?.sprite).toBe(9);
+    expect(byType.get(1)?.speed).toBe(26);
+    expect(byType.get(6)?.speed).toBe(40);
+    expect(byType.get(14)?.speed).toBe(34);
+    expect(byType.get(1)?.fly).toBe(false);
+    expect(byType.get(6)?.fly).toBe(false);
+    expect(byType.get(14)?.fly).toBe(true);
   });
 
   test("marks chargers as non-turning at ledges", () => {
@@ -74,8 +73,8 @@ describe("Enemy spawn mapping", () => {
 
     const game = new Game(level);
 
-    assert.equal(game.enemies[0].turnsAtLedge, true);
-    assert.equal(game.enemies[1].turnsAtLedge, false);
+    expect(game.enemies[0].turnsAtLedge).toBe(true);
+    expect(game.enemies[1].turnsAtLedge).toBe(false);
   });
 });
 
@@ -86,8 +85,8 @@ describe("Enemy terrain", () => {
 
     run(enemy, level, 200);
 
-    assert.equal(enemy.dir, -1);
-    assert.ok(enemy.x + enemy.w <= 8 * TILE + 1);
+    expect(enemy.dir).toBe(-1);
+    expect(enemy.x + enemy.w).toBeLessThanOrEqual(8 * TILE + 1);
   });
 
   test("walker turns around at a ledge", () => {
@@ -96,8 +95,8 @@ describe("Enemy terrain", () => {
 
     run(enemy, level, 40);
 
-    assert.equal(enemy.dir, -1);
-    assert.ok(Math.abs(enemy.y - (FLOOR_TOP - 12)) <= 1, "walker must stay on the platform");
+    expect(enemy.dir).toBe(-1);
+    expect(Math.abs(enemy.y - (FLOOR_TOP - 12)), "walker must stay on the platform").toBeLessThanOrEqual(1);
   });
 
   test("charger runs straight off a ledge", () => {
@@ -108,9 +107,9 @@ describe("Enemy terrain", () => {
 
     run(enemy, level, 60);
 
-    assert.equal(enemy.dir, 1);
-    assert.ok(enemy.y > FLOOR_TOP - 12, "charger must leave the platform");
-    assert.equal(enemy.alive, true);
+    expect(enemy.dir).toBe(1);
+    expect(enemy.y, "charger must leave the platform").toBeGreaterThan(FLOOR_TOP - 12);
+    expect(enemy.alive).toBe(true);
   });
 
   test("charger still turns around at a wall", () => {
@@ -121,7 +120,7 @@ describe("Enemy terrain", () => {
 
     run(enemy, level, 120);
 
-    assert.equal(enemy.dir, -1);
+    expect(enemy.dir).toBe(-1);
   });
 
   test("ground enemy rests on the bottom edge of the map", () => {
@@ -131,14 +130,14 @@ describe("Enemy terrain", () => {
 
     run(enemy, level, 300);
 
-    assert.equal(enemy.alive, true);
-    assert.ok(enemy.y + enemy.h <= level.pixelHeight + 1);
+    expect(enemy.alive).toBe(true);
+    expect(enemy.y + enemy.h).toBeLessThanOrEqual(level.pixelHeight + 1);
   });
 });
 
 describe("Enemy flying", () => {
-  test("flyer reverses at a wall", (t) => {
-    t.mock.method(Math, "random", () => 0);
+  test("flyer reverses at a wall", () => {
+    vi.spyOn(Math, "random").mockReturnValue(0);
     const level = makeLevel({ width: 20, height: 15, tiles: [[8, 6, SOLID]] });
     const enemy = new Enemy(14, 6 * TILE, 5 * TILE);
     enemy.fly = true;
@@ -146,28 +145,28 @@ describe("Enemy flying", () => {
 
     run(enemy, level, 200);
 
-    assert.equal(enemy.dir, -1);
+    expect(enemy.dir).toBe(-1);
   });
 
-  test("flyer dies above the top of the map", (t) => {
-    t.mock.method(Math, "random", () => 0);
+  test("flyer dies above the top of the map", () => {
+    vi.spyOn(Math, "random").mockReturnValue(0);
     const level = makeLevel({ width: 20, height: 15 });
     const enemy = new Enemy(14, 4 * TILE, 0);
     enemy.fly = true;
 
     run(enemy, level, 1);
 
-    assert.equal(enemy.alive, false);
+    expect(enemy.alive).toBe(false);
   });
 
-  test("flyer dies below the bottom of the map", (t) => {
-    t.mock.method(Math, "random", () => 0);
+  test("flyer dies below the bottom of the map", () => {
+    vi.spyOn(Math, "random").mockReturnValue(0);
     const level = makeLevel({ width: 20, height: 15 });
     const enemy = new Enemy(14, 4 * TILE, level.pixelHeight - 10);
     enemy.fly = true;
 
     run(enemy, level, 1);
 
-    assert.equal(enemy.alive, false);
+    expect(enemy.alive).toBe(false);
   });
 });

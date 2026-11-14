@@ -6,6 +6,9 @@ import { extname, join, normalize } from "node:path";
 
 const ROOT = process.argv[2] ?? "build";
 const START_PORT = Number(process.argv[3] ?? 5173);
+// Playwright pins the URL, so it asks the server to fail on a busy port
+// instead of silently moving to the next one.
+const STRICT_PORT = process.argv.includes("--strict");
 const MAX_PORT_TRIES = 20;
 const MIME = {
   ".html": "text/html; charset=utf-8",
@@ -34,7 +37,7 @@ const server = createServer(async (req, res) => {
 function listen(port, triesLeft) {
   const onError = (err) => {
     server.off("listening", onListening);
-    if (err.code === "EADDRINUSE" && triesLeft > 0 && port < 65535) {
+    if (!STRICT_PORT && err.code === "EADDRINUSE" && triesLeft > 0 && port < 65535) {
       console.warn(`port ${port} is busy, trying ${port + 1}`);
       listen(port + 1, triesLeft - 1);
       return;

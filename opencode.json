@@ -1,0 +1,6 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugins": [
+    "file:///D:/mycode/sts-team-opencode-plugin"
+  ]
+}

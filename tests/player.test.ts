@@ -1,5 +1,4 @@
-import assert from "node:assert/strict";
-import { describe, test } from "node:test";
+import { describe, expect, test } from "vitest";
 import { TILE } from "../web/src/assets";
 import { Player, type Level } from "../web/src/game";
 import { DT, SOLID, fakeInput, makeLevel, placeOnFloor, type FakeInput } from "./helpers";
@@ -31,10 +30,10 @@ describe("Player movement", () => {
 
     step(player, level, input, 60);
 
-    assert.equal(player.onGround, true);
-    assert.ok(player.y + player.h <= FLOOR_TOP + 1, "feet must not sink into the floor");
-    assert.ok(player.y + player.h >= FLOOR_TOP - 1, "feet must come to rest on the floor");
-    assert.equal(player.vy, 0);
+    expect(player.onGround).toBe(true);
+    expect(player.y + player.h, "feet must not sink into the floor").toBeLessThanOrEqual(FLOOR_TOP + 1);
+    expect(player.y + player.h, "feet must come to rest on the floor").toBeGreaterThanOrEqual(FLOOR_TOP - 1);
+    expect(player.vy).toBe(0);
   });
 
   test("accelerates up to the run speed", () => {
@@ -44,9 +43,9 @@ describe("Player movement", () => {
 
     step(player, level, input, 10);
 
-    assert.equal(player.vx, 132);
-    assert.equal(player.facing, 1);
-    assert.ok(player.x > startX);
+    expect(player.vx).toBe(132);
+    expect(player.facing).toBe(1);
+    expect(player.x).toBeGreaterThan(startX);
   });
 
   test("friction stops the player when input is released", () => {
@@ -57,16 +56,16 @@ describe("Player movement", () => {
     input.down.delete("ArrowRight");
     step(player, level, input, 10);
 
-    assert.equal(player.vx, 0);
-    assert.equal(player.facing, 1);
+    expect(player.vx).toBe(0);
+    expect(player.facing).toBe(1);
   });
 
   test("faces left while running left", () => {
     const { player, level, input } = standOnFloor();
     input.down.add("ArrowLeft");
     step(player, level, input, 5);
-    assert.equal(player.facing, -1);
-    assert.ok(player.vx < 0);
+    expect(player.facing).toBe(-1);
+    expect(player.vx).toBeLessThan(0);
   });
 
   test("caps the falling speed", () => {
@@ -76,7 +75,7 @@ describe("Player movement", () => {
 
     step(player, level, input, 50);
 
-    assert.equal(player.vy, 520);
+    expect(player.vy).toBe(520);
   });
 
   test("stops at a wall", () => {
@@ -96,8 +95,8 @@ describe("Player movement", () => {
 
     step(player, level, input, 120);
 
-    assert.ok(player.x + player.w <= 5 * TILE + 1, "body must not pass the wall");
-    assert.ok(player.x + player.w >= 5 * TILE, "body must reach the wall");
+    expect(player.x + player.w, "body must not pass the wall").toBeLessThanOrEqual(5 * TILE + 1);
+    expect(player.x + player.w, "body must reach the wall").toBeGreaterThanOrEqual(5 * TILE);
   });
 
   test("stops at a ceiling", () => {
@@ -125,8 +124,8 @@ describe("Player movement", () => {
       highest = Math.min(highest, player.y);
     }
 
-    assert.ok(highest >= 7 * TILE, "head must not pass the ceiling");
-    assert.equal(player.onGround, true);
+    expect(highest, "head must not pass the ceiling").toBeGreaterThanOrEqual(7 * TILE);
+    expect(player.onGround).toBe(true);
   });
 });
 
@@ -138,14 +137,14 @@ describe("Player jump", () => {
     input.press("Space");
     player.update(DT, level, input);
     input.hits.clear();
-    assert.ok(player.vy < 0, "jump must launch upwards");
-    assert.equal(player.onGround, false);
+    expect(player.vy, "jump must launch upwards").toBeLessThan(0);
+    expect(player.onGround).toBe(false);
 
     const beforeSecondPress = player.vy;
     input.press("Space");
     player.update(DT, level, input);
     input.hits.clear();
-    assert.ok(player.vy > beforeSecondPress, "airborne Space must not re-launch");
+    expect(player.vy, "airborne Space must not re-launch").toBeGreaterThan(beforeSecondPress);
   });
 
   test("clears two tiles but not three, as design.md requires", () => {
@@ -165,9 +164,10 @@ describe("Player jump", () => {
     }
 
     const rise = startY - highest;
-    assert.ok(rise > 2 * TILE, `rise ${rise}px must clear two tiles`);
-    assert.ok(rise < 3 * TILE, `rise ${rise}px must not reach three tiles`);
-    assert.ok(rise >= 40 && rise <= 50, `rise ${rise}px should stay close to the documented 46px`);
+    expect(rise, `rise ${rise}px must clear two tiles`).toBeGreaterThan(2 * TILE);
+    expect(rise, `rise ${rise}px must not reach three tiles`).toBeLessThan(3 * TILE);
+    expect(rise, `rise ${rise}px should stay close to the documented 46px`).toBeGreaterThanOrEqual(40);
+    expect(rise, `rise ${rise}px should stay close to the documented 46px`).toBeLessThanOrEqual(50);
   });
 });
 
@@ -180,8 +180,8 @@ describe("Player reload", () => {
 
     step(player, level, input, 26);
 
-    assert.equal(player.ammo, 8);
-    assert.equal(player.reload, 0);
+    expect(player.ammo).toBe(8);
+    expect(player.reload).toBe(0);
   });
 
   test("freezes reload progress in the air and resumes on landing", () => {
@@ -190,19 +190,19 @@ describe("Player reload", () => {
     player.ammo = 0;
     player.cooldown = 0;
     step(player, level, input, 10);
-    assert.equal(player.reload, 10);
+    expect(player.reload).toBe(10);
 
     input.press("Space");
     step(player, level, input, 1);
     const frozen = player.reload;
-    assert.equal(player.onGround, false);
+    expect(player.onGround).toBe(false);
     step(player, level, input, 5);
-    assert.equal(player.reload, frozen, "reload must not advance in the air");
-    assert.equal(player.ammo, 0);
+    expect(player.reload, "reload must not advance in the air").toBe(frozen);
+    expect(player.ammo).toBe(0);
 
     step(player, level, input, 100);
-    assert.equal(player.onGround, true);
-    assert.equal(player.ammo, 8);
+    expect(player.onGround).toBe(true);
+    expect(player.ammo).toBe(8);
   });
 
   test("waits for the shot cooldown before reloading", () => {
@@ -212,9 +212,9 @@ describe("Player reload", () => {
     player.cooldown = 5;
 
     step(player, level, input, 1);
-    assert.equal(player.reload, 0);
+    expect(player.reload).toBe(0);
 
     step(player, level, input, 4);
-    assert.equal(player.reload, 1);
+    expect(player.reload).toBe(1);
   });
 });
