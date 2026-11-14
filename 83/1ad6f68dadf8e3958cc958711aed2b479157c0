@@ -1,0 +1,81 @@
+web/src/game.ts
+  s_f7e281d101a3ad::t_012dbd9e8299c7 1-438
+web/public/assets/sprites/s_dave.json
+  s_f7e281d101a3ad::t_e8cff07d72b3b4 1
+web/public/assets/sprites/s_chunk2.json
+  s_f7e281d101a3ad::t_504c406d1af1ca 1
+.gitignore
+  s_1d138cd3e820f7::t_ca3dad8f838eac 1-16
+web/src/main.ts
+  s_f7e281d101a3ad::t_51fd173c506a10 1-126
+package.json
+  s_1d138cd3e820f7::t_74af180cecd1de 1-16
+.opencode/agents/ui-designer-agent.md
+  s_1d138cd3e820f7::t_7dbcdeea1041de 2-35
+  s_1d138cd3e820f7::t_f410699c52c403 1,36-39
+tools/serve.mjs
+  s_7e8217eba55bae::t_766d4eb1da1b33 1-61
+web/src/pixi-render.ts
+  s_f7e281d101a3ad::t_b8a8d82196dfe5 1-291
+.opencode/agents/music-agent.md
+  s_1d138cd3e820f7::t_97083b89a080a7 2-40
+  s_1d138cd3e820f7::t_d8ee1059acd581 1
+web/public/assets/sprites/s_chunk1.json
+  s_f7e281d101a3ad::t_7e07ab1c12c9cb 1
+web/public/assets/sprites/s_frank.json
+  s_f7e281d101a3ad::t_9fce6a5026eeac 1
+web/public/assets/sprites/s_master.json
+  s_f7e281d101a3ad::t_745c2bc0e7b98c 1
+.gitattributes
+  s_be52a67a6ec4ca::t_42fa981b5a5ff7 1-9
+AGENTS.md
+  s_1d138cd3e820f7::t_4f1f1eec4f64ba 1-105
+README.md
+  s_be52a67a6ec4ca::t_804c307e436e8e 1-39
+docs/design.md
+  s_1d138cd3e820f7::t_123b3d3ea6b263 1-85
+web/index.html
+  s_1d138cd3e820f7::t_8db4a7130882b1 1-19
+web/src/assets.ts
+  s_f7e281d101a3ad::t_b61100732346ad 1-86
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "831ad6f68dadf8e3958cc958711aed2b479157c0",
+  "prompts": {},
+  "sessions": {
+    "s_1d138cd3e820f7": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e25bce072ffemSpV5i5CsyEVf7",
+        "model": "unknown"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_7e8217eba55bae": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e25851070ffeVtjeNvehkDYLmt",
+        "model": "unknown"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_be52a67a6ec4ca": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e25bf24baffeIs3M82iGxQI0Ep",
+        "model": "unknown"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_f7e281d101a3ad": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e25b90a2cffeB1AXtJgVs2UYZj",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    }
+  }
+}
