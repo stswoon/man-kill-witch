@@ -1,0 +1,103 @@
+web/index.html
+  s_0e697d4095350b::t_daf1c37b849031 9
+e2e/game.spec.ts
+  s_a8cc8cef35d056::t_e4d3ea467725b4 1-89,92-93,95-97,99-104,113
+  s_a8cc8cef35d056::t_40745b25e65fcb 90-91
+  s_a8cc8cef35d056::t_76c6f2549b92e8 94,98,105-112
+.opencode/agents/ui-designer-agent.md
+  s_0e697d4095350b::t_8d261abe8e0acc 2,33
+  s_0e697d4095350b::t_2c36a708b14243 8
+  s_0e697d4095350b::t_af286e61e48ac1 14
+  s_0e697d4095350b::t_d496ab2f4b6b31 15,25
+  s_0e697d4095350b::t_3903a96af3cecf 28
+README.md
+  s_a8cc8cef35d056::t_082cfc27161582 47-48
+  s_0e697d4095350b::t_cfc6b4891b976f 6,23-24,28-30,43
+AGENTS.md
+  s_a8cc8cef35d056::t_d720ff91e6abb3 94-95
+  s_0e697d4095350b::t_360f8e535ad792 24,122-123
+  s_0e697d4095350b::t_ea5b3aed6d776e 56,102
+  s_a8cc8cef35d056::t_51580cfa2fdd13 130-131
+  s_f7e281d101a3ad::t_c730aa6848d9bf 3-4,36-39,46-50,67-71,112-114,116,118-119
+tests/enemy.test.ts
+  s_a8cc8cef35d056::t_3dbfdcc9976293 1,53-62,76-77,88-89,98-99,110-112,123,133-134,139-140,148,151-152,159,162-163,170
+opencode.json
+  s_2df3357ac65ab7::t_757edc64939346 1-6
+package.json
+  s_a8cc8cef35d056::t_a6d55fe3a13695 20-22
+  s_a8cc8cef35d056::t_865b6d8b5800af 14-17
+vitest.config.ts
+  s_a8cc8cef35d056::t_f7b6f9eade7b3d 1-9
+playwright.config.ts
+  s_a8cc8cef35d056::t_1d2fa3e19363ff 1-31
+.gitignore
+  s_a8cc8cef35d056::t_3382c405f0254f 11-15
+tests/smoke.test.ts
+  s_a8cc8cef35d056::t_bfb069925eea17 3,10-11,26-31,35,38
+tests/player.test.ts
+  s_a8cc8cef35d056::t_3f648ea3f03baa 1,33-36,46-48,59-60,67-68,78,98-99,127-128,140-141,147,167-170,183-184,193,198,200-201,204-205,215,218
+tests/game.test.ts
+  s_a8cc8cef35d056::t_aa05636f8609d5 1,48-54,66-70,86-87,96,100-101,106-107,118,130,149-151,166-167,180-183,192,197,209-210,228-230,238,242,252-253,256-257,260,263-266,277-278,289,293,297,305-306,310,321-322,334
+tsconfig.test.json
+  s_a8cc8cef35d056::t_3d66575c690d04 6-12
+web/src/main.ts
+  s_0e697d4095350b::t_43de1ab52fb028 37-39
+tests/level.test.ts
+  s_a8cc8cef35d056::t_25b292e2b39cba 1,8-11,16,21-22,30,37,43-46,51-54,61-62,67-68,76-77,83,90
+tests/architecture.test.ts
+  s_a8cc8cef35d056::t_6e7801f0dab0f6 3,10-16,18-20
+tests/content.test.ts
+  s_a8cc8cef35d056::t_24d76e12c8045a 3,28-33,38,44-45,58-65,71-72,78,87,96,112
+docs/future.md
+  h_06e01297fc405a 15,18,20,22
+  h_06e01297fc405a 19
+package-lock.json
+  s_a8cc8cef35d056::t_38cd75a356a015 14-53,472-492,496-497,500-553,555,557-558,561,563,565,568-571,575-576,579,581,583,586-589,591,593-594,599,601,604-607,609,611-612,615,617,619,622-625,629-630,635,637,640-643,647-648,653,655,658-661,665-667,669,674,676,679-682,684,686-690,695,697,700-703,707-711,716,718,721-724,726,728-732,737,739,742-745,747,749-753,758,760,763-766,770-774,779,781,784-787,791-792,795,797,799,802-805,807,809-810,812-817,819,822-825,829-830,833,835,837,840-843,847-848,851,853,855,858-871,873-875,878-1555,1558-1659,1664,1666-1670,1673-1676,1680-1681,1686,1688-1692,1695-1715,1717,1719,1722,1725-1737,1748-1927,1968-2142
+tools/serve.mjs
+  s_a8cc8cef35d056::t_f1dad3e23f8ec5 9-11,40
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "c1ab0e696e6de41a0bc695b272071072725e07fe",
+  "prompts": {},
+  "humans": {
+    "h_06e01297fc405a": {
+      "author": "stswoon <xx@xx.xx>"
+    }
+  },
+  "sessions": {
+    "s_0e697d4095350b": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e2530a770ffeCjtUYMbiqih2iy",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_2df3357ac65ab7": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e2546c680ffeLeMEc1g8kTmfXM",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_a8cc8cef35d056": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e2530d771ffe17OwbyxQ7u4zfu",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_f7e281d101a3ad": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e25b90a2cffeB1AXtJgVs2UYZj",
+        "model": "unknown"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    }
+  }
+}
