@@ -1,10 +1,10 @@
 #!/usr/bin/env node
-// Minimal static server for the web/ folder.
+// Minimal static server for the built build/ folder.
 import { createServer } from "node:http";
 import { readFile, stat } from "node:fs/promises";
 import { extname, join, normalize } from "node:path";
 
-const ROOT = process.argv[2] ?? "web";
+const ROOT = process.argv[2] ?? "build";
 const START_PORT = Number(process.argv[3] ?? 5173);
 const MAX_PORT_TRIES = 20;
 const MIME = {
@@ -20,13 +20,7 @@ const server = createServer(async (req, res) => {
     const url = decodeURIComponent((req.url ?? "/").split("?")[0]);
     let path = normalize(join(ROOT, url === "/" ? "index.html" : url));
     if (!path.startsWith(normalize(ROOT))) { res.writeHead(403).end(); return; }
-    let info;
-    try {
-      info = await stat(path);
-    } catch {
-      path = join(ROOT, "public", url); // Vite-style public/ fallback
-      info = await stat(path);
-    }
+    const info = await stat(path);
     if (info.isDirectory()) path = join(path, "index.html");
     const data = await readFile(path);
     res.writeHead(200, { "content-type": MIME[extname(path)] ?? "application/octet-stream" });

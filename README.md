@@ -19,8 +19,8 @@ Phaser 4 + TypeScript, внутреннее разрешение **320×200**, �
 
 ```bash
 npm install
-npm run dev        # сборка бандла + сервер на http://localhost:5173
-npm run build      # только web/bundle.js
+npm run dev        # сборка в build/ + сервер на http://localhost:5173
+npm run build      # только сборка в build/
 npm run typecheck  # tsc --noEmit
 ```
 
@@ -38,5 +38,6 @@ npm run typecheck  # tsc --noEmit
 | `web/src/input.ts`, `sfx.ts` | клавиатура, синтезированные звуки |
 | `web/src/main.ts` | boot Phaser, конфиг рендера, целочисленный апскейл |
 | `web/public/assets/` | временные ассеты: тайлсет, уровни, атласы спрайтов |
-| `tools/serve.mjs`, `tools/png.mjs` | статический сервер и запись PNG |
+| `build/` | собранная игра: `bundle.js`, `index.html`, `assets/` (не коммитится) |
+| `tools/serve.mjs`, `tools/build.mjs` | статический сервер и сборка в `build/` |
 | `docs/design.md` | дизайн: правила, ощущение, враги, уровни |

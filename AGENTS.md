@@ -9,7 +9,8 @@
 
 - Внутреннее разрешение **320×200**, целочисленный апскейл, тайл **16×16**.
 - Логика идёт с фиксированным шагом **1/70 с** (`DT = 1 / 70` в `web/src/scenes/game-scene.ts`).
-- Каркаса нет: esbuild собирает один бандл, `tools/serve.mjs` раздаёт `web/`.
+- Каркаса нет: esbuild собирает один бандл, `tools/build.mjs` публикует игру в `build/`,
+  `tools/serve.mjs` раздаёт её.
 - Код на TypeScript strict, рендер на Phaser 4 (WebGL). Больше runtime-зависимостей нет.
 
 Статус — ранний прототип. Ассеты в `web/public/assets` временные и подлежат замене;
@@ -30,15 +31,16 @@
 
 ```bash
 npm install
-npm run dev        # сборка web/bundle.js + сервер на http://localhost:5173 (или следующем свободном)
-npm run build      # только бандл
-npm run watch      # esbuild --watch (удобно вместе с запущенным сервером)
+npm run dev        # сборка в build/ + сервер на http://localhost:5173 (или следующем свободном)
+npm run build      # сборка в build/: бандл, index.html, ассеты
+npm run watch      # esbuild --watch в build/ (удобно вместе с запущенным сервером)
 npm test           # tsc по tests + esbuild-сборка тестов + node --test
 npm run typecheck  # tsc --noEmit, должен проходить без ошибок
 ```
 
-`npm run dev` собирает бандл один раз. Для правок в цикле держи `npm run watch`
-в отдельном терминале — HMR нет.
+`npm run dev` пересобирает `build/` один раз. Для правок в цикле держи `npm run watch`
+в отдельном терминале — HMR нет. Watch обновляет только бандл: изменения `web/index.html`
+и `web/public/` подхватываются после перезапуска.
 
 Тесты — встроенный раннер Node (`node:test`), без vitest/jest. `tests/*.test.ts`
 собираются уже установленным esbuild в `.temp/tests/*.test.mjs`: Node не запускает
@@ -47,21 +49,22 @@ npm run typecheck  # tsc --noEmit, должен проходить без оши
 
 ## Структура
 
-| Путь | Назначение |
-|---|---|
-| `web/src/main.ts` | boot Phaser-игры, конфиг рендера, целочисленный апскейл канваса |
-| `web/src/scenes/boot-scene.ts` | загрузка ассетов через Phaser Loader, передача их в игровую сцену |
-| `web/src/scenes/game-scene.ts` | состояния `title / play / gameover / win`, фиксированный шаг, отладочный `window.mkw` |
-| `web/src/game.ts` | вся игровая логика: физика, коллизии, враги, пули, двери, предметы, камера. **Без импортов Phaser** |
-| `web/src/phaser-view.ts` | только отрисовка: tilemap, спрайты, камера, HUD, сообщения. **Не меняет состояние игры** |
-| `web/src/assets.ts` | константы (`TILE`, `SCREEN_W/H`, `TILE_FLAG_MASK`), типы и имена текстур |
-| `web/src/input.ts` | клавиатура: `isDown` / `wasPressed`, сброс в конце кадра |
-| `web/src/sfx.ts` | синтезированные WebAudio-блипы |
-| `web/public/assets/` | закоммиченные временные ассеты: `tiles.png`, `tileinfo.json`, `levels/*.json`, `sprites/*.png` |
-| `web/index.html` | подсказка по управлению, CSS канваса |
-| `tools/*.mjs` | статический сервер, PNG-писатель и сборка тестов (`build-tests.mjs`) |
-| `tests/` | тесты логики на `node:test`: физика, враги, правила, данные уровней |
-| `docs/design.md` | дизайн: правила, ощущение, враги, уровни |
+| Путь                           | Назначение                                                                                          |
+|--------------------------------|-----------------------------------------------------------------------------------------------------|
+| `web/src/main.ts`              | boot Phaser-игры, конфиг рендера, целочисленный апскейл канваса                                     |
+| `web/src/scenes/boot-scene.ts` | загрузка ассетов через Phaser Loader, передача их в игровую сцену                                   |
+| `web/src/scenes/game-scene.ts` | состояния `title / play / gameover / win`, фиксированный шаг, отладочный `window.mkw`               |
+| `web/src/game.ts`              | вся игровая логика: физика, коллизии, враги, пули, двери, предметы, камера. **Без импортов Phaser** |
+| `web/src/phaser-view.ts`       | только отрисовка: tilemap, спрайты, камера, HUD, сообщения. **Не меняет состояние игры**            |
+| `web/src/assets.ts`            | константы (`TILE`, `SCREEN_W/H`, `TILE_FLAG_MASK`), типы и имена текстур                            |
+| `web/src/input.ts`             | клавиатура: `isDown` / `wasPressed`, сброс в конце кадра                                            |
+| `web/src/sfx.ts`               | синтезированные WebAudio-блипы                                                                      |
+| `web/public/assets/`           | закоммиченные временные ассеты: `tiles.png`, `tileinfo.json`, `levels/*.json`, `sprites/*.png`      |
+| `web/index.html`               | подсказка по управлению, CSS канваса                                                                |
+| `build/`                       | собранная игра: `bundle.js`, `index.html`, `assets/` (не коммитится)                                |
+| `tools/*.mjs`                  | сборка в `build/`, статический сервер, PNG-писатель и сборка тестов (`build-tests.mjs`)             |
+| `tests/`                       | тесты логики на `node:test`: физика, враги, правила, данные уровней                                 |
+| `docs/design.md`               | дизайн: правила, ощущение, враги, уровни                                                            |
 
 ## Правила архитектуры
 
@@ -120,4 +123,4 @@ npm run typecheck  # tsc --noEmit, должен проходить без оши
 - Не добавлять CI, линтеры и сторонние тест-раннеры (vitest, jest) без запроса: тесты
   живут на `node:test` + esbuild.
 - Не менять физические константы и правила, не поправив `docs/design.md` и `tests/`.
-- Не коммитить `web/bundle.js`, `node_modules/`, `work/`, `.temp/`.
+- Не коммитить `build/`, `node_modules/`, `work/`, `.temp/`.

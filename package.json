@@ -8,8 +8,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "esbuild web/src/main.ts --bundle --format=esm --outfile=web/bundle.js --target=es2020",
-    "watch": "esbuild web/src/main.ts --bundle --format=esm --outfile=web/bundle.js --target=es2020 --watch",
+    "build": "node tools/build.mjs",
+    "watch": "node tools/build.mjs --watch",
     "dev": "npm run build && node tools/serve.mjs",
     "test": "tsc -p tsconfig.test.json && node tools/build-tests.mjs && node --test \".temp/tests/*.test.mjs\"",
     "typecheck": "tsc --noEmit -p tsconfig.json"
