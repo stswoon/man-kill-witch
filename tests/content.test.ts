@@ -120,6 +120,24 @@ for (const [index, data] of levels.entries()) {
   });
 }
 
+describe("level 1 start pocket", () => {
+  const level = new Level(levels[0], info);
+
+  test("the tile at (7,32) is a ceiling, not a standable step", () => {
+    expect(level.blocks(7, 32, "up"), "blocks the hero from below").toBe(true);
+    expect(level.blocks(7, 32, "down"), "cannot support the hero").toBe(false);
+  });
+
+  test("two steps keep every rise within two tiles", () => {
+    for (const [tx, ty] of [[8, 34], [9, 32], [11, 30]] as const) {
+      expect(level.blocks(tx, ty, "down"), `(${tx},${ty}) must support the hero`).toBe(true);
+    }
+
+    const rises = [(35 - 34) * TILE, (34 - 32) * TILE, (32 - 30) * TILE];
+    for (const rise of rises) expect(rise).toBeLessThanOrEqual(2 * TILE);
+  });
+});
+
 describe("asset manifest", () => {
   test("contains every file BootScene loads", () => {
     const expected = [

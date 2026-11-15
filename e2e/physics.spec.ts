@@ -344,8 +344,8 @@ test("stops at the wall right of the spawn ledge", async ({ page }) => {
   const blocked = await player(page);
   await page.keyboard.up("ArrowRight");
 
-  // The solid column 10 starts at x = 800; the 60 px body must stop at 740.
-  expect(blocked.x, "body must rest against the wall").toBeCloseTo(10 * TILE - ground.w, 0);
+  // The intermediate step at column 8 starts at x = 640; the 60 px body stops at 580.
+  expect(blocked.x, "body must rest against the step").toBeCloseTo(8 * TILE - ground.w, 0);
   expect(blocked.blocked.right, "the wall must be reported to the rules").toBe(true);
   expect(blocked.vx, "a wall stops the run").toBe(0);
 });
