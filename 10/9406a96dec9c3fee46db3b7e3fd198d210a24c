@@ -1,0 +1,213 @@
+web/src/view/hud-view.ts
+  s_5d3608448435cd::t_dcefee95cf739e 2,5-8,10,13-15,23-25,30,34
+docs/plan/artifacts/decisions-S11.md
+  s_6d10b5741483ee::t_845ab55617d513 11-19
+  s_6d10b5741483ee::t_65fe1ab00245f9 1-10
+AGENTS.md
+  s_2eb73883c4387d::t_942772417a650a 97-102,110,118-130,135,140
+  s_f089c3588df7d9::t_4a20e02e5a854c 22,27-29,35,40
+  s_2eb73883c4387d::t_cae8c75b850c63 60-62
+  s_2eb73883c4387d::t_8b3d917575a998 10-11
+  s_2eb73883c4387d::t_5444f813abb399 173-179
+  s_f089c3588df7d9::t_7570218d260496 131-133,194-196
+  s_2eb73883c4387d::t_d6c700e9145893 162-164
+  s_2eb73883c4387d::t_ea6cd6ea29c70b 111
+  s_2eb73883c4387d::t_02e737e6146273 180-182
+  s_f089c3588df7d9::t_56905773494e21 68-90
+tests/architecture.test.ts
+  s_f089c3588df7d9::t_387a96f5ba3465 1-2,34-42
+  s_2eb73883c4387d::t_f4a7c3de1785b7 18-30,43
+web/src/scenes/game-scene.ts
+  s_2eb73883c4387d::t_99ea59c64dd9be 129
+  s_2eb73883c4387d::t_c84cdab8bbf30f 2,19,21-22,30,40,47,56-58,81,103,108-110,123,125,128,130-141,149,152-153,161,164,185,187-189,222,297,300-302
+  s_2eb73883c4387d::t_ffcaafb06149b7 69-70
+  s_f089c3588df7d9::t_e995d48e5b868f 223-296,303
+  s_f089c3588df7d9::t_3adde03ea09c0e 167,170,174,186,203,207-212
+  s_f089c3588df7d9::t_392fce89b12da1 298-299
+  s_f089c3588df7d9::t_9c72b3aa27f737 4-14,36-37,52-53
+  s_f089c3588df7d9::t_a6f33cfd34b305 114-116,124,126-127
+  s_f089c3588df7d9::t_3821c26c25119d 87-96
+  s_7933731ffd135f::t_0094c09a687e5f 101,184
+web/src/bot/types.ts
+  s_f089c3588df7d9::t_f6325ec8d2e48a 1-239
+tests/enemy.test.ts
+  s_2eb73883c4387d::t_5656236b7c9630 128
+  s_2eb73883c4387d::t_35cd4a355590ab 17-20,27-35
+  s_2eb73883c4387d::t_d60ba1ae826c6a 3-4,24,55,85-108,110,112,114,117,119-122,124,126-127,131,133-142,144-151,153-154,157-164,166,168,171-177,179,181,186-201,203-207,212-229,231,233-235,238,240-246,248,250-251,254
+  s_2eb73883c4387d::t_17ecfe9b3f2f1e 113
+  s_2eb73883c4387d::t_54cbdca397454c 256-262,264,266-267
+web/src/view/level-view.ts
+  s_2eb73883c4387d::t_237d4d9ce078ff 57-65
+tests/bot-report.test.ts
+  s_f089c3588df7d9::t_7d2d70d99214e3 1-38,40-62,66-69
+  s_f089c3588df7d9::t_cd02ac561ade52 39,63-65
+.opencode/agents/agent-bot.md
+  s_f089c3588df7d9::t_d1bc2d9f51b1a7 5
+  s_f089c3588df7d9::t_6ffadff1d02b70 1-4,6-186
+web/src/bot/bot-session.ts
+  s_f089c3588df7d9::t_352944f0fe5f4b 164
+  s_f089c3588df7d9::t_7ab18f4a2ef976 1-19,21-67,69-121,123-163,165-373
+  s_f089c3588df7d9::t_402d992069e876 68
+  s_f089c3588df7d9::t_fe5a302bb0fea9 20
+  s_f089c3588df7d9::t_45f27011d71413 122
+web/src/bot/bot-observe.ts
+  s_f089c3588df7d9::t_36943972e676e6 1-195
+e2e/physics.spec.ts
+  s_2eb73883c4387d::t_ec1fa2deb74a73 14-18,23
+  s_2eb73883c4387d::t_ab108bd60e9fd8 318-324,328
+  s_2eb73883c4387d::t_abecac1e472d46 331-369
+  s_2eb73883c4387d::t_4c3c02d011b9d4 3,7-12,24,35-36,48,59-64,71-80,91-92,96-97,208,213-214,216-217,226-298,375
+  s_2eb73883c4387d::t_58e845a47d28d5 299,301-304,317,326-327,329-330,370
+  s_2eb73883c4387d::t_bbc3d994633e31 164-194
+  s_2eb73883c4387d::t_f10576dc6bda1d 305-316,325
+  s_2eb73883c4387d::t_65e83e518b1043 13
+  s_2eb73883c4387d::t_889a0847992103 300
+  s_2eb73883c4387d::t_534ce4012196cc 371
+docs/plan/S11-arcade-physics.md
+  s_6d10b5741483ee::t_f8137b46dcb6fa 3
+e2e/bot-api.spec.ts
+  s_f089c3588df7d9::t_ea5ea11efd4407 77-79,83-90
+  s_f089c3588df7d9::t_b8daa6cb55ce86 108-120
+  s_f089c3588df7d9::t_5329154c611cca 1-18,20-76,80-82,91-107,121
+  s_f089c3588df7d9::t_f6d3f37bf7d79e 19
+docs/plan/S19-agent-bot.md
+  s_f089c3588df7d9::t_60df6c34bb48e7 108-109
+  s_f089c3588df7d9::t_e2463246686bb4 1-107,110-127
+tests/helpers.ts
+  s_2eb73883c4387d::t_e6a94d46b504b8 3-16,19,21,130-196,198-200,202-208,210,213
+tests/game.test.ts
+  s_2eb73883c4387d::t_bd833302ce740f 185
+  s_2eb73883c4387d::t_52a21b2fff1d68 3-4,14-15,38-39,41,46,48,50-53,55,57-59,63-73,81-82,86-88,90,92-93,95,104-108,119,121,126-127,129-131,133-135,137-138,142-161,163,165,167-177,183,186,188,192-193,198-199,201,203-204,211,213,217-222,224-230,244,246,257,261,277,279,294,302,310,319,328-329,331,340,342,349-350,352,368,375,379,383,391,402,404
+  s_2eb73883c4387d::t_a8b96272f72168 210
+  s_2eb73883c4387d::t_7c781192e38b26 223
+e2e/game.spec.ts
+  s_2eb73883c4387d::t_42720954ba1ad3 2,9,12,37
+web/src/bot/bot-exits.ts
+  s_f089c3588df7d9::t_0d7332e1f0a4fe 1-120
+docs/plan/artifacts/bug-report-S11.md
+  s_7933731ffd135f::t_8a52ed18c7c91d 64-67
+  s_7933731ffd135f::t_609269e5a58bb7 1-11,15-17,19,21-29,32,34-36,38,40-58,60-63
+  s_7933731ffd135f::t_b5f870ce697344 68-69
+  s_7933731ffd135f::t_bcc02d8b9fd63c 18
+  s_7933731ffd135f::t_24bc57ec281051 14
+  s_7933731ffd135f::t_383a0935b710c6 20
+  s_7933731ffd135f::t_80971f79f0c10f 39
+  s_7933731ffd135f::t_88c93d6d44c59f 31,33
+  s_7933731ffd135f::t_333fd8f9e40ebf 30,37
+  s_7933731ffd135f::t_899320512d04e0 12
+  s_7933731ffd135f::t_8b31293e6dbe63 13
+  s_7933731ffd135f::t_e09589069da2b3 59
+docs/plan/S17-hd-hud.md
+  s_6d10b5741483ee::t_8496b21e94c075 70
+  s_6d10b5741483ee::t_5c9cb5e1ce0fa1 3
+web/src/game.ts
+  s_2eb73883c4387d::t_8e25015f380c9e 398
+  s_2eb73883c4387d::t_434355b31d0cfd 1-18,28-34,91-92,94,97,103-107,109,117-128,132,134,166-168,171,175-180,188-201,204-206,208-211,214-223,226-230,234-237,239,241-245,251-265,268-271,286,332-397,399-401,404-405,407,409,412-422,425,428,431-455
+web/src/phaser-view.ts
+  s_2eb73883c4387d::t_21e3bac19cef4b 3,12-13,30-34,63,67,70
+  s_2eb73883c4387d::t_e14a8edccab652 51-56,59
+docs/plan/README.md
+  s_f089c3588df7d9::t_b7b8dd38701c65 167-169
+  s_f089c3588df7d9::t_480b92a95af122 51,56,144,156-157
+  s_f089c3588df7d9::t_4980542a78d4d5 57-58
+  s_f089c3588df7d9::t_1af1c15719b402 133-134
+README.md
+  s_f089c3588df7d9::t_4cad8cc5d8f258 65
+  s_2eb73883c4387d::t_719dd065fcb637 61-64,66,73-74
+  s_f089c3588df7d9::t_a6459aaee3fc51 35-55
+tests/player.test.ts
+  s_2eb73883c4387d::t_007dd6b1faff09 2-12,16,18-19,22-26,28-29,31-35,39,41,43,45-47,50-51,54-56,59-60,63-67,69-72,74-77,79-81,87-89,91,93-94,98-101,103-107,111-113,115-116,118-119
+web/src/arcade/arcade-sim.ts
+  s_2eb73883c4387d::t_5404a6acdc1c99 157-160
+  s_2eb73883c4387d::t_d99c4da58cbb07 195
+  s_2eb73883c4387d::t_4896e355859a3f 257
+  s_2eb73883c4387d::t_52147d3817e2ce 139
+  s_2eb73883c4387d::t_54b92c324553ac 18
+  s_2eb73883c4387d::t_50bd79b2ff3fab 1-17,19-138,140-156,161-194,196-256,258-321
+web/src/bot/bot-input.ts
+  s_f089c3588df7d9::t_a44fce0421633f 1-67
+web/src/scenes/boot-scene.ts
+  s_5d3608448435cd::t_114dab2ceb3963 29-30
+  s_5d3608448435cd::t_b9a6d5930dce18 6-7
+web/src/sim-contract.ts
+  s_2eb73883c4387d::t_1f8b03a06e2bb2 1-158
+tests/smoke.test.ts
+  s_2eb73883c4387d::t_ca6c4d9f8cf05e 26
+  s_2eb73883c4387d::t_9975e5a3863b4a 6-7,10-11,13-17,27-29,35-70,74-75,77-79,83-85
+  s_2eb73883c4387d::t_aeda7db5a47fab 25
+web/src/view/character-view.ts
+  s_2eb73883c4387d::t_b45c612130a4ab 4-9,36-39,42,49,58,87
+web/src/bot/bot-random.ts
+  s_f089c3588df7d9::t_b922e3cd389a39 1-23
+docs/design.md
+  s_2eb73883c4387d::t_8660cda39692f5 17-18
+tests/content.test.ts
+  s_5d3608448435cd::t_e713c86131f841 270-273
+  s_5d3608448435cd::t_de56d856dee8b2 185-193,195-214,216-260,265-269,274-315
+  s_5d3608448435cd::t_d81b9be99887f8 215
+  s_5d3608448435cd::t_86d202644255cd 261-264
+  s_5d3608448435cd::t_b584a3c7bfb18a 194
+  s_5d3608448435cd::t_5aa63f0a3c636e 7-8
+  s_5d3608448435cd::t_1d0f37bd86e01a 128-130
+  s_6d10b5741483ee::t_09684170d73bf4 316
+web/public/assets/fonts/hud.xml
+  s_b4f73f3b60b7f0::t_b70845ec59c9f7 1-49
+web/src/assets.ts
+  s_6d10b5741483ee::t_410ad7eb6ab965 13-14
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "109406a96dec9c3fee46db3b7e3fd198d210a24c",
+  "prompts": {},
+  "sessions": {
+    "s_2eb73883c4387d": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e20a22b88ffeDYITk6or9bRqPo",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_5d3608448435cd": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e20a1c8e2ffej7x8e84UQJwGPS",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_6d10b5741483ee": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e249e0225ffeQwrASalLP6z4ZW",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_7933731ffd135f": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e2068cb5fffetd7UwtQ5OlPIZU",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_b4f73f3b60b7f0": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e247e14eaffeyXDFMnybJ6wH2G",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_f089c3588df7d9": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e2096f6d3ffeR8yS6rArxBiSw9",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    }
+  }
+}
