@@ -90,7 +90,7 @@ export function makeArena(spec: LevelSpec = {}): Level {
 
 /** Stands the player on top of `floorRow` at tile column `tx`. */
 export function placeOnFloor(player: { x: number; y: number; h: number }, tx: number, floorRow: number): void {
-  player.x = tx * TILE + 2;
+  player.x = tx * TILE + 10;
   player.y = floorRow * TILE - player.h;
 }
 

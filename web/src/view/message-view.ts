@@ -15,12 +15,12 @@ export class MessageView {
       .setDepth(50);
 
     this.messageTitle = scene.add
-      .text(SCREEN_W / 2, SCREEN_H / 2 - 14, "", {
+      .text(SCREEN_W / 2, SCREEN_H / 2 - 70, "", {
         fontFamily: "monospace",
-        fontSize: "16px",
+        fontSize: "80px",
         color: "#ffff55",
         align: "center",
-        padding: { x: 2, y: 2 },
+        padding: { x: 10, y: 10 },
       })
       .setOrigin(0.5, 0.5)
       .setScrollFactor(0)
@@ -28,12 +28,12 @@ export class MessageView {
       .setVisible(false);
 
     this.messageSub = scene.add
-      .text(SCREEN_W / 2, SCREEN_H / 2 + 14, "", {
+      .text(SCREEN_W / 2, SCREEN_H / 2 + 70, "", {
         fontFamily: "monospace",
-        fontSize: "8px",
+        fontSize: "40px",
         color: "#ffffff",
         align: "center",
-        padding: { x: 2, y: 2 },
+        padding: { x: 10, y: 10 },
       })
       .setOrigin(0.5, 0.5)
       .setScrollFactor(0)

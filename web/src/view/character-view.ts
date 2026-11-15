@@ -37,7 +37,7 @@ export class CharacterView {
   private drawPlayer(player: Player): void {
     let animation = "hero-idle";
     if (!player.onGround) animation = "hero-jump";
-    else if (Math.abs(player.vx) > 8) animation = "hero-run";
+    else if (Math.abs(player.vx) > 40) animation = "hero-run";
 
     // `play(key, true)` keeps a running animation going instead of restarting it every frame.
     this.playerSprite
@@ -106,8 +106,8 @@ export class CharacterView {
     if (this.scene.textures.exists(BULLET_TEXTURE)) return;
     const graphics = this.scene.add.graphics();
     graphics.fillStyle(0xffff55, 1);
-    graphics.fillRect(0, 0, 3, 1);
-    graphics.generateTexture(BULLET_TEXTURE, 3, 1);
+    graphics.fillRect(0, 0, 15, 5);
+    graphics.generateTexture(BULLET_TEXTURE, 15, 5);
     graphics.destroy();
   }
 }

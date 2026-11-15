@@ -22,6 +22,7 @@ const game = new Phaser.Game({
   backgroundColor: 0x000000,
   banner: false,
   audio: { noAudio: true },
+  render: { antialias: true, pixelArt: false },
   scale: {
     mode: Phaser.Scale.NONE,
     width: SCREEN_W,

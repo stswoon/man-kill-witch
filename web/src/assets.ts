@@ -1,8 +1,10 @@
-export const TILE = 16;
-export const SCREEN_W = 320;
-export const SCREEN_H = 200;
-export const SPRITE_W = 24; // one S_*.DD2 frame
-export const SPRITE_H = 32;
+// Full HD render on a 384x216 reference grid: one grid unit is 5 screen px,
+// a tile is 16 units and a sprite frame is 24x32 units.
+export const TILE = 80;
+export const SCREEN_W = 1920;
+export const SCREEN_H = 1080;
+export const SPRITE_W = 120;
+export const SPRITE_H = 160;
 
 export const TILE_TEXTURE = "tiles";
 export const TITLE_TEXTURE = "title";

@@ -89,8 +89,8 @@ test("Space jumps from the ground and clears two tiles but not three", async ({ 
   expect(jump.landed, "player must come back to the ground").toBe(true);
   expect(jump.rise, `rise ${jump.rise}px must clear two tiles`).toBeGreaterThan(2 * TILE);
   expect(jump.rise, `rise ${jump.rise}px must not reach three tiles`).toBeLessThan(3 * TILE);
-  expect(jump.rise, `rise ${jump.rise}px should stay close to the documented 46px`).toBeGreaterThanOrEqual(40);
-  expect(jump.rise, `rise ${jump.rise}px should stay close to the documented 46px`).toBeLessThanOrEqual(50);
+  expect(jump.rise, `rise ${jump.rise}px should stay in the documented 200-250px band`).toBeGreaterThanOrEqual(200);
+  expect(jump.rise, `rise ${jump.rise}px should stay in the documented 200-250px band`).toBeLessThanOrEqual(250);
 });
 
 test("Space in the air does not trigger a second jump", async ({ page }) => {
@@ -130,7 +130,7 @@ test("a single Space press is consumed by exactly one tick", async ({ page }) =>
   expect(
     Math.abs(rested.y - ground.y),
     "a stuck press would launch a second jump and leave the floor",
-  ).toBeLessThanOrEqual(1);
+  ).toBeLessThanOrEqual(5);
 });
 
 test("runs right up to the run speed within ten fixed ticks", async ({ page }) => {
@@ -142,7 +142,7 @@ test("runs right up to the run speed within ten fixed ticks", async ({ page }) =
   const running = await player(page);
   await page.keyboard.up("ArrowRight");
 
-  expect(running.vx).toBe(132);
+  expect(running.vx).toBe(660);
   expect(running.x, "player must move right").toBeGreaterThan(ground.x);
   expect(running.onGround).toBe(true);
 });
@@ -171,8 +171,8 @@ test("lands on the floor and does not sink into it", async ({ page }) => {
 
   expect(landing.landed, "player must land").toBe(true);
   expect(landing.onGround, "player must stand on the floor after landing").toBe(true);
-  expect(landing.feetOnTouchdown, "feet must not pass through the floor").toBeLessThanOrEqual(groundFeet + 1);
-  expect(Math.abs(landing.feet - groundFeet), "body must rest on the floor").toBeLessThanOrEqual(1);
+  expect(landing.feetOnTouchdown, "feet must not pass through the floor").toBeLessThanOrEqual(groundFeet + 5);
+  expect(Math.abs(landing.feet - groundFeet), "body must rest on the floor").toBeLessThanOrEqual(5);
 });
 
 test("replaying the same tick sequence reproduces the same player position", async ({ page }) => {

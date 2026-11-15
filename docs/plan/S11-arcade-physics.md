@@ -4,11 +4,12 @@
 
 **Дорожка:** физика / архитектура / тесты.
 
-**Параллель:** S09 — по файлам (`tiles.png`). Не параллелить: S10 (`game.ts`, `game.test.ts`),
-S06 (`view/characters`), S12 (`game.ts`/`game-scene.ts`/тесты).
+**Параллель:** S14, S15, S16, S17 — по файлам. Не параллелить: S10 (`game.ts`, `game.test.ts`),
+S12 (`game.ts`/`game-scene.ts`/тесты), S13 (мир ×5 — базис).
 
-**Зависит от:** S01 (`view`), S04 (`mkw.tick`, e2e-стенд), S06 (анимации/`CharacterView`),
-S08 (`docs/design.md`, `README.md`), S10 (дверь в `game.ts`/`game.test.ts`).
+**Зависит от:** S13 (мир ×5, `TILE = 80`, e2e-пороги), S01 (`view`), S04 (`mkw.tick`,
+e2e-стенд), S06 (анимации/`CharacterView`), S08 (`docs/design.md`, `README.md`), S10 (дверь в
+`game.ts`/`game.test.ts`).
 
 **Разблокирует:** S12 (run state).
 
@@ -22,13 +23,14 @@ S08 (`docs/design.md`, `README.md`), S10 (дверь в `game.ts`/`game.test.ts`
 - Новый `web/src/arcade/`:
   - `ArcadeSim` — единственный владелец Arcade-мира и тел игрока, врагов, пуль и
     tilemap-коллизий; создаётся `GameScene`;
-  - `snapshot(): WorldSnapshot` — позиции/скорости/размеры, `onGround`, `blocked`, `dir`,
-    `alive`, события столкновений;
+  - `snapshot(): WorldSnapshot` — позиции/скорости/размеры в px экрана, `onGround`,
+    `blocked`, `dir`, `alive`, события столкновений;
   - `apply(commands: TickCommands)`, `applyTilePatches(patches)`, `step(dt)`;
   - `customUpdate: true`, ровно один шаг мира на тик `1/70`; `postUpdate` на каждом тике,
     чтобы не терять движение при нескольких тиках за рендер-кадр;
   - tilemap-слой переиспользуется из `LevelView`: `GameScene` передаёт его в `ArcadeSim`,
-    отдельный скрытый слой не создаётся; `web/src/view/level-view.ts` входит в S11.
+    отдельный скрытый слой не создаётся; `web/src/view/level-view.ts` входит в S11;
+  - тайл `80×80`, тела: игрок `60×120`, враги `60×60`, пуля `15×10`.
 - `web/src/sim-contract.ts` — чистые типы `WorldSnapshot`, `TickCommands`, `PlayerIntent`,
   `EnemyIntent`, `PhysicsEvent`; без Phaser, импортируется и правилами, и Arcade.
 - `TickCommands` включает `spawnBullet {id, x, y, vx, vy}`, `despawnBullet {id}`,
@@ -65,10 +67,11 @@ S08 (`docs/design.md`, `README.md`), S10 (дверь в `game.ts`/`game.test.ts`
     касания — события Arcade/e2e;
   - `tests/smoke.test.ts`: остаётся в node как rules-smoke на фейковом снимке (без реальной
     физики), 600 тиков; выживание/движение уровня 1 дополнительно проверяется в e2e;
-  - `e2e/physics.spec.ts`: бег, прыжок (2 тайла, не 3), приземление, стены, враги,
-    детерминизм повторного запуска;
+  - `e2e/physics.spec.ts`: бег (660), прыжок (2 тайла, не 3; подъём 200–250 px), приземление,
+    стены, враги, детерминизм повторного запуска;
   - `e2e/game.spec.ts`: `DebugApi`/`Snapshot` переводятся на `mkw.snapshot()` для позиций;
-    ammo/score — из `mkw.game()`; boot/уровни/канвас остаются.
+    ammo/score — из `mkw.game()`; boot/уровни/канвас остаются (`1920×1080`, 16:9,
+    ширина уровня — `width * 80`).
 - Документация:
   - `AGENTS.md`: структура, правила 76–80/127, тесты, `mkw`;
   - `README.md`: таблица структуры;
@@ -76,7 +79,7 @@ S08 (`docs/design.md`, `README.md`), S10 (дверь в `game.ts`/`game.test.ts`
 
 ## Вне scope
 
-- Дверь (S10), тайлсет (S09), арт персонажей/HUD/титульный экран.
+- Дверь (S10), тайлсет (S16), арт персонажей/HUD/титульный экран (S14/S15/S17/S13).
 - Изменение чисел, скорости, урона, очков, уровней и правил.
 - Новые враги, оружие, звук, диалоги.
 - Сохранение run state между уровнями — S12, после S11.
@@ -118,10 +121,12 @@ docs/design.md
   зелёный.
 - Один шаг Arcade-мира на тик `1/70`; фиксированный тик не делает `view.render`/`endFrame`;
   рендер-кадр делает их один раз после цикла. `mkw.tick` — тестовое исключение.
-- Прыжок перекрывает 2 тайла и не достаёт 3; бег, трение, макс. падение, стены, края, пули
-  (жизнь 40 тиков + `despawnBullet`) и враги соответствуют `02-gameplay.md`.
+- Прыжок перекрывает 2 тайла и не достаёт 3; бег `660`, трение `9000`, макс. падение
+  `2600`, стены, края, пули (скорость `1900`, жизнь 40 тиков + `despawnBullet`) и враги
+  (скорости 130/150/200/170) соответствуют `02-gameplay.md`.
 - `npm test` зелёный, включая `tests/smoke.test.ts` на фейковом снимке; `npm run typecheck`,
-  `npm run test:e2e` проходят; e2e детерминирован и повторяем; консоль чистая.
+  `npm run test:e2e` проходят; e2e детерминирован и повторяем; консоль чистая; канвас
+  `1920×1080`.
 - `AGENTS.md`, `README.md`, `docs/design.md` обновлены; `mkw.tick`/`mkw.snapshot`
   документированы.
 - Дверь S10 и анимации S06 работают без регрессий; статичная дверь и `door-open` не ломаются.

@@ -31,8 +31,8 @@ describe("Player movement", () => {
     step(player, level, input, 60);
 
     expect(player.onGround).toBe(true);
-    expect(player.y + player.h, "feet must not sink into the floor").toBeLessThanOrEqual(FLOOR_TOP + 1);
-    expect(player.y + player.h, "feet must come to rest on the floor").toBeGreaterThanOrEqual(FLOOR_TOP - 1);
+    expect(player.y + player.h, "feet must not sink into the floor").toBeLessThanOrEqual(FLOOR_TOP + 5);
+    expect(player.y + player.h, "feet must come to rest on the floor").toBeGreaterThanOrEqual(FLOOR_TOP - 5);
     expect(player.vy).toBe(0);
   });
 
@@ -43,7 +43,7 @@ describe("Player movement", () => {
 
     step(player, level, input, 10);
 
-    expect(player.vx).toBe(132);
+    expect(player.vx).toBe(660);
     expect(player.facing).toBe(1);
     expect(player.x).toBeGreaterThan(startX);
   });
@@ -75,7 +75,7 @@ describe("Player movement", () => {
 
     step(player, level, input, 50);
 
-    expect(player.vy).toBe(520);
+    expect(player.vy).toBe(2600);
   });
 
   test("stops at a wall", () => {
@@ -95,8 +95,8 @@ describe("Player movement", () => {
 
     step(player, level, input, 120);
 
-    expect(player.x + player.w, "body must not pass the wall").toBeLessThanOrEqual(5 * TILE + 1);
-    expect(player.x + player.w, "body must reach the wall").toBeGreaterThanOrEqual(5 * TILE);
+    expect(player.x + player.w, "body must not pass the wall").toBeLessThanOrEqual(5 * TILE + 5);
+    expect(player.x + player.w, "body must reach the wall").toBeGreaterThanOrEqual(5 * TILE - 5);
   });
 
   test("stops at a ceiling", () => {
@@ -166,8 +166,8 @@ describe("Player jump", () => {
     const rise = startY - highest;
     expect(rise, `rise ${rise}px must clear two tiles`).toBeGreaterThan(2 * TILE);
     expect(rise, `rise ${rise}px must not reach three tiles`).toBeLessThan(3 * TILE);
-    expect(rise, `rise ${rise}px should stay close to the documented 46px`).toBeGreaterThanOrEqual(40);
-    expect(rise, `rise ${rise}px should stay close to the documented 46px`).toBeLessThanOrEqual(50);
+    expect(rise, `rise ${rise}px should stay in the documented 200-250px band`).toBeGreaterThanOrEqual(200);
+    expect(rise, `rise ${rise}px should stay in the documented 200-250px band`).toBeLessThanOrEqual(250);
   });
 });
 

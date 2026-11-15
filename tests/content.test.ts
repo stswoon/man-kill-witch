@@ -3,6 +3,8 @@ import { join, resolve } from "node:path";
 import { describe, expect, test } from "vitest";
 import {
   LEVEL_COUNT,
+  SCREEN_H,
+  SCREEN_W,
   SPRITE_NAMES,
   TILE,
   TILE_FLAG_MASK,
@@ -10,6 +12,7 @@ import {
   type TileInfoData,
 } from "../web/src/assets";
 import { Level, type Dir } from "../web/src/game";
+import { decodePng } from "./png";
 
 const ASSETS = resolve(process.cwd(), "web/public/assets");
 const LEVEL_DIR = join(ASSETS, "levels");
@@ -131,5 +134,31 @@ describe("asset manifest", () => {
     for (const file of REMOVED_ASSETS) {
       expect(existsSync(join(ASSETS, file)), `stale asset must be deleted: ${file}`).toBe(false);
     }
+  });
+});
+
+describe("Png dimensions", () => {
+  test("title screen is Full HD", () => {
+    const png = decodePng(readFileSync(join(ASSETS, "title1.png")));
+    expect([png.width, png.height]).toEqual([SCREEN_W, SCREEN_H]);
+  });
+
+  test("tileset keeps the 32x27 grid of 80px cells", () => {
+    const png = decodePng(readFileSync(join(ASSETS, "tiles.png")));
+    expect([png.width, png.height]).toEqual([32 * TILE, 27 * TILE]);
+    expect([png.width, png.height]).toEqual([2560, 2160]);
+  });
+});
+
+describe("reference grid", () => {
+  test("keeps 384x216 units at five screen pixels per unit", () => {
+    expect(SCREEN_W / 5).toBe(384);
+    expect(SCREEN_H / 5).toBe(216);
+    expect(TILE / 5).toBe(16);
+  });
+
+  test("shows 24 x 13.5 tiles of the world", () => {
+    expect(SCREEN_W / TILE).toBe(24);
+    expect(SCREEN_H / TILE).toBe(13.5);
   });
 });

@@ -7,18 +7,18 @@ export interface InputState {
 }
 
 // Physics values are product decisions; the reference table lives in
-// docs/design.md.
-const GRAVITY = 980;
-const RUN_SPEED = 132;
-const ACCEL = 1400;
-const FRICTION = 1800;
-const JUMP_SPEED = 300;
-const MAX_FALL = 520;
-const BULLET_SPEED = 380;
+// docs/design.md. They are the previous 16-px values x5.
+const GRAVITY = 4900;
+const RUN_SPEED = 660;
+const ACCEL = 7000;
+const FRICTION = 9000;
+const JUMP_SPEED = 1500;
+const MAX_FALL = 2600;
+const BULLET_SPEED = 1900;
 const BULLET_LIFE = 40;
-/** Drawn as 3x1, but the hit box is two pixels tall so edge-on shots still land. */
-const BULLET_W = 3;
-const BULLET_H = 2;
+/** Drawn as 15x5, but the hit box is 15x10 so edge-on shots still land. */
+const BULLET_W = 15;
+const BULLET_H = 10;
 const SHOT_COOLDOWN = 8;
 const RELOAD_TICKS = 26;
 
@@ -99,7 +99,7 @@ function blocked(level: Level, body: Body, x: number, y: number, dir: Dir): bool
 }
 
 function moveBody(level: Level, body: Body, dx: number, dy: number): void {
-  const step = 8;
+  const step = 40;
   let remaining = Math.abs(dx || dy);
   const signX = Math.sign(dx);
   const signY = Math.sign(dy);
@@ -123,12 +123,12 @@ function moveBody(level: Level, body: Body, dx: number, dy: number): void {
 }
 
 /**
- * Ground contact is probed one pixel below the feet instead of being derived
+ * Ground contact is probed five pixels below the feet instead of being derived
  * from a blocked step: gravity moves in fractions of a pixel, so the blocked
  * step only happens every other tick and `onGround` would flicker.
  */
 function touchesGround(level: Level, body: Body): boolean {
-  return blocked(level, body, body.x, body.y + 1, "down");
+  return blocked(level, body, body.x, body.y + 5, "down");
 }
 
 export class Player implements Body {
@@ -136,8 +136,8 @@ export class Player implements Body {
   y = 64;
   vx = 0;
   vy = 0;
-  readonly w = 12;
-  readonly h = 24;
+  readonly w = 60;
+  readonly h = 120;
   onGround = false;
   facing = 1;
   aim = 0;
@@ -189,11 +189,11 @@ export class Enemy implements Body {
   onGround = false;
   vy = 0;
   dir: number;
-  w = 12;
-  h = 12;
+  w = 60;
+  h = 60;
   sprite = 0;
   fly = false;
-  speed = 30;
+  speed = 150;
   /** `walker` turns at ledges, `charger` runs straight off them. */
   turnsAtLedge = true;
   private phase = Math.random() * Math.PI * 2;
@@ -207,11 +207,11 @@ export class Enemy implements Body {
     if (this.fly) {
       this.phase += dt * 2.4;
       this.x += this.dir * this.speed * dt;
-      this.y += Math.sin(this.phase) * 24 * dt;
+      this.y += Math.sin(this.phase) * 120 * dt;
       const tx = Math.floor((this.dir > 0 ? this.x + this.w + 1 : this.x - 1) / TILE);
       const ty = Math.floor((this.y + this.h / 2) / TILE);
       if (level.blocks(tx, ty, this.dir > 0 ? "right" : "left")) this.dir = -this.dir;
-      if (this.y < 8 || this.y > level.pixelHeight - 24) this.alive = false;
+      if (this.y < 40 || this.y > level.pixelHeight - 120) this.alive = false;
       return;
     }
 
@@ -287,7 +287,7 @@ export class Game {
         break;
       }
     }
-    this.player.x = sx * TILE + 2;
+    this.player.x = sx * TILE + 10;
     this.player.y = sy * TILE + TILE - this.player.h;
     this.player.vx = 0;
     this.player.vy = 0;
@@ -301,20 +301,20 @@ export class Game {
       if (sprite === undefined) continue; // not a spawn marker we understand
       const tx = i % this.level.width;
       const ty = Math.floor(i / this.level.width);
-      const e = new Enemy(id, tx * TILE + 2, ty * TILE + 4);
+      const e = new Enemy(id, tx * TILE + 10, ty * TILE + 20);
       e.sprite = sprite;
       if (id >= 14 && id <= 19) {
         e.fly = true;
-        e.speed = 34;
-        e.w = 12;
-        e.h = 12;
+        e.speed = 170;
+        e.w = 60;
+        e.h = 60;
       } else if (id === 1 || id === 2) {
-        e.speed = 26;
+        e.speed = 130;
       } else if (id === 6 || id === 7 || id === 9) {
-        e.speed = 40;
+        e.speed = 200;
         e.turnsAtLedge = false;
       } else {
-        e.speed = 30;
+        e.speed = 150;
       }
       this.enemies.push(e);
     }
@@ -331,7 +331,7 @@ export class Game {
       p.cooldown = SHOT_COOLDOWN;
       const vx = p.facing * BULLET_SPEED;
       const vy = p.aim * BULLET_SPEED * 0.75;
-      this.bullets.push(new Bullet(p.cx + p.facing * 6, p.cy + p.aim * 6, vx, vy));
+      this.bullets.push(new Bullet(p.cx + p.facing * 30, p.cy + p.aim * 30, vx, vy));
     }
 
     for (const b of this.bullets) {
@@ -437,7 +437,7 @@ export class Game {
         break;
       }
     }
-    this.player.x = sx * TILE + 2;
+    this.player.x = sx * TILE + 10;
     this.player.y = sy * TILE + TILE - this.player.h;
     this.player.vx = 0;
     this.player.vy = 0;
@@ -452,9 +452,9 @@ export class Game {
 
   private updateCamera(): void {
     const p = this.player;
-    this.cameraX = Math.round(p.cx - 160);
-    this.cameraY = Math.round(p.cy - 100);
-    this.cameraX = Math.max(0, Math.min(this.level.pixelWidth - 320, this.cameraX));
-    this.cameraY = Math.max(0, Math.min(this.level.pixelHeight - 200, this.cameraY));
+    this.cameraX = Math.round(p.cx - 960);
+    this.cameraY = Math.round(p.cy - 540);
+    this.cameraX = Math.max(0, Math.min(this.level.pixelWidth - 1920, this.cameraX));
+    this.cameraY = Math.max(0, Math.min(this.level.pixelHeight - 1080, this.cameraY));
   }
 }

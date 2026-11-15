@@ -1,11 +1,12 @@
 import Phaser from "phaser";
 import type { Game } from "../game";
 
+/** Temporary system HUD; S17 replaces it with the HD panel and bitmap font. */
 const HUD_STYLE: Phaser.Types.GameObjects.Text.TextStyle = {
   fontFamily: "monospace",
-  fontSize: "8px",
+  fontSize: "40px",
   color: "#ffff55",
-  padding: { x: 1, y: 1 },
+  padding: { x: 5, y: 5 },
 };
 
 /** Level, lives, ammo and score readout in the top-left corner. */
@@ -23,16 +24,16 @@ export class HudView {
   ensureCreated(): void {
     if (this.hudBg) return;
     this.hudBg = this.scene.add
-      .rectangle(0, 0, 132, 21, 0x000000, 0.7)
+      .rectangle(0, 0, 660, 105, 0x000000, 0.7)
       .setOrigin(0, 0)
       .setScrollFactor(0)
       .setDepth(100);
     this.hudText = this.scene.add
-      .text(3, 2, "", HUD_STYLE)
+      .text(15, 10, "", HUD_STYLE)
       .setScrollFactor(0)
       .setDepth(101);
     this.hudAmmo = this.scene.add
-      .text(3, 11, "", { ...HUD_STYLE, color: "#55ffff" })
+      .text(15, 55, "", { ...HUD_STYLE, color: "#55ffff" })
       .setScrollFactor(0)
       .setDepth(101);
   }

@@ -54,7 +54,7 @@ test("boots to the title screen without console errors", async ({ page }) => {
     const canvas = element as HTMLCanvasElement;
     return { width: canvas.width, height: canvas.height };
   });
-  expect(canvas).toEqual({ width: 320, height: 200 });
+  expect(canvas).toEqual({ width: 1920, height: 1080 });
   expect((await snapshot(page)).state).toBe("title");
   expect(errors).toEqual([]);
 });
@@ -67,7 +67,7 @@ test("Space starts level 1 and the player runs and shoots", async ({ page }) => 
 
   const start = await snapshot(page);
   await page.keyboard.down("ArrowRight");
-  await expect.poll(async () => (await snapshot(page)).x).toBeGreaterThan(start.x + 8);
+  await expect.poll(async () => (await snapshot(page)).x).toBeGreaterThan(start.x + 40);
   await page.keyboard.up("ArrowRight");
 
   await page.keyboard.press("ControlLeft");
@@ -81,7 +81,7 @@ test("number keys switch to the matching level data", async ({ page }) => {
 
   const expected = await page.evaluate(() => {
     const level = (window as unknown as { mkw: DebugApi }).mkw.assets.levels[4];
-    return { width: level.width * 16, height: level.height * 16 };
+    return { width: level.width * 80, height: level.height * 80 };
   });
 
   await page.keyboard.press("Digit5");
@@ -106,8 +106,8 @@ test("the canvas fits the viewport and keeps its aspect ratio", async ({ page })
   await expect.poll(async () => (await measure()).width).toBeLessThanOrEqual(700);
 
   const style = await measure();
-  expect(style.width).toBeGreaterThanOrEqual(320);
+  expect(style.width).toBeGreaterThan(0);
   expect(style.width).toBeLessThanOrEqual(700);
   expect(style.height).toBeLessThanOrEqual(500);
-  expect(style.width / style.height).toBeCloseTo(320 / 200, 2);
+  expect(style.width / style.height).toBeCloseTo(16 / 9, 2);
 });

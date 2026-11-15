@@ -39,7 +39,7 @@ S10.
 ## Вне scope
 
 - Замена используемого арта (`tiles.png`, `title1.png`, `s_hero.png`, `s_chunk1.png`,
-  `s_chunk2.png`) — S03/S05/S09.
+  `s_chunk2.png`) — S13/S14/S15/S16.
 - Уровни, `tileinfo.json`, структура JSON.
 
 ## Папки (только эти)

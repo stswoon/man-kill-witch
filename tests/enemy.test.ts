@@ -29,8 +29,8 @@ function ledgeLevel(): ReturnType<typeof makeLevel> {
 }
 
 function walkerAt(x: number, level = wallLevel()): Enemy {
-  const enemy = new Enemy(1, x * TILE, FLOOR_TOP - 12);
-  enemy.speed = 26;
+  const enemy = new Enemy(1, x * TILE, FLOOR_TOP - 60);
+  enemy.speed = 130;
   return enemy;
 }
 
@@ -54,12 +54,16 @@ describe("Enemy spawn mapping", () => {
     expect(byType.get(1)?.sprite).toBe(2);
     expect(byType.get(6)?.sprite).toBe(5);
     expect(byType.get(14)?.sprite).toBe(9);
-    expect(byType.get(1)?.speed).toBe(26);
-    expect(byType.get(6)?.speed).toBe(40);
-    expect(byType.get(14)?.speed).toBe(34);
+    expect(byType.get(1)?.speed).toBe(130);
+    expect(byType.get(6)?.speed).toBe(200);
+    expect(byType.get(14)?.speed).toBe(170);
     expect(byType.get(1)?.fly).toBe(false);
     expect(byType.get(6)?.fly).toBe(false);
     expect(byType.get(14)?.fly).toBe(true);
+    expect(byType.get(1)?.w).toBe(60);
+    expect(byType.get(1)?.h).toBe(60);
+    expect(byType.get(1)?.x, "spawn x is tx * TILE + 10").toBe(5 * TILE + 10);
+    expect(byType.get(1)?.y, "spawn y is ty * TILE + 20").toBe(11 * TILE + 20);
   });
 
   test("marks chargers as non-turning at ledges", () => {
@@ -86,7 +90,7 @@ describe("Enemy terrain", () => {
     run(enemy, level, 200);
 
     expect(enemy.dir).toBe(-1);
-    expect(enemy.x + enemy.w).toBeLessThanOrEqual(8 * TILE + 1);
+    expect(enemy.x + enemy.w).toBeLessThanOrEqual(8 * TILE + 5);
   });
 
   test("walker turns around at a ledge", () => {
@@ -96,26 +100,26 @@ describe("Enemy terrain", () => {
     run(enemy, level, 40);
 
     expect(enemy.dir).toBe(-1);
-    expect(Math.abs(enemy.y - (FLOOR_TOP - 12)), "walker must stay on the platform").toBeLessThanOrEqual(1);
+    expect(Math.abs(enemy.y - (FLOOR_TOP - 60)), "walker must stay on the platform").toBeLessThanOrEqual(5);
   });
 
   test("charger runs straight off a ledge", () => {
     const level = ledgeLevel();
-    const enemy = new Enemy(6, 7 * TILE, FLOOR_TOP - 12);
-    enemy.speed = 40;
+    const enemy = new Enemy(6, 7 * TILE, FLOOR_TOP - 60);
+    enemy.speed = 200;
     enemy.turnsAtLedge = false;
 
     run(enemy, level, 60);
 
     expect(enemy.dir).toBe(1);
-    expect(enemy.y, "charger must leave the platform").toBeGreaterThan(FLOOR_TOP - 12);
+    expect(enemy.y, "charger must leave the platform").toBeGreaterThan(FLOOR_TOP - 60);
     expect(enemy.alive).toBe(true);
   });
 
   test("charger still turns around at a wall", () => {
     const level = wallLevel();
-    const enemy = new Enemy(6, 6 * TILE, FLOOR_TOP - 12);
-    enemy.speed = 40;
+    const enemy = new Enemy(6, 6 * TILE, FLOOR_TOP - 60);
+    enemy.speed = 200;
     enemy.turnsAtLedge = false;
 
     run(enemy, level, 120);
@@ -131,21 +135,29 @@ describe("Enemy terrain", () => {
     run(enemy, level, 300);
 
     expect(enemy.alive).toBe(true);
-    expect(enemy.y + enemy.h).toBeLessThanOrEqual(level.pixelHeight + 1);
+    expect(enemy.y + enemy.h).toBeLessThanOrEqual(level.pixelHeight + 5);
   });
 });
 
 describe("Enemy flying", () => {
   test("flyer reverses at a wall", () => {
     vi.spyOn(Math, "random").mockReturnValue(0);
-    const level = makeLevel({ width: 20, height: 15, tiles: [[8, 6, SOLID]] });
-    const enemy = new Enemy(14, 6 * TILE, 5 * TILE);
+    const level = makeLevel({
+      width: 20,
+      height: 15,
+      tiles: [
+        [8, 5, SOLID],
+        [8, 6, SOLID],
+      ],
+    });
+    const enemy = new Enemy(14, 6 * TILE, 5 * TILE - 30);
     enemy.fly = true;
-    enemy.speed = 34;
+    enemy.speed = 170;
 
     run(enemy, level, 200);
 
     expect(enemy.dir).toBe(-1);
+    expect(enemy.x, "flyer must not pass the wall").toBeLessThan(8 * TILE);
   });
 
   test("flyer dies above the top of the map", () => {

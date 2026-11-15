@@ -1,26 +1,31 @@
-# S10 — Дверь: статичные тайлы + спрайт открытия
+# S10 — Дверь: статичные тайлы + HD-спрайт открытия
 
 **Статус:** OPEN
 
 **Дорожка:** дверь / анимации.
 
-**Параллель:** S09 — по файлам. Не параллелить: S11 (`game.ts`, `game.test.ts`).
+**Параллель:** S14, S15, S16 — по файлам (`assets/sprites/**`, `tiles.png`). Не
+параллелить: S11 (`game.ts`, `game.test.ts`), S17 (`assets.ts`, `boot-scene.ts`,
+`content.test.ts`), S12 (`game.ts`/`game-scene.ts`).
 
-**Зависит от:** S01 (`view`), S06 (каталог анимаций/`CharacterView`), S07 (`assets.ts`,
-`boot-scene.ts`, `content.test.ts`; S02 — транзитивно через S07).
+**Зависит от:** S13 (мир ×5, `TILE = 80`, манифест и загрузчик), S06 (каталог анимаций и
+`CharacterView`), S01 (`view`). S02 — транзитивно: `s_door.png` новый файл, удаления S02 его
+не касаются.
 
 **Разблокирует:** S11 (контракт двери в `game.ts`/`game.test.ts`).
 
 ## Цель
 
-Оставить статичную дверь тайлами уровня, а открытие перевести на спрайтовую анимацию
+Оставить статичную дверь тайлами уровня, а открытие перевести на HD-спрайтовую анимацию
 `door-open`; убрать `DOOR_FRAMES` и показывать все 3 кадра.
 
 ## В scope
 
-- `web/public/assets/sprites/s_door.png` — `32×48`, 3 кадра, оригинальный арт.
-- `web/src/assets.ts`: `DOOR_TEXTURE = "door"`; `web/src/scenes/boot-scene.ts`: загрузка
-  `s_door.png` как spritesheet `32×48`.
+- `web/public/assets/sprites/s_door.png` — лист `480×240`, 3 кадра `160×240`, оригинальный
+  HD-арт в стиле `03-art.md` (рисует `ui-designer-agent`; код интегрирует `dev`). Кадр =
+  блок `2×3` тайла при `TILE = 80`.
+- `web/src/assets.ts`: `DOOR_TEXTURE = "door"`.
+- `web/src/scenes/boot-scene.ts`: загрузка `s_door.png` как spritesheet `160×240`.
 - `web/src/animation-catalog.ts`: `door-open` — 3 кадра, 14 fps, `repeat: 0`.
 - `web/src/game.ts`:
   - удалить `DOOR_FRAMES`;
@@ -32,18 +37,18 @@
     `levelComplete = true`, `+1000`, `door = null`; всего 15 тиков;
   - статичная дверь до срабатывания не меняется; уровни и `tileinfo.json` не трогаются.
 - `web/src/view/door-view.ts` (или отдельный view в `web/src/view/`): спрайт в
-  `(tx-1)*16, (ty-1)*16`, origin `0,0`, глубина позади персонажей; `play("door-open", true)`;
-  скрыть при завершении/смене уровня; `PhaserView` делегирует.
+  `(tx-1)*TILE, (ty-1)*TILE` (`TILE = 80`), origin `0,0`, глубина позади персонажей;
+  `play("door-open", true)`; скрыть при завершении/смене уровня; `PhaserView` делегирует.
 - `tests/game.test.ts`: вместо 12 патчей — состояние двери и 6 очищенных ячеек (тестовая
   арена), `step = 1` через 5 тиков, `step = 2` через 10, завершение/+1000 через 15.
-- `tests/content.test.ts`: `s_door.png` в манифесте, размеры `32×48`, 3 кадра.
+- `tests/content.test.ts`: `s_door.png` в манифесте, размеры `480×240`, 3 кадра.
 
 ## Вне scope
 
 - Arcade Physics, `game.ts`-физика (S11).
-- Тайлсет, статичные дверные индексы и уровни (S09).
+- Тайлсет, статичные дверные индексы и уровни (S16).
 - HUD, персонажи, титульный экран.
-- `docs/design.md` — строку про дверь правит S08.
+- `docs/design.md` — строка про дверь уже исправлена S08.
 
 ## Папки (только эти)
 
@@ -63,7 +68,8 @@ tests/content.test.ts         (только s_door.png)
 
 - `DOOR_TEXTURE = "door"`; анимация `door-open`;
 - `Game.door: { tx, ty, step, timer } | null` — read-only для view;
-- `DOOR_FRAMES` удалён.
+- `DOOR_FRAMES` удалён;
+- спрайт `160×240`, позиция в мировых px (`TILE = 80`).
 
 ## Приёмка
 
@@ -82,4 +88,4 @@ tests/content.test.ts         (только s_door.png)
 - Не менять статичные дверные тайлы, уровни и `tileinfo.json`.
 - Не трогать `game.ts` вне двери; не переводить дверь на Arcade.
 - Не использовать старые `DOOR_FRAMES` и не показывать только 2 кадра.
-- Не трогать `docs/design.md` (S08).
+- Не менять `docs/design.md` (дверь уже описана).

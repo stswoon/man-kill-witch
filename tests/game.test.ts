@@ -4,6 +4,7 @@ import { Bullet, Game, type Level } from "../web/src/game";
 import {
   AMMO,
   DOOR,
+  DT,
   GEM_100,
   GEM_250,
   GEM_500,
@@ -14,8 +15,8 @@ import {
   tick,
 } from "./helpers";
 
-const SPAWN_X = 2 * TILE + 2;
-const SPAWN_Y = 11 * TILE + TILE - 24;
+const SPAWN_X = 2 * TILE + 10;
+const SPAWN_Y = 11 * TILE + TILE - 120;
 
 function centreTile(game: Game): [number, number] {
   const p = game.player;
@@ -50,6 +51,8 @@ describe("Game.spawn", () => {
     expect(game.player.vx).toBe(0);
     expect(game.player.vy).toBe(0);
     expect(game.player.invuln).toBe(30);
+    expect(game.player.w).toBe(60);
+    expect(game.player.h).toBe(120);
     expect(game.lives).toBe(3);
     expect(game.score).toBe(0);
   });
@@ -65,9 +68,14 @@ describe("Shooting", () => {
 
     expect(game.player.ammo).toBe(7);
     expect(game.bullets).toHaveLength(1);
-    expect(game.bullets[0].vx).toBe(380);
+    expect(game.bullets[0].vx).toBe(1900);
     expect(game.bullets[0].vy).toBe(0);
-    expect(game.bullets[0].y, "the shot leaves at gun height").toBe(game.player.cy);
+    // The bullet is integrated once in the tick that spawns it.
+    expect(game.bullets[0].x, "the shot leaves 30px in front of the body").toBeCloseTo(
+      game.player.cx + 30 + 1900 * DT,
+      5,
+    );
+    expect(game.bullets[0].y, "the shot leaves at gun height").toBeCloseTo(game.player.cy, 5);
   });
 
   test("hits an enemy standing on the same floor", () => {
@@ -115,7 +123,11 @@ describe("Shooting", () => {
     input.press("ControlLeft");
     tick(game, input, 1);
 
-    expect(game.bullets[0].vy).toBe(-285);
+    expect(game.bullets[0].vy).toBe(-1425);
+    expect(game.bullets[0].y, "aiming up moves the muzzle 30px up").toBeCloseTo(
+      game.player.cy - 30 - 1425 * DT,
+      5,
+    );
   });
 
   test("does not fire without ammo", () => {
@@ -303,11 +315,11 @@ describe("Level bounds", () => {
 
     tick(game, input, 1);
     expect(game.cameraX).toBe(0);
-    expect(game.cameraY).toBe(game.level.pixelHeight - 200);
+    expect(game.cameraY).toBe(game.level.pixelHeight - 1080);
 
     game.player.x = game.level.pixelWidth - 20;
     tick(game, input, 1);
-    expect(game.cameraX).toBe(game.level.pixelWidth - 320);
+    expect(game.cameraX).toBe(game.level.pixelWidth - 1920);
   });
 
   test("keeps the camera fixed on a level smaller than the screen", () => {
