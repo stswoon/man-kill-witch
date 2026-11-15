@@ -1,6 +1,6 @@
 # S17 — HD-HUD: панель и bitmap-шрифт
 
-**Статус:** IN_PROGRESS
+**Статус:** DONE
 
 **Дорожка:** HUD / UI.
 

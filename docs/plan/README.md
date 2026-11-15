@@ -41,14 +41,15 @@ PNG-ассетов и удаление untracked `tests/art-assets.test.ts`,
 | S09 | Новый тайлсет на месте (EGA `16×16`) | CANCELLED | — | — | — (заменено S16) |
 | S10 | Дверь: статичные тайлы + HD-спрайт открытия | DONE | S14, S15, S16 | S13, S06, S01 | S11 |
 | S11 | Arcade Physics: `arcade/*`, правила без Phaser | DONE | S14, S15, S16, S17 | S13, S01, S04, S06, S08, S10 | S12 |
-| S12 | Сохранение очков и жизней между уровнями | OPEN | S14, S15, S16, S17 | S11 | S18 |
+| S12 | Сохранение очков и жизней между уровнями | IN_PROGRESS | S14, S15, S16, S17 | S11 | S18 |
 | S13 | Пилот: HD-рендер и HD-титульный экран | DONE | нет | — | S10–S12, S14–S17 |
 | S14 | HD-арт героя | DONE | S10, S15, S16, S17 | S13 | S18 |
 | S15 | HD-арт врагов | DONE | S10, S14, S16, S17 | S13 | S18 |
 | S16 | HD-тайлсет на месте | DONE | S10, S14, S15, S17 | S13 | S18 |
-| S17 | HD-HUD: панель и bitmap-шрифт | IN_PROGRESS | S11, S14, S15, S16 | S13 | S18 |
+| S17 | HD-HUD: панель и bitmap-шрифт | DONE | S11, S14, S15, S16 | S13 | S18 |
 | S18 | HD-финализация: доки, статус ассетов, приёмка | OPEN | нет | S10, S11, S12, S14, S15, S16, S17 | — |
 | S19 | LLM-пилот: бот-игрок и проверка проходимости | DONE | нет (не гейт) | S11; S12 по `game-scene.ts` | — |
+| S20 | Уровень 1: стартовый карман | IN_PROGRESS | нет | S19 | — |
 
 S12 — это **run state** (очки/жизни), а не миграция тестов. Миграция тестов входит в S11.
 S18 — не новая механика: только синхронизация `AGENTS.md`/`README.md`/`docs/design.md` и
@@ -59,6 +60,7 @@ S19 — диагностический инструмент по запросу:
 Живой прогон уровня 1 подтвердил S19 tooling и нашёл дефект данных: стартовый карман,
 ступень `(7,32)` — 3 тайла над полом против прыжка 219 px; отчёт —
 `docs/plan/artifacts/bot-run-S19-level-1.md`. Правка уровня — отдельная задача.
+S20 — эта правка: ступени `(8,34)`/`(9,32)` и повторный прогон `agent-bot`.
 
 ## Граф дорожек
 
@@ -130,11 +132,12 @@ S17 зависимостей от S10 не имеет, но по эксклюз�
 
 | Путь | Порядок |
 |---|---|
-| `web/src/assets.ts`, `web/src/scenes/boot-scene.ts`, `tests/content.test.ts` | S13 → S10 → S17. |
+| `web/src/assets.ts`, `web/src/scenes/boot-scene.ts`, `tests/content.test.ts` | S13 → S10 → S17 → S20 (тест уровня 01). |
 | `web/src/main.ts` | S13 (HD-рендер, `antialias`, без `pixelArt`). |
 | `web/src/game.ts`, `tests/game.test.ts` | S13 → S10 → S11 → S12. |
 | `web/src/scenes/game-scene.ts` | S11 → S12 → S19. |
-| `web/src/bot/**`, `e2e/bot-api.spec.ts`, `tests/bot-report.test.ts`, `.opencode/agents/agent-bot.md`, `docs/plan/S19-agent-bot.md` | S19. |
+| `web/src/bot/**`, `e2e/bot-api.spec.ts`, `tests/bot-report.test.ts`, `.opencode/agents/agent-bot.md`, `docs/plan/S19-agent-bot.md` | S19 → S20 (known data). |
+| `web/public/assets/levels/01.json`, `e2e/physics.spec.ts`, `docs/plan/S20-level-1-start-pocket.md`, `docs/plan/artifacts/bot-run-S20-level-1.md` | S20. |
 | `web/src/view/hud-view.ts` | S13 (временный системный HUD) → S17. |
 | `web/src/view/message-view.ts` | S13. |
 | `web/src/view/character-view.ts` | S13 → S11. |
@@ -148,14 +151,14 @@ S17 зависимостей от S10 не имеет, но по эксклюз�
 | `tests/png.ts`, `tests/art-assets.test.ts` | S13. |
 | `tests/hero-art.test.ts` | S14. |
 | `tests/enemy-art.test.ts` | S15. |
-| `e2e/**` | S13 → S11 → S12. |
+| `e2e/**` | S13 → S11 → S12 → S20 (стена у спавна). |
 | `web/public/assets/title1.png` | S13. |
 | `web/public/assets/tiles.png` | S13 (временная ×5-копия) → S16. |
 | `web/public/assets/sprites/s_hero.png` | S13 (временная ×5-копия) → S14. |
 | `web/public/assets/sprites/s_chunk1.png`, `s_chunk2.png` | S13 (временные ×5-копии) → S15. |
 | `web/public/assets/hud.png`, `web/public/assets/fonts/**` | S17. |
 | `web/public/assets/sprites/s_door.png` | S10. |
-| `docs/design.md` | S13 (числа) → S11 (физика) → S12 (run state) → S18 (финал). |
+| `docs/design.md` | S13 (числа) → S11 (физика) → S12 (run state) → S20 (стартовый карман 01) → S18 (финал). |
 | `AGENTS.md` | S11 (архитектура/тесты) → S12 (`mkw`) → S19 (бот-игрок) → S18 (статус HD). |
 | `README.md` | S11 (структура) → S19 (бот-игрок) → S18 (статус HD). |
 | `docs/spec/**` | analyst; стори спеку не переписывают. |
