@@ -1,25 +1,23 @@
 import Phaser from "phaser";
+import { registerAnimations } from "../animations";
 import { BULLET_TEXTURE } from "../assets";
 import type { Bullet, Enemy, Player } from "../game";
 
-interface FrameRef {
-  key: string;
-  frame: number;
+/** Enemy sprite ids 2-8 live in `chunk1`, 9-12 in `chunk2` (05-animation.md). */
+function enemyTexture(sprite: number): string {
+  return sprite <= 8 ? "chunk1" : "chunk2";
 }
 
-/** Player, enemy and bullet sprites; frames are picked from the fixed-step tick. */
+/** Player, enemy and bullet sprites; frames come from the Phaser AnimationManager. */
 export class CharacterView {
   private readonly scene: Phaser.Scene;
   private readonly playerSprite: Phaser.GameObjects.Sprite;
   private readonly enemySprites: Phaser.GameObjects.Sprite[] = [];
   private readonly bulletSprites: Phaser.GameObjects.Image[] = [];
-  private readonly chunk1Frames: number;
-  private readonly enemyFrameCount: number;
 
   constructor(scene: Phaser.Scene) {
     this.scene = scene;
-    this.chunk1Frames = this.frameCount("chunk1");
-    this.enemyFrameCount = this.chunk1Frames + this.frameCount("chunk2");
+    registerAnimations(scene);
 
     this.playerSprite = scene.add
       .sprite(0, 0, "hero", 0)
@@ -30,35 +28,34 @@ export class CharacterView {
     this.createBulletTexture();
   }
 
-  render(player: Player, enemies: Enemy[], bullets: Bullet[], tick: number): void {
-    this.drawPlayer(player, tick);
-    this.drawEnemies(enemies, tick);
+  render(player: Player, enemies: Enemy[], bullets: Bullet[]): void {
+    this.drawPlayer(player);
+    this.drawEnemies(enemies);
     this.drawBullets(bullets);
   }
 
-  private drawPlayer(player: Player, tick: number): void {
-    const frames = this.frameCount("hero");
-    if (frames === 0) return;
+  private drawPlayer(player: Player): void {
+    let animation = "hero-idle";
+    if (!player.onGround) animation = "hero-jump";
+    else if (Math.abs(player.vx) > 8) animation = "hero-run";
 
-    let index = 0;
-    if (!player.onGround) index = Math.min(13, frames - 1);
-    else if (Math.abs(player.vx) > 8) index = 1 + (Math.floor(tick / 5) % 6);
-
+    // `play(key, true)` keeps a running animation going instead of restarting it every frame.
     this.playerSprite
-      .setTexture("hero", Math.min(index, frames - 1))
       .setFlipX(player.facing > 0)
       .setPosition(
         Math.round(player.x + player.w / 2),
         Math.round(player.y + player.h),
       )
-      .setVisible(true);
+      .setVisible(true)
+      .play(animation, true);
   }
 
-  private drawEnemies(enemies: Enemy[], tick: number): void {
+  private drawEnemies(enemies: Enemy[]): void {
     while (this.enemySprites.length < enemies.length) {
+      const enemy = enemies[this.enemySprites.length];
       this.enemySprites.push(
         this.scene.add
-          .sprite(0, 0, "chunk1", 0)
+          .sprite(0, 0, enemyTexture(enemy.sprite), 0)
           .setOrigin(0.5, 1)
           .setDepth(11)
           .setVisible(false),
@@ -68,25 +65,17 @@ export class CharacterView {
     for (let i = 0; i < this.enemySprites.length; i++) {
       const sprite = this.enemySprites[i];
       const enemy = enemies[i];
-      if (!enemy || !enemy.alive || this.enemyFrameCount === 0) {
+      if (!enemy || !enemy.alive) {
         sprite.setVisible(false);
+        if (sprite.anims.isPlaying) sprite.anims.stop();
         continue;
       }
 
-      // Each enemy type is a 5-frame animation group inside the sprite bank.
-      const group = Math.max(0, enemy.sprite - 2);
-      const base = group * 5;
-      const index = Math.min(
-        this.enemyFrameCount - 1,
-        base + (Math.floor(tick / 8) % 5),
-      );
-      const frame = this.enemyFrame(index);
-
       sprite
-        .setTexture(frame.key, frame.frame)
         .setFlipX(enemy.dir > 0)
         .setPosition(Math.round(enemy.x + enemy.w / 2), Math.round(enemy.y + enemy.h))
-        .setVisible(true);
+        .setVisible(true)
+        .play(`enemy-${enemy.sprite}`, true);
     }
   }
 
@@ -120,15 +109,5 @@ export class CharacterView {
     graphics.fillRect(0, 0, 3, 1);
     graphics.generateTexture(BULLET_TEXTURE, 3, 1);
     graphics.destroy();
-  }
-
-  private enemyFrame(index: number): FrameRef {
-    if (index < this.chunk1Frames) return { key: "chunk1", frame: index };
-    return { key: "chunk2", frame: index - this.chunk1Frames };
-  }
-
-  private frameCount(key: string): number {
-    // Phaser adds a `__BASE` frame to every texture, so subtract it.
-    return Math.max(0, this.scene.textures.get(key).frameTotal - 1);
   }
 }

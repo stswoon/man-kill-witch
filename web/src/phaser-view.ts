@@ -52,7 +52,7 @@ export class PhaserView {
 
   render(game: Game, levelIndex: number): void {
     this.levelView.setCamera(game.cameraX, game.cameraY);
-    this.characters.render(game.player, game.enemies, game.bullets, game.tick);
+    this.characters.render(game.player, game.enemies, game.bullets);
     this.hud.render(game, levelIndex);
   }
 }
