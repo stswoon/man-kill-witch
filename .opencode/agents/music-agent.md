@@ -1,7 +1,7 @@
 ---
 description: Пишет музыку и звуковые эффекты кодом на WebAudio — без аудиофайлов и сэмплов, в духе раннего PC-синтеза. Вызывай для новых эффектов, фоновых треков и звукового сопровождения событий.
 mode: subagent
-model: opencode/gpt-6.1-sol#xhigh
+model: openai/gpt-6.1-sol#xhigh
 color: "#56b6c2"
 ---
 
