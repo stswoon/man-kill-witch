@@ -1,0 +1,55 @@
+docs/plan/S03-title-art.md
+  s_6d10b5741483ee::t_9e281c14461c48 3
+docs/plan/artifacts/decisions-S03.md
+  s_6d10b5741483ee::t_6e78c7c22d16df 1-10
+docs/plan/README.md
+  s_6d10b5741483ee::t_4ca4f8d6151c0a 17
+  s_6d10b5741483ee::t_61353b366e9540 13
+docs/plan/artifacts/review-notes-S03.md
+  s_657a1757675cff::t_85887e0bdb5b5b 10-12,16-33,45-57,67,69-70
+  s_657a1757675cff::t_85183ac23b1863 1-9,13-15,34-44,58-66,68
+docs/plan/artifacts/bug-report-S03.md
+  s_7829245b33b0c1::t_4d332831c84d14 7
+  s_7829245b33b0c1::t_578ed5be6b1810 24
+  s_7829245b33b0c1::t_8ee6b52cbc7445 40-43,66
+  s_7829245b33b0c1::t_97ce2044e3a313 14
+  s_7829245b33b0c1::t_558126f433ddc5 18
+  s_7829245b33b0c1::t_cbebf9583fae3b 38,67-71
+  s_7829245b33b0c1::t_420c658925ed20 1-6,8-13,19-20,23,25-37,39,44-58,60-65
+  s_7829245b33b0c1::t_7db1f1f1fb2701 59
+  s_7829245b33b0c1::t_43847ea6d040fb 15-16
+  s_7829245b33b0c1::t_96e174e88aa21f 17
+  s_7829245b33b0c1::t_a8e65a2a6f784c 21-22
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "8c00842fc52c55b3e87e660634a1448df4b95216",
+  "prompts": {},
+  "sessions": {
+    "s_657a1757675cff": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e246c2abfffeTt31FWcNkG7J5o",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_6d10b5741483ee": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e249e0225ffeQwrASalLP6z4ZW",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_7829245b33b0c1": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e247c073effedQnzf14NeaITPm",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    }
+  }
+}
