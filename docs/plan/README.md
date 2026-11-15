@@ -25,6 +25,15 @@ PNG-ассетов и удаление untracked `tests/art-assets.test.ts`,
   run state.
 - **EGA-арт S05/S07/S09 отброшен;** EGA-титул S03 (закоммичен) заменяется HD-титулом S13;
   журнал решений сохранён.
+- **Мастера ≥512 (2026-11-15):** новые и перерисовываемые исходники — не меньше 512 px по
+  меньшей стороне; 1× атласы не меняются. Перерисовка S14–S17 — S22.
+
+## Решения по звуку (2026-11-15)
+
+- Музыка и SFX — только WebAudio-синтез, без аудиофайлов: слоистые голоса, суб-бас, стерео,
+  короткий реверб/дилей; треки по состояниям `title / play / gameover / win`. Реализация — S23.
+- Голос через ElevenLabs и аудиофайлы — отдельная стори: ключи только в локальном `.env`,
+  результат — готовый ассет. В S23 не входит.
 
 ## Стори
 
@@ -47,9 +56,12 @@ PNG-ассетов и удаление untracked `tests/art-assets.test.ts`,
 | S15 | HD-арт врагов | DONE | S10, S14, S16, S17 | S13 | S18 |
 | S16 | HD-тайлсет на месте | DONE | S10, S14, S15, S17 | S13 | S18 |
 | S17 | HD-HUD: панель и bitmap-шрифт | DONE | S11, S14, S15, S16 | S13 | S18 |
-| S18 | HD-финализация: доки, статус ассетов, приёмка | IN_PROGRESS | нет | S10, S11, S12, S14, S15, S16, S17 | — |
+| S18 | HD-финализация: доки, статус ассетов, приёмка | DONE | нет | S10, S11, S12, S14, S15, S16, S17 | — |
 | S19 | LLM-пилот: бот-игрок и проверка проходимости | DONE | нет (не гейт) | S11; S12 по `game-scene.ts` | — |
 | S20 | Уровень 1: стартовый карман | DONE | нет | S19 | — |
+| S21 | Читаемость тайлсета и фон тумана | IN_PROGRESS | — | S20 | S22 |
+| S22 | Мастер-арт ≥512 px: тайлы и спрайты | OPEN | — | S18, S21, S14–S17 | будущая 2×-стори |
+| S23 | Музыка и SFX: насыщенный WebAudio-синтез | OPEN | S22 (по файлам; доки — после S22) | S11/S12, S18 | голос/ElevenLabs, громкость — отдельно |
 
 S12 — это **run state** (очки/жизни), а не миграция тестов. Миграция тестов входит в S11.
 S18 — не новая механика: только синхронизация `AGENTS.md`/`README.md`/`docs/design.md` и
@@ -63,6 +75,13 @@ S19 — диагностический инструмент по запросу:
 S20 — эта правка: ступени `(8,34)`/`(9,32)` и повторный прогон `agent-bot`; проверено —
 уровень 1 PASS (20 действий / 569 тиков, 0 смертей). Отчёт —
 `docs/plan/artifacts/bot-run-S20-level-1.md`.
+S21 — читаемость тайлсета: 501 индекс арт-контракта, фон тумана, семейства платформ, стен и
+дверей. Отчёт — `work/s21-tile-readability/HANDOFF.md` (локальный). QA/Lead не пройдены;
+известный FAIL `bot-api` не связан с артом (доказано в отчёте).
+S22 — мастера ≥512 px и те же 1× атласы; 2×/4K-рендер (`TILE 160`, `3840×2160`, физика ×2)
+— отдельная стори, в план не входит.
+S23 — новый саундтрек и SFX на WebAudio по требованиям `music-agent.md`; без аудиофайлов.
+Голос ElevenLabs, аудиофайлы и настройки громкости — отдельные стори.
 
 ## Граф дорожек
 
@@ -74,6 +93,8 @@ S20 — эта правка: ступени `(8,34)`/`(9,32)` и повторн�
                └─> S17 ──────────────────┘
 
 Документы: S13 (design.md) -> S11 -> S12 -> S18
+
+Пост-HD: S21 (тайлсет) -> S22 (арт) ∥ S23 (звук) -> 2×/4K (не запланирована)
 ```
 
 S17 зависимостей от S10 не имеет, но по эксклюзивным путям (`assets.ts`, `boot-scene.ts`,
@@ -137,7 +158,7 @@ S17 зависимостей от S10 не имеет, но по эксклюз�
 | `web/src/assets.ts`, `web/src/scenes/boot-scene.ts`, `tests/content.test.ts` | S13 → S10 → S17 → S20 (тест уровня 01). |
 | `web/src/main.ts` | S13 (HD-рендер, `antialias`, без `pixelArt`). |
 | `web/src/game.ts`, `tests/game.test.ts` | S13 → S10 → S11 → S12. |
-| `web/src/scenes/game-scene.ts` | S11 → S12 → S19. |
+| `web/src/scenes/game-scene.ts` | S11 → S12 → S19 → S23 (музыка по состояниям). |
 | `web/src/bot/**`, `e2e/bot-api.spec.ts`, `tests/bot-report.test.ts`, `.opencode/agents/agent-bot.md`, `docs/plan/S19-agent-bot.md` | S19 → S20 (known data). |
 | `web/public/assets/levels/01.json`, `e2e/physics.spec.ts`, `docs/plan/S20-level-1-start-pocket.md`, `docs/plan/artifacts/bot-run-S20-level-1.md` | S20. |
 | `web/src/view/hud-view.ts` | S13 (временный системный HUD) → S17. |
@@ -146,6 +167,7 @@ S17 зависимостей от S10 не имеет, но по эксклюз�
 | `web/src/view/level-view.ts` | S11. |
 | `web/src/view/door-view.ts`, `web/src/phaser-view.ts` | S10. |
 | `web/src/animation-catalog.ts`, `web/src/animations.ts` | S06 → S10 (`door-open`). |
+| `web/src/sfx.ts`, `web/src/music-catalog.ts`, `web/src/music.ts` | S23. |
 | `web/src/sim-contract.ts`, `web/src/arcade/**` | S11. |
 | `tests/helpers.ts`, `tests/player.test.ts`, `tests/enemy.test.ts`, `tests/smoke.test.ts` | S13 → S11. |
 | `tests/architecture.test.ts` | S11. |
@@ -153,16 +175,19 @@ S17 зависимостей от S10 не имеет, но по эксклюз�
 | `tests/png.ts`, `tests/art-assets.test.ts` | S13. |
 | `tests/hero-art.test.ts` | S14. |
 | `tests/enemy-art.test.ts` | S15. |
+| `tests/music.test.ts`, `e2e/audio.spec.ts` | S23. |
 | `e2e/**` | S13 → S11 → S12 → S20 (стена у спавна). |
 | `web/public/assets/title1.webp` | S13. |
-| `web/public/assets/tiles.png` | S13 (временная ×5-копия) → S16. |
-| `web/public/assets/sprites/s_hero.png` | S13 (временная ×5-копия) → S14. |
-| `web/public/assets/sprites/s_chunk1.png`, `s_chunk2.png` | S13 (временные ×5-копии) → S15. |
+| `web/public/assets/tiles.png` | S13 (временная ×5-копия) → S16 → S21 → S22. |
+| `web/public/assets/sprites/s_hero.png` | S13 (временная ×5-копия) → S14 → S22. |
+| `web/public/assets/sprites/s_chunk1.png`, `s_chunk2.png` | S13 (временные ×5-копии) → S15 → S22. |
 | `web/public/assets/hud.png`, `web/public/assets/fonts/**` | S17. |
-| `web/public/assets/sprites/s_door.png` | S10. |
-| `docs/design.md` | S13 (числа) → S11 (физика) → S12 (run state) → S20 (стартовый карман 01) → S18 (финал). |
-| `AGENTS.md` | S11 (архитектура/тесты) → S12 (`mkw`) → S19 (бот-игрок) → S20 (уровень 01) → S18 (статус HD). |
-| `README.md` | S11 (структура) → S19 (бот-игрок) → S20 (уровень 01) → S18 (статус HD). |
+| `web/public/assets/sprites/s_door.png` | S10 → S22. |
+| `work/s22-art-masters/**` | S22 (локальные мастера и 2× preview, не коммитятся). |
+| `work/s23-audio/**` | S23 (локальные прототипы и превью, не коммитятся). |
+| `docs/design.md` | S13 (числа) → S11 (физика) → S12 (run state) → S20 (стартовый карман 01) → S18 (финал) → S23 (звук). |
+| `AGENTS.md` | S11 (архитектура/тесты) → S12 (`mkw`) → S19 (бот-игрок) → S20 (уровень 01) → S18 (статус HD) → S22 (мастера ≥512) → S23 (звук). |
+| `README.md` | S11 (структура) → S19 (бот-игрок) → S20 (уровень 01) → S18 (статус HD) → S22 (мастера ≥512) → S23 (звук). |
 | `docs/spec/**` | analyst; стори спеку не переписывают. |
 
 ## Правила
