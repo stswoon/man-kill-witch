@@ -1,0 +1,31 @@
+docs/plan/README.md
+  s_f089c3588df7d9::t_d8d67c2694fb54 61
+  s_f089c3588df7d9::t_d911184767aac9 59-60
+  s_f089c3588df7d9::t_23d7a0018e3207 51
+docs/plan/S19-agent-bot.md
+  s_f089c3588df7d9::t_4957515d65ae9f 3,94-106,118-120,130-131
+AGENTS.md
+  s_f089c3588df7d9::t_92eaa68b8ce291 91-94
+.opencode/agents/agent-bot.md
+  s_f089c3588df7d9::t_acf02005fb1bc4 175-178
+README.md
+  s_f089c3588df7d9::t_3da51c8d3eb916 56-59
+docs/plan/artifacts/bot-run-S19-level-1.md
+  s_f089c3588df7d9::t_ffa42a0117be05 1-72
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "772f25403caaed00cbf65b2eb8d1be495441ba85",
+  "prompts": {},
+  "sessions": {
+    "s_f089c3588df7d9": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e2096f6d3ffeR8yS6rArxBiSw9",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    }
+  }
+}
