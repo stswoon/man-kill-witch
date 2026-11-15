@@ -1,0 +1,60 @@
+web/public/assets/levels/01.json
+  s_f089c3588df7d9::t_1c417b74f952dc 1
+docs/plan/README.md
+  s_f089c3588df7d9::t_e0b45c48878691 164-165
+  s_9467a6e64be15a::t_27ee75a1987b51 52,63-65
+tests/content.test.ts
+  s_f089c3588df7d9::t_6c95a4d7127c57 123-131,133-135,137-140
+  s_f089c3588df7d9::t_b7374d4fc6144b 132,136
+docs/plan/artifacts/bot-run-S19-level-1.md
+  s_f089c3588df7d9::t_91384bb0a0c269 8-10
+  s_f089c3588df7d9::t_52049ffcc4261d 7,11
+docs/plan/S20-level-1-start-pocket.md
+  s_f089c3588df7d9::t_4f7dc6a27b8bd6 66
+  s_f089c3588df7d9::t_79f9738c7b016d 42,73-75
+  s_f089c3588df7d9::t_e4e59926cfdab6 1-2,4-41,43-65,67-72,76-77
+  s_9467a6e64be15a::t_f793925f24daa1 3
+e2e/physics.spec.ts
+  s_f089c3588df7d9::t_6961a9673b131e 347-348
+docs/design.md
+  s_9467a6e64be15a::t_b8ef46c638318e 66-68
+  s_f089c3588df7d9::t_9743a4e29c3572 106-107
+  s_f089c3588df7d9::t_41ceb134d59a86 108
+  s_4afe45fe780ee3::t_c4a576d98072a2 77-79,109
+docs/plan/artifacts/bot-run-S20-level-1.md
+  s_f089c3588df7d9::t_979ac6b5057d0c 1-41
+.opencode/agents/agent-bot.md
+  s_f089c3588df7d9::t_27954b95be28e1 175-179
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "e6e331ab4a7a01e84074a095facb5891a963998e",
+  "prompts": {},
+  "sessions": {
+    "s_4afe45fe780ee3": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e2635a27effeH2P8bWZgeDGHmc",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_9467a6e64be15a": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e20143f52ffekj29fQH0441heN",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_f089c3588df7d9": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e2096f6d3ffeR8yS6rArxBiSw9",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    }
+  }
+}
