@@ -3,13 +3,22 @@ import type { WorldSnapshot } from "../web/src/sim-contract";
 
 type GameState = "title" | "play" | "gameover" | "win";
 
+interface DebugGame {
+  player: { ammo: number };
+  level: { pixelWidth: number; pixelHeight: number };
+  score: number;
+  lives: number;
+  levelComplete: boolean;
+  run: { lives: number; score: number; nextExtraLife: number };
+}
+
 interface DebugApi {
   assets: { levels: Array<{ width: number; height: number }> };
-  game: () => {
-    player: { ammo: number };
-    level: { pixelWidth: number; pixelHeight: number };
-  };
+  game: () => DebugGame;
   snapshot: () => WorldSnapshot;
+  startLevel: (index: number) => void;
+  advanceLevel: (index: number) => void;
+  tick: (count: number, dt?: number) => void;
   getState: () => GameState;
 }
 
@@ -91,6 +100,99 @@ test("number keys switch to the matching level data", async ({ page }) => {
     const level = await snapshot(page);
     return `${level.levelWidth}x${level.levelHeight}`;
   }).toBe(`${expected.width}x${expected.height}`);
+});
+
+test("advanceLevel carries the run and startLevel resets it", async ({ page }) => {
+  await boot(page);
+  await page.keyboard.press("Space");
+  await expect.poll(async () => (await snapshot(page)).state).toBe("play");
+
+  const advanced = await page.evaluate(() => {
+    const mkw = (window as unknown as { mkw: DebugApi }).mkw;
+    const game = mkw.game();
+    game.lives = 2;
+    game.score = 4321;
+    game.run.nextExtraLife = 10000;
+    mkw.advanceLevel(1);
+    const next = mkw.game();
+    const level = mkw.assets.levels[1];
+    return {
+      state: mkw.getState(),
+      lives: next.lives,
+      score: next.score,
+      nextExtraLife: next.run.nextExtraLife,
+      levelSize: `${next.level.pixelWidth}x${next.level.pixelHeight}`,
+      expectedSize: `${level.width * 80}x${level.height * 80}`,
+    };
+  });
+
+  expect(advanced.state).toBe("play");
+  expect(advanced.levelSize).toBe(advanced.expectedSize);
+  expect(advanced.lives).toBe(2);
+  expect(advanced.score).toBe(4321);
+  expect(advanced.nextExtraLife).toBe(10000);
+
+  const reset = await page.evaluate(() => {
+    const mkw = (window as unknown as { mkw: DebugApi }).mkw;
+    mkw.startLevel(2);
+    const game = mkw.game();
+    return { lives: game.lives, score: game.score, nextExtraLife: game.run.nextExtraLife };
+  });
+
+  expect(reset).toEqual({ lives: 3, score: 0, nextExtraLife: 5000 });
+});
+
+test("win restarts level 1 with a fresh run", async ({ page }) => {
+  await boot(page);
+  await page.keyboard.press("Space");
+  await expect.poll(async () => (await snapshot(page)).state).toBe("play");
+
+  await page.evaluate(() => {
+    const mkw = (window as unknown as { mkw: DebugApi }).mkw;
+    mkw.startLevel(7);
+    const game = mkw.game();
+    game.lives = 4;
+    game.score = 4321;
+    game.run.nextExtraLife = 10000;
+    // The last level is finished, so the next step shows the win screen.
+    game.levelComplete = true;
+  });
+  await expect.poll(async () => (await snapshot(page)).state).toBe("win");
+
+  const won = await page.evaluate(() => {
+    const game = (window as unknown as { mkw: DebugApi }).mkw.game();
+    return { lives: game.lives, score: game.score, nextExtraLife: game.run.nextExtraLife };
+  });
+  expect(won, "the win screen keeps the run until Space").toEqual({
+    lives: 4,
+    score: 4321,
+    nextExtraLife: 10000,
+  });
+
+  await page.evaluate(() => {
+    // The restart ignores Space for the first 30 ticks of the win screen.
+    (window as unknown as { mkw: DebugApi }).mkw.tick(31);
+  });
+  await page.keyboard.press("Space");
+  await expect.poll(async () => (await snapshot(page)).state).toBe("play");
+
+  const restarted = await page.evaluate(() => {
+    const mkw = (window as unknown as { mkw: DebugApi }).mkw;
+    const game = mkw.game();
+    const first = mkw.assets.levels[0];
+    return {
+      lives: game.lives,
+      score: game.score,
+      nextExtraLife: game.run.nextExtraLife,
+      levelSize: `${game.level.pixelWidth}x${game.level.pixelHeight}`,
+      expectedSize: `${first.width * 80}x${first.height * 80}`,
+    };
+  });
+
+  expect(restarted.levelSize).toBe(restarted.expectedSize);
+  expect(restarted.lives).toBe(3);
+  expect(restarted.score).toBe(0);
+  expect(restarted.nextExtraLife).toBe(5000);
 });
 
 test("the canvas fits the viewport and keeps its aspect ratio", async ({ page }) => {

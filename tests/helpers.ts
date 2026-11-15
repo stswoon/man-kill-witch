@@ -1,5 +1,5 @@
 import { TILE, type LevelData, type TileInfoData } from "../web/src/assets";
-import { Game, Level, type InputState } from "../web/src/game";
+import { Game, Level, type InputState, type RunState } from "../web/src/game";
 import {
   ENEMY_H,
   ENEMY_W,
@@ -102,9 +102,15 @@ export function makeArena(spec: LevelSpec = {}): Level {
   });
 }
 
+/** Fresh run state for the rules tests: 3 lives, 0 score, extra life at 5000. */
+export function makeRun(overrides: Partial<RunState> = {}): RunState {
+  return { lives: 3, score: 0, nextExtraLife: 5000, ...overrides };
+}
+
 export interface FakeInput extends InputState {
   readonly down: Set<string>;
   readonly hits: Set<string>;
+  hold(...codes: string[]): void;
   press(...codes: string[]): void;
   release(...codes: string[]): void;
 }
@@ -116,6 +122,9 @@ export function fakeInput(): FakeInput {
   return {
     down,
     hits,
+    hold(...codes: string[]): void {
+      for (const code of codes) down.add(code);
+    },
     press(...codes: string[]): void {
       for (const code of codes) hits.add(code);
     },

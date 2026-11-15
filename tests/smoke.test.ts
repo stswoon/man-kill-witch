@@ -4,7 +4,7 @@ import { expect, test, vi } from "vitest";
 import type { LevelData, TileInfoData } from "../web/src/assets";
 import { Game, Level } from "../web/src/game";
 import { PLAYER_W } from "../web/src/sim-contract";
-import { fakeInput, makeSnapshot, tick } from "./helpers";
+import { fakeInput, makeRun, makeSnapshot, tick } from "./helpers";
 
 const ASSETS = resolve(process.cwd(), "web/public/assets");
 /** One screen of motion per fake tick keeps the stand-in player moving. */
@@ -20,7 +20,8 @@ test("level 1 survives ten seconds of scripted play", () => {
 
   const data = JSON.parse(readFileSync(join(ASSETS, "levels", "01.json"), "utf8")) as LevelData;
   const info = JSON.parse(readFileSync(join(ASSETS, "tileinfo.json"), "utf8")) as TileInfoData;
-  const game = new Game(new Level(data, info));
+  const run = makeRun();
+  const game = new Game(new Level(data, info), run);
   const input = fakeInput();
 
   const startX = game.spawnX;
@@ -77,10 +78,14 @@ test("level 1 survives ten seconds of scripted play", () => {
       expect(game.lives).toBeGreaterThanOrEqual(0);
       expect(game.player.ammo).toBeGreaterThanOrEqual(0);
       expect(game.player.ammo).toBeLessThanOrEqual(8);
+      expect(run.lives, "lives live in the shared run").toBe(game.lives);
+      expect(run.score, "score lives in the shared run").toBe(game.score);
     }
   }
 
   expect(spawned.size, "the weapon must actually fire").toBeGreaterThan(0);
   expect(x, "the rules must keep asking the player to move").toBeGreaterThan(startX);
   expect(despawned.size + game.bullets.length, "every bullet is tracked").toBeGreaterThan(0);
+  expect(game.run, "the game keeps writing into the run it was given").toBe(run);
+  expect(run.nextExtraLife, "the extra-life threshold stays a run value").toBeGreaterThanOrEqual(5000);
 });

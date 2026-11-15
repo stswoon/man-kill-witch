@@ -12,7 +12,7 @@ import type {
   BotRouteLog,
   BotStatus,
 } from "../bot/types";
-import { Game, Level } from "../game";
+import { Game, Level, createRun, type RunState } from "../game";
 import { Input } from "../input";
 import { PhaserView } from "../phaser-view";
 import { Sfx } from "../sfx";
@@ -29,6 +29,7 @@ interface DebugApi {
   game: () => Game;
   snapshot: () => WorldSnapshot;
   startLevel: (index: number) => void;
+  advanceLevel: (index: number) => void;
   renderer: PhaserView;
   step: (dt: number) => void;
   tick: (count: number, dt?: number) => void;
@@ -47,6 +48,7 @@ export class GameScene extends Phaser.Scene {
   private arcade!: ArcadeSim;
   private state: State = "title";
   private levelIndex = 0;
+  private run: RunState = createRun();
   private stateTimer = 0;
   private acc = 0;
   private speed = 1;
@@ -79,7 +81,8 @@ export class GameScene extends Phaser.Scene {
       phaser: this.game,
       game: () => this.sim,
       snapshot: () => this.arcade.snapshot(),
-      startLevel: (index: number) => this.startLevel(index),
+      startLevel: (index: number) => this.startRun(index),
+      advanceLevel: (index: number) => this.advanceLevel(index),
       renderer: this.view,
       step: (dt: number) => this.step(dt),
       tick: (count: number, dt?: number) => this.tick(count, dt ?? DT),
@@ -111,7 +114,26 @@ export class GameScene extends Phaser.Scene {
     this.controls.endFrame();
   }
 
-  private startLevel(index: number, seed?: number): void {
+  /**
+   * Starts a new run on level `index`: 3 lives, 0 score, the first extra life
+   * at 5000. Used by the title, win, game over, the digit keys and
+   * `mkw.startLevel(n)`. `seed` is only for the deterministic bot reset.
+   */
+  startRun(index: number, seed?: number): void {
+    this.run = createRun();
+    this.beginLevel(index, seed);
+  }
+
+  /**
+   * Moves to level `index` keeping the run: score, lives left and the extra-life
+   * threshold carry over. The door transition and `mkw.advanceLevel(n)` use it.
+   */
+  advanceLevel(index: number, seed?: number): void {
+    this.beginLevel(index, seed);
+  }
+
+  /** Rebuilds rules, the Arcade world and the tilemap and switches to play. */
+  private beginLevel(index: number, seed?: number): void {
     this.bot = null;
     this.loadLevel(index, true, seed);
     this.view.hideTitle();
@@ -124,7 +146,7 @@ export class GameScene extends Phaser.Scene {
   private loadLevel(index: number, withHud = true, seed?: number): void {
     this.levelIndex = Math.max(0, Math.min(this.assets.levels.length - 1, index));
     const level = new Level(this.assets.levels[this.levelIndex], this.assets.tileInfo);
-    this.sim = withSeededRandom(seed, () => new Game(level));
+    this.sim = withSeededRandom(seed, () => new Game(level, this.run));
     this.arcade?.destroy();
     this.view.buildLevel(this.sim, withHud);
     this.arcade = new ArcadeSim(
@@ -167,13 +189,13 @@ export class GameScene extends Phaser.Scene {
     const input = this.bot?.input ?? this.controls;
 
     if (this.state === "title") {
-      if (input.wasPressed("Space", "Enter")) this.startLevel(0);
+      if (input.wasPressed("Space", "Enter")) this.startRun(0);
       return;
     }
     if (this.state === "gameover" || this.state === "win") {
       if (this.stateTimer > 30 && input.wasPressed("Space", "Enter")) {
-        if (this.state === "win") this.startLevel(0);
-        else this.startLevel(this.levelIndex);
+        if (this.state === "win") this.startRun(0);
+        else this.startRun(this.levelIndex);
       }
       return;
     }
@@ -200,7 +222,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     for (let i = 1; i <= 8; i++) {
-      if (input.wasPressed(`Digit${i}`)) this.startLevel(i - 1);
+      if (input.wasPressed(`Digit${i}`)) this.startRun(i - 1);
     }
 
     if (this.sim.levelComplete) {
@@ -212,7 +234,7 @@ export class GameScene extends Phaser.Scene {
       }
       if (this.levelIndex < this.assets.levels.length - 1) {
         this.sfx.door();
-        this.startLevel(this.levelIndex + 1);
+        this.advanceLevel(this.levelIndex + 1);
       } else if (this.state === "play") {
         this.sfx.win();
         this.setState("win", "CONGRATULATIONS!", "THE WITCH IS GONE — PRESS SPACE");
@@ -232,7 +254,7 @@ export class GameScene extends Phaser.Scene {
    */
   private botReset(level: number, options: BotResetOptions = {}): BotObservation {
     const seed = options.seed ?? 1;
-    this.startLevel(level, seed);
+    this.startRun(level, seed);
     this.game.loop.sleep();
     const session = new BotSession({
       levelIndex: this.levelIndex,

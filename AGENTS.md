@@ -90,7 +90,9 @@ behavior 2 — выход, fallback behavior 1, выход ближе 2 тайл
 
 Первый живой прогон (уровень 1) подтвердил tooling и нашёл дефект данных: стартовый карман,
 ступень `(7,32)` — 3 тайла (240 px) над полом против прыжка 219 px; двери в кармане нет.
-Отчёт — `docs/plan/artifacts/bot-run-S19-level-1.md`. Правка уровня — отдельная задача.
+Отчёт — `docs/plan/artifacts/bot-run-S19-level-1.md`. S20 исправил карман ступенями
+`(8,34)`/`(9,32)` и верхом стены `(11,30)`; повторный прогон — **PASS**: уровень 1 пройден
+за 20 действий / 569 тиков, 0 смертей. Отчёт — `docs/plan/artifacts/bot-run-S20-level-1.md`.
 
 ## Структура
 
@@ -98,7 +100,7 @@ behavior 2 — выход, fallback behavior 1, выход ближе 2 тайл
 |--------------------------------|-----------------------------------------------------------------------------------------------------|
 | `web/src/main.ts`              | boot Phaser-игры, конфиг рендера и канваса                                                          |
 | `web/src/scenes/boot-scene.ts` | загрузка ассетов через Phaser Loader, передача их в игровую сцену                                   |
-| `web/src/scenes/game-scene.ts` | состояния `title / play / gameover / win`, владелец `Game` и `ArcadeSim`, фиксированный тик, `window.mkw` |
+| `web/src/scenes/game-scene.ts` | состояния `title / play / gameover / win`, владелец `Game`, `RunState` и `ArcadeSim`, фиксированный тик, `window.mkw` |
 | `web/src/sim-contract.ts`      | чистый контракт правил и Arcade: `WorldSnapshot`, `TickCommands`, `PlayerIntent`, `EnemyIntent`, `PhysicsEvent`, числа |
 | `web/src/game.ts`              | правила без Phaser: уровни, очки, жизни, патроны, таймеры, дверь, камера, `tilePatches`, AI-намерения. **Без импортов Phaser и `arcade/*`** |
 | `web/src/arcade/arcade-sim.ts` | единственный владелец Arcade-мира: тела игрока, врагов и пуль, tilemap-коллизии, один шаг на тик     |
@@ -175,8 +177,10 @@ behavior 2 — выход, fallback behavior 1, выход ближе 2 тайл
    дверь, уровни 1–8 по цифрам, смерть и GAME OVER, победа на 8-м уровне.
 6. Консоль браузера должна быть чистой; ошибки boot выводятся красным `<pre>` поверх канваса.
 7. Для отладки есть `window.mkw`: `mkw.game()`, `mkw.snapshot()`, `mkw.startLevel(n)`,
-   `mkw.step(dt)`, `mkw.tick(n, dt?)`, `mkw.getState()`, `mkw.renderer`, `mkw.assets`,
-   `mkw.phaser`. `mkw.snapshot()` отдаёт `WorldSnapshot` с телами Arcade: позиции, скорости,
+   `mkw.advanceLevel(n)`, `mkw.step(dt)`, `mkw.tick(n, dt?)`, `mkw.getState()`, `mkw.renderer`,
+   `mkw.assets`, `mkw.phaser`. `mkw.startLevel(n)` — перезапуск уровня `n` (0-based) с новым
+   прохождением; `mkw.advanceLevel(n)` — переход на уровень `n` с тем же `RunState` (для e2e).
+   `mkw.snapshot()` отдаёт `WorldSnapshot` с телами Arcade: позиции, скорости,
    размеры, `onGround`, `blocked`, `dir`, `alive` и события шага. `mkw.step` и `mkw.tick`
    прокручивают и правила, и Arcade ровно на фиксированные шаги `1/70`; `mkw.tick`
    дополнительно сбрасывает одиночные нажатия после каждого шага и не рендерит — только для

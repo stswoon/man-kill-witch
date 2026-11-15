@@ -25,6 +25,27 @@ export interface InputState {
 
 export type Dir = "up" | "down" | "left" | "right";
 
+/** Lives of a fresh run: docs/design.md, «Правила». */
+const START_LIVES = 3;
+/** The first extra life and the step of every next one. */
+const EXTRA_LIFE_SCORE = 5000;
+
+/**
+ * Progress of one run as opposed to one level: lives, score and the score that
+ * grants the next extra life. `GameScene` owns it and hands the same object to
+ * every `Game` of the run, so the values survive level transitions.
+ */
+export interface RunState {
+  lives: number;
+  score: number;
+  nextExtraLife: number;
+}
+
+/** A fresh run: 3 lives, 0 score, the first extra life at 5000. */
+export function createRun(): RunState {
+  return { lives: START_LIVES, score: 0, nextExtraLife: EXTRA_LIFE_SCORE };
+}
+
 /** Flyer sine: `phase += dt * 2.4`, vertical speed `sin(phase) * 120`. */
 const FLYER_PHASE_RATE = 2.4;
 const FLYER_AMPLITUDE = 120;
@@ -151,14 +172,14 @@ export interface DoorState {
 
 export class Game {
   level: Level;
+  /** Progress shared by every level of one run; `Game` writes into this object. */
+  readonly run: RunState;
   player = new Player();
   enemies: Enemy[] = [];
   bullets: Bullet[] = [];
   cameraX = 0;
   cameraY = 0;
   tick = 0;
-  lives = 3;
-  score = 0;
   gameOver = false;
   hurtFlash = 0;
   levelComplete = false;
@@ -167,17 +188,35 @@ export class Game {
   readonly spawnX: number;
   readonly spawnY: number;
   private doorState: DoorState | null = null;
-  private nextExtraLife = 5000;
   private nextBulletId = 1;
 
-  constructor(level: Level) {
+  constructor(level: Level, run: RunState = createRun()) {
     this.level = level;
+    this.run = run;
     const [spawnTx, spawnTy] = this.findSpawn();
     this.spawnX = spawnTx * TILE + 10;
     this.spawnY = spawnTy * TILE + TILE - PLAYER_H;
     this.enemies = this.spawnEnemies();
     this.player.invuln = 30;
     this.focusCamera(this.spawnX + PLAYER_W / 2, this.spawnY + PLAYER_H / 2);
+  }
+
+  /** Lives left in the run; the value itself lives in `run`. */
+  get lives(): number {
+    return this.run.lives;
+  }
+
+  set lives(value: number) {
+    this.run.lives = value;
+  }
+
+  /** Score of the run; the value itself lives in `run`. */
+  get score(): number {
+    return this.run.score;
+  }
+
+  set score(value: number) {
+    this.run.score = value;
   }
 
   /** Active door opening; the view can read it but never write it. */
@@ -246,15 +285,15 @@ export class Game {
     }
     this.bullets = this.bullets.filter((b) => b.life > 0 && !despawned.has(b.id));
 
-    this.interact(snapshot);
+    this.interact(snapshot, input);
     this.focusCamera(
       snapshot.player.x + snapshot.player.w / 2,
       snapshot.player.y + snapshot.player.h / 2,
     );
 
-    while (this.score >= this.nextExtraLife) {
-      this.lives++;
-      this.nextExtraLife += 5000;
+    while (this.run.score >= this.run.nextExtraLife) {
+      this.run.lives++;
+      this.run.nextExtraLife += EXTRA_LIFE_SCORE;
     }
 
     const player: PlayerIntent = {
@@ -273,10 +312,17 @@ export class Game {
     };
   }
 
-  /** Door tiles before the opening, the sprite trigger after it. */
-  private interact(snapshot: WorldSnapshot): void {
+  /**
+   * Door tiles before the opening, the sprite trigger after it. The hero enters
+   * a door with the aim-up key (↑ / W) while its center is under the trigger
+   * tile (the arch usually sits one tile above the standing center), or while
+   * already inside it. Walking into a door or jumping in does not open it, so
+   * accidental contact cannot end the level. Pickups still trigger on contact.
+   */
+  private interact(snapshot: WorldSnapshot, input: InputState): void {
     const tx = Math.floor((snapshot.player.x + snapshot.player.w / 2) / TILE);
     const ty = Math.floor((snapshot.player.y + snapshot.player.h / 2) / TILE);
+    const aimUp = input.isDown("ArrowUp", "KeyW");
 
     if (this.doorState) {
       this.advanceDoor();
@@ -285,8 +331,21 @@ export class Game {
 
     const beh = this.level.behaviorAt(tx, ty);
     if (beh === 1 || beh === 2) {
-      this.openDoor(tx, ty);
-    } else if (beh === 52 || beh === 53 || beh === 54) {
+      if (aimUp) this.openDoor(tx, ty);
+      return;
+    }
+
+    // The door arch is one tile above the standing center: ↑ under the arch
+    // enters the tile the player is looking at.
+    if (aimUp) {
+      const above = this.level.behaviorAt(tx, ty - 1);
+      if (above === 1 || above === 2) {
+        this.openDoor(tx, ty - 1);
+        return;
+      }
+    }
+
+    if (beh === 52 || beh === 53 || beh === 54) {
       this.score += beh === 52 ? 100 : beh === 53 ? 250 : 500;
       this.level.setTile(tx, ty, 0);
       this.tilePatches.push({ x: tx, y: ty, index: 0 });

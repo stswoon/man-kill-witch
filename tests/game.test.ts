@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { TILE } from "../web/src/assets";
-import { Game, Level } from "../web/src/game";
+import { Game, Level, type RunState } from "../web/src/game";
 import { PLAYER_H, PLAYER_W } from "../web/src/sim-contract";
 import {
   AMMO,
@@ -11,6 +11,7 @@ import {
   SPAWN,
   fakeInput,
   makeArena,
+  makeRun,
   makeSnapshot,
   putPlayerInTile,
   tick,
@@ -19,7 +20,10 @@ import {
 const SPAWN_X = 2 * TILE + 10;
 const SPAWN_Y = 11 * TILE + TILE - 120;
 
-function withEnemy(extra: Parameters<typeof makeArena>[0] = {}): Game {
+function withEnemy(
+  extra: Parameters<typeof makeArena>[0] = {},
+  run: RunState = makeRun(),
+): Game {
   return new Game(
     makeArena({
       entities: [
@@ -28,6 +32,7 @@ function withEnemy(extra: Parameters<typeof makeArena>[0] = {}): Game {
       ],
       ...extra,
     }),
+    run,
   );
 }
 
@@ -51,6 +56,83 @@ describe("Game.spawn", () => {
     expect(snapshot.player.y).toBe(SPAWN_Y);
     expect(snapshot.player.w).toBe(PLAYER_W);
     expect(snapshot.player.h).toBe(PLAYER_H);
+  });
+});
+
+describe("Run state", () => {
+  test("starts with 3 lives, 0 score and the 5000 extra-life threshold", () => {
+    const run = makeRun();
+    const game = new Game(makeArena(), run);
+
+    expect(game.run).toBe(run);
+    expect(run).toEqual({ lives: 3, score: 0, nextExtraLife: 5000 });
+    expect(game.lives).toBe(3);
+    expect(game.score).toBe(0);
+  });
+
+  test("writes the score of a pickup into the shared run object", () => {
+    const run = makeRun();
+    const game = new Game(makeArena({ tiles: [[2, 11, GEM_100]] }), run);
+
+    tick(game, fakeInput(), putPlayerInTile(makeSnapshot(game), 2, 11));
+
+    expect(run.score).toBe(100);
+    expect(run.lives).toBe(3);
+    expect(run.nextExtraLife).toBe(5000);
+  });
+
+  test("awards the extra life in the run and moves the threshold by 5000", () => {
+    const run = makeRun({ score: 4900 });
+    const game = new Game(makeArena({ tiles: [[2, 11, GEM_100]] }), run);
+
+    tick(game, fakeInput(), putPlayerInTile(makeSnapshot(game), 2, 11));
+
+    expect(run.score).toBe(5000);
+    expect(run.lives).toBe(4);
+    expect(run.nextExtraLife).toBe(10000);
+    expect(game.lives).toBe(4);
+  });
+
+  test("death costs a life and keeps the score and the threshold", () => {
+    const run = makeRun({ lives: 2, score: 3000, nextExtraLife: 10000 });
+    const game = withEnemy({}, run);
+    game.player.invuln = 0;
+    const touch = makeSnapshot(game, { events: [{ type: "playerTouchedEnemy", enemyId: 0 }] });
+
+    const [commands] = tick(game, fakeInput(), touch);
+
+    expect(run.lives).toBe(1);
+    expect(run.score).toBe(3000);
+    expect(run.nextExtraLife).toBe(10000);
+    expect(game.gameOver).toBe(false);
+    expect(commands.respawnPlayer).toEqual({ x: SPAWN_X, y: SPAWN_Y });
+  });
+
+  test("the last death ends the run and still keeps the score", () => {
+    const run = makeRun({ lives: 1, score: 1234 });
+    const game = withEnemy({}, run);
+    game.player.invuln = 0;
+    const touch = makeSnapshot(game, { events: [{ type: "playerTouchedEnemy", enemyId: 0 }] });
+
+    const [commands] = tick(game, fakeInput(), touch);
+
+    expect(run.lives).toBe(0);
+    expect(run.score).toBe(1234);
+    expect(run.nextExtraLife).toBe(5000);
+    expect(game.gameOver).toBe(true);
+    expect(commands.respawnPlayer).toBeNull();
+  });
+
+  test("the next level continues the same run", () => {
+    const run = makeRun({ lives: 2, score: 4321, nextExtraLife: 10000 });
+    new Game(makeArena(), run).score += 100;
+
+    const next = new Game(makeArena({ width: 24 }), run);
+
+    expect(next.run).toBe(run);
+    expect(next.lives).toBe(2);
+    expect(next.score).toBe(4421);
+    expect(next.run.nextExtraLife).toBe(10000);
   });
 });
 
@@ -295,6 +377,7 @@ describe("Exit door", () => {
     const input = fakeInput();
     const atDoor = putPlayerInTile(makeSnapshot(game), 2, 11);
 
+    input.hold("ArrowUp");
     tick(game, input, atDoor, 1);
     expect(game.door, "the trigger tick opens the door on step 0").toEqual({
       tx: 2,
@@ -342,23 +425,58 @@ describe("Exit door", () => {
     expect(game.tilePatches, "steps 1 and 2 change no tiles: the opening is a sprite").toHaveLength(6);
   });
 
-  test("keeps the static door tiles until the trigger", () => {
+  test("walking or jumping into the door does not open it", () => {
     const game = new Game(makeArena({ tiles: [[2, 11, DOOR]] }));
-    // Centre in (2, 10), one tile above the trigger.
-    const above = makeSnapshot(game, { player: { y: 760 } });
+    const atDoor = putPlayerInTile(makeSnapshot(game), 2, 11);
 
-    tick(game, fakeInput(), above, 5);
+    tick(game, fakeInput(), atDoor, 5);
 
     expect(game.door).toBeNull();
     expect(game.tilePatches, "the static tiles must not change before the trigger").toHaveLength(0);
     expect(game.level.tileAt(2, 11)).toBe(DOOR);
+
+    const jump = fakeInput();
+    jump.press("Space");
+    tick(game, jump, atDoor, 1);
+    expect(game.door, "the jump key is not the door key").toBeNull();
+
+    const airborne = makeSnapshot(game, { player: { onGround: false } });
+    tick(game, fakeInput(), airborne, 5);
+    expect(game.door, "flying through the trigger does not open it").toBeNull();
+    expect(game.level.tileAt(2, 11)).toBe(DOOR);
   });
 
-  test("triggers on the player center without requiring ground contact", () => {
+  test("does not open on aim-down", () => {
     const game = new Game(makeArena({ tiles: [[2, 11, DOOR]] }));
-    const airborne = makeSnapshot(game, { player: { onGround: false } });
+    const input = fakeInput();
+    const atDoor = putPlayerInTile(makeSnapshot(game), 2, 11);
 
-    tick(game, fakeInput(), airborne, 1);
+    input.hold("ArrowDown");
+    tick(game, input, atDoor, 5);
+
+    expect(game.door).toBeNull();
+    expect(game.level.tileAt(2, 11)).toBe(DOOR);
+  });
+
+  test("opens on aim-up while standing in the trigger tile", () => {
+    const game = new Game(makeArena({ tiles: [[2, 11, DOOR]] }));
+    const input = fakeInput();
+    const atDoor = putPlayerInTile(makeSnapshot(game), 2, 11);
+
+    input.hold("KeyW");
+    tick(game, input, atDoor, 1);
+
+    expect(game.door).toEqual({ tx: 2, ty: 11, step: 0, timer: 0 });
+  });
+
+  test("opens on aim-up from the tile below the arch", () => {
+    const game = new Game(makeArena({ tiles: [[2, 11, DOOR]] }));
+    const input = fakeInput();
+    // The door arch at (2, 11) is exactly one tile above the standing center.
+    const below = putPlayerInTile(makeSnapshot(game), 2, 12);
+
+    input.hold("ArrowUp");
+    tick(game, input, below, 1);
 
     expect(game.door).toEqual({ tx: 2, ty: 11, step: 0, timer: 0 });
   });
@@ -367,8 +485,10 @@ describe("Exit door", () => {
     const game = new Game(makeArena({ tiles: [[0, 11, DOOR]] }));
     // Centre x = 30, so tx = 0 and the block starts at x = -1.
     const atEdge = makeSnapshot(game, { player: { x: 0 } });
+    const input = fakeInput();
 
-    tick(game, fakeInput(), atEdge, 1);
+    input.hold("ArrowUp");
+    tick(game, input, atEdge, 1);
 
     expect(game.door).toEqual({ tx: 0, ty: 11, step: 0, timer: 0 });
     expect(game.tilePatches).toEqual([
@@ -388,6 +508,7 @@ describe("Score", () => {
 
     expect(game.score).toBe(5000);
     expect(game.lives).toBe(4);
+    expect(game.run.nextExtraLife).toBe(10000);
   });
 });
 
