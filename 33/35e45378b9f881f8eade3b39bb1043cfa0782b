@@ -1,0 +1,59 @@
+docs/plan/artifacts/review-notes-S17.md
+  s_e5c1246f14926f::t_eab3f19fc4b8b3 1-10,14-67
+  s_e5c1246f14926f::t_7a803048f01380 11-13
+docs/plan/artifacts/bug-report-S17.md
+  s_fecf920095bdce::t_65421749b94ecd 21
+  s_fecf920095bdce::t_6cd979cd79836a 56,59,66-69
+  s_fecf920095bdce::t_dd4d0567f52e56 1-12,30-35,37-39,43-55,57-58,60-65
+  s_fecf920095bdce::t_2362cc5cedd746 13-20,22-29
+  s_fecf920095bdce::t_872d2041e7b993 36,40-42
+docs/plan/S17-hd-hud.md
+  s_6d10b5741483ee::t_33f7bc709a5f75 3
+docs/plan/README.md
+  s_6d10b5741483ee::t_e85cfdbb55abaf 49
+  s_f089c3588df7d9::t_05b364358de221 63,139-140,154
+  s_f089c3588df7d9::t_fa95039d711db7 161
+  s_f089c3588df7d9::t_ed909eb61ba174 52
+  s_6d10b5741483ee::t_3aaeaf24b4e743 44
+  s_f089c3588df7d9::t_e061f049759467 135
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "3335e45378b9f881f8eade3b39bb1043cfa0782b",
+  "prompts": {},
+  "sessions": {
+    "s_6d10b5741483ee": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e249e0225ffeQwrASalLP6z4ZW",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_e5c1246f14926f": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e201dd605ffel5tuuzMLyBJtJX",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_f089c3588df7d9": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e2096f6d3ffeR8yS6rArxBiSw9",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_fecf920095bdce": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e204edaaeffeyX2KWRPiSK6Qhn",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    }
+  }
+}
