@@ -1,0 +1,59 @@
+docs/plan/artifacts/review-notes-S14.md
+  s_46a8f611ebfdf8::t_9525969b35a3c8 5-6,10-14,18,23,28-30,32,35-38,54-55,67-69,73-74,78-83
+  s_46a8f611ebfdf8::t_b5b22de9b17ed6 31
+  s_46a8f611ebfdf8::t_caacd11be700bb 19-22,24-27,33-34,39-40,50-53,59-66
+  s_46a8f611ebfdf8::t_f4291e87ad8c42 1-4,7-9,15-17,41-49,56-58,70-72,75-77
+docs/plan/S14-hd-hero-art.md
+  s_6d10b5741483ee::t_8f4da697230355 3
+  s_6d10b5741483ee::t_a5192c57fb1cc6 61
+docs/plan/artifacts/bug-report-S14.md
+  s_552e7b1137acac::t_e5723d7c8d37dc 1-81
+docs/plan/README.md
+  s_6d10b5741483ee::t_3207571e96e092 47
+  s_6d10b5741483ee::t_471e0d0568b529 42,48
+  s_6d10b5741483ee::t_ade9a8bf16bad6 46
+tests/hero-art.test.ts
+  s_b84c025027cf4a::t_5818fe5a4e3ce4 1-61
+docs/plan/artifacts/decisions-S14.md
+  s_6d10b5741483ee::t_5c31eb22d33178 1-10
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "62964a65fff1475e2b1371523faf75a7deb9f672",
+  "prompts": {},
+  "sessions": {
+    "s_46a8f611ebfdf8": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e20c8413bffeis513tC3MGheNk",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_552e7b1137acac": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e20d12a59fferp6WzgFH3tT5wV",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_6d10b5741483ee": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e249e0225ffeQwrASalLP6z4ZW",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_b84c025027cf4a": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e20dd5233ffezYpWfQJCmBjDeZ",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    }
+  }
+}
