@@ -1,0 +1,164 @@
+docs/plan/artifacts/bug-report-S12.md
+  s_fb6a96758724a4::t_eeb09276ecb268 1-22,24-82
+  s_fb6a96758724a4::t_9e5ca451e55fdf 23
+e2e/game.spec.ts
+  s_9467a6e64be15a::t_df8c06fc92d4ef 6-10,12-14,17,19-20
+  s_9467a6e64be15a::t_7ce689badab9e1 11,21
+  s_9467a6e64be15a::t_b04e4652c41a31 133
+  s_9467a6e64be15a::t_51b4c005239fd2 105-114,116-132,134-142
+  s_9467a6e64be15a::t_52a0288de333f4 143,145-192,196-197
+  s_9467a6e64be15a::t_d8ab6d25e2c41e 193-195
+  s_a8cc8cef35d056::t_1fe6faf38c18e2 115,144
+web/src/scenes/game-scene.ts
+  s_9467a6e64be15a::t_53953a786c7951 51
+  s_9467a6e64be15a::t_dffd921548aa7a 117-136,149
+  s_9467a6e64be15a::t_8783f5dbba21ef 237
+  s_9467a6e64be15a::t_f1aac396af652e 15
+  s_9467a6e64be15a::t_2e825fc06be473 257
+  s_f997546c8a059f::t_d32506dbe2ce7d 32,84-85,192,197-198,225
+docs/spec/02-gameplay.md
+  s_46660f32373108::t_9392d1989c8740 30
+  s_46660f32373108::t_7a4a9fdaf36f0d 121-127
+docs/plan/S12-run-state.md
+  s_6d10b5741483ee::t_000ebbae68945e 3
+AGENTS.md
+  s_f089c3588df7d9::t_235d82ecc2532b 93-95
+  s_9467a6e64be15a::t_6b63dcb045cd33 103
+  s_f7e281d101a3ad::t_90ff32dea7fda9 180-183
+docs/plan/artifacts/review-notes-S12.md
+  s_69c129182478e8::t_5e4b8dd16a29b9 1-70
+docs/design.md
+  s_46660f32373108::t_7c18377256d37c 31,76-77
+  s_46660f32373108::t_a48b696e4d2d37 21-22
+web/src/game.ts
+  s_9467a6e64be15a::t_dc1e4de835bf07 28-48
+  s_46660f32373108::t_5c9820bc83e6c7 288
+  s_46660f32373108::t_99a1fe13d72fae 316-322,325,334-348
+  s_9467a6e64be15a::t_200500248f4796 294-296
+  s_9467a6e64be15a::t_898a9817b03d4e 175-176,193,195,204-220
+  s_9467a6e64be15a::t_cfaa97b70ba4af 221
+  s_46660f32373108::t_725509c52146bc 315
+docs/plan/README.md
+  s_6d10b5741483ee::t_888f4027ca6f08 44
+docs/plan/artifacts/decisions-S12.md
+  s_6d10b5741483ee::t_39994dc540c2fc 1-10
+tests/game.test.ts
+  s_46660f32373108::t_4cf95061320851 451-453,456-460,470
+  s_46660f32373108::t_5c54b16d89f64e 428,430,432,438-445,449,454-455,461,466,472-479,490
+  s_9467a6e64be15a::t_c4767047fedf84 62-138
+  s_9467a6e64be15a::t_73da565758a960 3,14,23-26,35
+  s_46660f32373108::t_0ed954f5c85da5 437,446,462-465,467-469,488,491
+  s_9467a6e64be15a::t_adbf04647f6835 511
+  s_46660f32373108::t_d344072be1007b 380
+tests/smoke.test.ts
+  s_9467a6e64be15a::t_909dd799b3dea6 89-90
+  s_9467a6e64be15a::t_bb2be4c2f3f412 23-24
+  s_9467a6e64be15a::t_66807271c9d828 7
+  s_4afe45fe780ee3::t_434047201b7e18 81-82
+tests/helpers.ts
+  s_9467a6e64be15a::t_3b86f120b75ab3 2
+  s_9467a6e64be15a::t_958332060406f3 105-107
+  s_46660f32373108::t_535e2296fee8c6 113,125-127
+  s_4c0733311dd7d2::t_96fcda8fc4011e 108-109
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "c24891e080752d800bd58cffc05e5a40eb6275f1",
+  "prompts": {},
+  "humans": {
+    "h_06e01297fc405a": {
+      "author": "stswoon <xx@xx.xx>"
+    }
+  },
+  "sessions": {
+    "s_46660f32373108": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e20078a1effelZiD8gT5FX9ck0",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_4afe45fe780ee3": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e2635a27effeH2P8bWZgeDGHmc",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_4c0733311dd7d2": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e1ffcc8baffe21qdFNTA7AdKbH",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_69c129182478e8": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e1ffe6892ffe9mSfAubpuFXCKC",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_6d10b5741483ee": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e249e0225ffeQwrASalLP6z4ZW",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_9467a6e64be15a": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e20143f52ffekj29fQH0441heN",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_a8cc8cef35d056": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e2530d771ffe17OwbyxQ7u4zfu",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_f089c3588df7d9": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e2096f6d3ffeR8yS6rArxBiSw9",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_f7e281d101a3ad": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e25b90a2cffeB1AXtJgVs2UYZj",
+        "model": "unknown"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_f997546c8a059f": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e201a00fdffeWrH1viOy6IliOv",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_fb6a96758724a4": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e20069634ffeFC6CB1TQ0oAX3v",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    }
+  }
+}
