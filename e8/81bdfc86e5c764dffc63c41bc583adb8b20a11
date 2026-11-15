@@ -1,0 +1,64 @@
+docs/design.md
+  s_63a45febb0ba5f::t_f596a7239ead1d 60-62
+  s_63a45febb0ba5f::t_75f92339513b2c 5-14,18-19
+docs/plan/README.md
+  s_6d10b5741483ee::t_7244bfb8fb91e4 18
+README.md
+  s_63a45febb0ba5f::t_249b9d76f33547 3-5,7-8
+docs/plan/artifacts/review-notes-S08.md
+  s_10a02a01aaf0c6::t_552e8fb3bae5dd 1-73
+docs/plan/S08-hero-docs.md
+  s_6d10b5741483ee::t_1f227b2c022a8b 3
+docs/plan/artifacts/bug-report-S08.md
+  s_31168be755ce46::t_24d5ec9e5a009c 1-29,31-51,53-59
+  s_31168be755ce46::t_eaf04a207a3da2 52
+  s_9ef9a5ba0edd54::t_80437f758dc05c 30
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "e881bdfc86e5c764dffc63c41bc583adb8b20a11",
+  "prompts": {},
+  "sessions": {
+    "s_10a02a01aaf0c6": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e22090c46ffe1uqRKZ7BB4g7Ur",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_31168be755ce46": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e2210cfecffeydOl2DxLLKsiMs",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_63a45febb0ba5f": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e2213ee56ffeR9Mjejv5dQn6jz",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_6d10b5741483ee": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e249e0225ffeQwrASalLP6z4ZW",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_9ef9a5ba0edd54": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e2213ee55ffeRyBZu6sTSeDRN1",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    }
+  }
+}
