@@ -106,12 +106,13 @@ test("spawn-adjacent exits fail immediately; level 2 warns about the fallback", 
   expect(level2.status.verdict).toBe("IN_PROGRESS");
   expect(level2.target?.behavior).toBe(1);
 
-  // The level-6 exit is one tile from the spawn. Walking into it proves that the
-  // harness captures the door and the completion, while the verdict stays FAIL
-  // because of the data defect.
+  // The level-6 exit is one tile from the spawn. Walking into it and pressing
+  // up proves that the harness captures the door and the completion, while the
+  // verdict stays FAIL because of the data defect.
   const level6 = await reset(page, 5);
   expect(level6.status.exitNextToSpawn).toBe(true);
   await act(page, "left", 10);
+  await act(page, "up", 1);
   const finished = await act(page, "wait", 40);
   expect(finished.done?.kind).toBe("levelComplete");
   expect(finished.status.reachedDoor?.behavior).toBe(2);
