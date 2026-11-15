@@ -1,0 +1,38 @@
+package.json
+  s_6d10b5741483ee::t_4578b7cb51090d 16
+playwright.config.ts
+  s_4afe45fe780ee3::t_e08215ea388975 31-33
+  s_6d10b5741483ee::t_1f329edd813b8c 3,5-6,13,15
+  s_4afe45fe780ee3::t_780d4cfc618678 11-12,16-17
+tools/e2e.mjs
+  s_6d10b5741483ee::t_c3b4eb211b302b 1-132
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "2f9aa62d41414952b16ad4a44780ecf67b9d8672",
+  "prompts": {},
+  "humans": {
+    "h_06e01297fc405a": {
+      "author": "stswoon <xx@xx.xx>"
+    }
+  },
+  "sessions": {
+    "s_4afe45fe780ee3": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e2635a27effeH2P8bWZgeDGHmc",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_6d10b5741483ee": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e249e0225ffeQwrASalLP6z4ZW",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    }
+  }
+}
