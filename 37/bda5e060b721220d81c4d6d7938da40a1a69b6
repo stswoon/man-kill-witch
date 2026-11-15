@@ -1,0 +1,146 @@
+AGENTS.md
+  s_73b60a77325e19::t_de559134d0f775 30,35-37,44-51
+  s_7338a60690cc04::t_5fd60670ec27d1 221-222
+  s_b3f21a259998f7::t_f6d4da04d8de3b 22
+  s_6d10b5741483ee::t_dcbde1a2a780e4 155
+  s_73b60a77325e19::t_86eedacd727d7b 157-159,162-175
+.gitignore
+  h_06e01297fc405a 28
+  s_7338a60690cc04::t_0af262a929b812 11-16
+.opencode/agents/music-agent.md
+  s_f370455d687d6f::t_511f50287d2637 19-24
+  s_f370455d687d6f::t_4f8e3a3c198ae7 2
+  s_fb6a96758724a4::t_c57e617ca44d4f 25-32,34-35,39-40,42-45
+tools/serve.mjs
+  s_4afe45fe780ee3::t_c8b362eb7f44f4 22,30,33-37,39,41-44,47-48
+  s_4afe45fe780ee3::t_f972ebfd82fb34 49
+tests/voice-budget.test.ts
+  s_73b60a77325e19::t_2c388750502625 1-145
+docs/plan/S23-music-sfx.md
+  s_b3f21a259998f7::t_a76ab0304099e1 101
+  s_b3f21a259998f7::t_f833d6819e298b 1-100
+docs/spec/05-animation.md
+  s_b3f21a259998f7::t_456942a4ac5823 22-23
+.opencode/agents/voice-agent.md
+  s_73b60a77325e19::t_9c7efe75d76836 29-30
+  s_73b60a77325e19::t_48ac25b6dadb52 64
+  s_73b60a77325e19::t_a7a095032be5cf 62,65-66
+  s_73b60a77325e19::t_11b3c28499154c 1-28,31-61,63,67-113
+.opencode/agents/ui-designer-agent.md
+  s_b3f21a259998f7::t_e9cbfdc3f78b47 10-12
+tools/voice-budget.mjs
+  s_73b60a77325e19::t_fd00c2e0fb91e1 1-95
+docs/plan/S22-art-masters-512.md
+  s_b3f21a259998f7::t_a536ae012339be 7,44-45
+  s_b3f21a259998f7::t_f07a44f15ba2f1 1-6,8-43,46-106
+tools/voice-budget.d.mts
+  s_73b60a77325e19::t_92baad136af8de 1-61
+docs/spec/03-art.md
+  s_b3f21a259998f7::t_e40d828cbbae32 40
+  s_b3f21a259998f7::t_4af141458eaac4 21-26,38
+.env.example
+  s_7338a60690cc04::t_25e356bff1cba2 1-6
+  s_d4c336b075df03::t_311251edebf0e6 7-12
+tools/voice.mjs
+  s_73b60a77325e19::t_7a04cc3b15875d 176-180
+  s_73b60a77325e19::t_6981bb52c138a3 174-175,181-225
+  s_73b60a77325e19::t_92bc016d071982 1-6,16-21,23,39-44,53-68,70-71,77-173,226-227,229-230,233-238,248-264,269-283,288-318,320-324,337,339-342,348,350-381,385-408,460-464,522-532,535-536,539-549,551-571,582-589,595-602,604-617,622-640
+  s_73b60a77325e19::t_ef149a19d28626 465-521,537-538,572-581,590-593,603
+  s_73b60a77325e19::t_eb771cdddcf9d1 69,72-76
+  s_73b60a77325e19::t_7e8968aeb79b1d 618-621
+  s_73b60a77325e19::t_f3bc7004dc22b7 51-52
+  s_73b60a77325e19::t_a0b1767b39ab10 319
+  s_73b60a77325e19::t_c11033ad18b7f6 325-336,338,343,349
+  s_73b60a77325e19::t_5300603042f8c2 265-268
+  s_73b60a77325e19::t_7132f68ccc8437 594
+  s_73b60a77325e19::t_bb48b206d769eb 382-384
+  s_73b60a77325e19::t_a7bc95c96cbf9d 228
+  s_73b60a77325e19::t_f3ead9c1d97f46 344-347
+  s_73b60a77325e19::t_414e5fe9fa2df0 409-459
+  s_73b60a77325e19::t_86f8101efc3c77 284-287
+  s_73b60a77325e19::t_b8808a6d11477b 533-534
+  s_73b60a77325e19::t_ecb8a94ad0654d 7-15,22,24-27
+  s_73b60a77325e19::t_6fb60d2fe2fed6 550
+  s_73b60a77325e19::t_c79baea243e0eb 45-50
+  s_73b60a77325e19::t_b6574011e1491a 231-232
+  s_73b60a77325e19::t_a2f812e361a554 28-31,37-38
+  s_73b60a77325e19::t_d9efb505e8dc76 32-36
+  s_73b60a77325e19::t_e50f81b698aaba 239-247
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "37bda5e060b721220d81c4d6d7938da40a1a69b6",
+  "prompts": {},
+  "humans": {
+    "h_06e01297fc405a": {
+      "author": "stswoon <xx@xx.xx>"
+    }
+  },
+  "sessions": {
+    "s_4afe45fe780ee3": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e2635a27effeH2P8bWZgeDGHmc",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_6d10b5741483ee": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e249e0225ffeQwrASalLP6z4ZW",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_7338a60690cc04": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e1fac24ecffeLCD6CdzaTNbXb5",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_73b60a77325e19": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e1faad579ffecGsvt3dDI7QnIe",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_b3f21a259998f7": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e1fbcaf7cffexnyce5lVudhFZk",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_d4c336b075df03": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e1fd32c28ffeofJF5379nuyPa1",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_f370455d687d6f": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e2000cbafffenRu2Lo2qQGPIb5",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_fb6a96758724a4": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e20069634ffeFC6CB1TQ0oAX3v",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    }
+  }
+}
