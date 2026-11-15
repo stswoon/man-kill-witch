@@ -1,0 +1,315 @@
+docs/plan/S15-hd-enemy-art.md
+  s_7a1d48940fc846::t_e8adb0127aadf6 1-29,33-36,39-45,47-56,59-67,70
+  s_7a1d48940fc846::t_9e8827587b1617 57-58
+  s_7a1d48940fc846::t_4ad2aac63dae3d 30-32
+  s_7a1d48940fc846::t_f62fdb943c8e7f 68-69
+  s_7a1d48940fc846::t_a220b921ff5820 37-38
+  s_7a1d48940fc846::t_0335a9df26be82 46
+docs/plan/artifacts/decisions-S05.md
+  s_6d10b5741483ee::t_07d03a98c99484 11-19
+  s_6d10b5741483ee::t_dfca3ddd3c5b08 1-10
+  s_6d10b5741483ee::t_bfaa8d27036146 20-28
+  s_6d10b5741483ee::t_0d418ce9e6f837 29-37
+docs/plan/S18-hd-finalization.md
+  s_7a1d48940fc846::t_152fe00e73e9b9 42
+  s_7a1d48940fc846::t_475f99fd59864d 1-41,43-73
+docs/plan/S09-tileset.md
+  s_7a1d48940fc846::t_aabcd4f4d452fc 3-7,11,13,15,19-20,24-26,40,44,48-49
+docs/plan/S17-hd-hud.md
+  s_7a1d48940fc846::t_de7e3bf207badb 1-7,9-21,26-76
+  s_7a1d48940fc846::t_b49f5dc9a505ff 22-25
+  s_7a1d48940fc846::t_5ff4d195b5cacb 8
+tests/enemy.test.ts
+  s_fd64f336a5714b::t_4c498f51f8bef6 57-59
+  s_fd64f336a5714b::t_27c7f14184d89e 63-66
+  s_fd64f336a5714b::t_e644c857cbf41b 93,103,108-109,115,121-122,138
+  s_fd64f336a5714b::t_1944ecaa1ac3bc 145-153,155,160
+  s_fd64f336a5714b::t_5b734c0da65a92 32-33
+docs/plan/S14-hd-hero-art.md
+  s_7a1d48940fc846::t_99d03b8104ce9b 66-67
+  s_7a1d48940fc846::t_f750dd016a2a01 37-38
+  s_7a1d48940fc846::t_9701dc9c8bc941 45
+  s_7a1d48940fc846::t_ea139d466b0622 31-32
+  s_7a1d48940fc846::t_a96a5dbe8b52fa 1-30,33-36,39-44,46-65,68
+docs/plan/S10-door-sprite.md
+  s_7a1d48940fc846::t_4c485e514f0e6c 25-26
+  s_7a1d48940fc846::t_11dc813ec9ec42 1,7-9,11-13,19,24,27-28,40-41,44,49,51,71-72,91
+docs/plan/artifacts/bug-report-S13.md
+  s_eeea806625ef68::t_87902a2c91d917 14
+  s_eeea806625ef68::t_149b95db3fecfe 13,15-22,29,31-36,54-58,62-65
+  s_eeea806625ef68::t_c4dd3983a2adee 38-39
+  s_eeea806625ef68::t_09a876d3560c81 1-12,23-28,30,37,40-53,59-61
+web/src/main.ts
+  s_fd64f336a5714b::t_e9a1e0f7814c3f 25
+docs/spec/01-architecture.md
+  s_7a1d48940fc846::t_f761b064330a79 28-29
+  s_7a1d48940fc846::t_664e8f775d2a7a 18-20
+  s_7a1d48940fc846::t_86f9901d300639 37-38
+  s_7a1d48940fc846::t_f948d6a51c97ed 5,9-17,21-27,30-36,39-46,50,58,75-78,90,99-100,148-152,171-173,175-177,188-193,195-196,198,202,215-216,229-230,240-242
+docs/plan/S12-run-state.md
+  s_7a1d48940fc846::t_b832620babed60 10-11,13
+  s_7a1d48940fc846::t_e2a871aedc276d 33-34
+  s_7a1d48940fc846::t_5ec9c24d13f5eb 87
+  s_7a1d48940fc846::t_d6cc35f27e8b33 78
+  s_7a1d48940fc846::t_c236887db7b634 7
+e2e/game.spec.ts
+  s_fd64f336a5714b::t_320173af9dbfe2 57
+  s_fd64f336a5714b::t_4d07363d001da8 70
+  s_fd64f336a5714b::t_1c337de4a3b320 84
+  s_fd64f336a5714b::t_82d8c08b8e58b3 109,112
+tests/player.test.ts
+  s_fd64f336a5714b::t_590e3e5986c2d5 78
+  s_fd64f336a5714b::t_7e85362cecaff5 34-35,46
+  s_fd64f336a5714b::t_b376dc3ed9e6d5 98-99
+  s_fd64f336a5714b::t_44be780962c7d2 169-170
+docs/spec/README.md
+  s_7a1d48940fc846::t_c4d30333df56b0 39-42
+  s_7a1d48940fc846::t_7e4a8614f02776 24-25
+  s_7a1d48940fc846::t_c1bab8638b65f0 28-33
+  s_7a1d48940fc846::t_c94f93542add88 9
+  s_7a1d48940fc846::t_8ae62a8a585d80 18-19
+  s_7a1d48940fc846::t_190064443f407e 43
+docs/plan/S03-title-art.md
+  s_7a1d48940fc846::t_0e08f73ba0846d 3-5,11,13,19-20,24-28,33,43-44,48
+  s_7a1d48940fc846::t_83c5b0a5f7c1d9 52
+  s_7a1d48940fc846::t_5b121caf9c7730 6-7
+web/src/view/hud-view.ts
+  s_fd64f336a5714b::t_ab6cc21d025df3 4,7,9,27,32,36
+docs/spec/03-art.md
+  s_7a1d48940fc846::t_c5b7c85fdc3d55 6-26,33-39,42,52-54,60,71-75,91-93,99-101,104-105,107-108,114,121
+  s_7a1d48940fc846::t_bb2ad4fa449b78 111-112
+  s_7a1d48940fc846::t_1ec0e7e4203e78 32
+  s_7a1d48940fc846::t_26868175f79da7 45-51
+web/src/game.ts
+  s_fd64f336a5714b::t_a0ee36eb7fef8f 334
+  s_fd64f336a5714b::t_75acef7eb9852d 455-458
+  s_fd64f336a5714b::t_c4e1309962d5d3 192-193,196,210,214
+  s_fd64f336a5714b::t_9b99def263691e 126,131,139-140
+  s_fd64f336a5714b::t_9634570b7d627b 290,440
+  s_fd64f336a5714b::t_9b41b3f8a07be5 10-17,20-21
+  s_fd64f336a5714b::t_dfe28439129214 19
+  s_6d10b5741483ee::t_361730f0cde644 102
+  s_fd64f336a5714b::t_f2a88709b85bf9 304,308-310,312,314,317
+web/src/view/character-view.ts
+  s_fd64f336a5714b::t_930f86a3462de0 109-110
+  s_fd64f336a5714b::t_25fa4d3a8cd884 40
+docs/plan/artifacts/decisions-S09.md
+  s_6d10b5741483ee::t_61b1e2317fbdb6 1-10
+  s_6d10b5741483ee::t_b1e7927fee70b1 20-28
+  s_6d10b5741483ee::t_cde07fd118b26a 11-19
+docs/plan/S07-hud-art-font.md
+  s_7a1d48940fc846::t_5639c35003aa3e 3-7,11,13,15,19-20,24-27,31,47,51,55-56
+docs/plan/S13-hd-render-title.md
+  s_7a1d48940fc846::t_490b9d823d1d27 31
+  s_7a1d48940fc846::t_0e630a5f5f30a5 50,53,60
+  s_7a1d48940fc846::t_3a55c4bc74fa24 150
+  s_7a1d48940fc846::t_d93d0af04cc677 142-145
+  s_7a1d48940fc846::t_09eb43d56066bd 158,160
+  s_7a1d48940fc846::t_bb164f76ef881e 159
+  s_7a1d48940fc846::t_777c6a33b21c14 41-42
+  s_7a1d48940fc846::t_6c69eb1f64b646 139-141
+  s_7a1d48940fc846::t_f94a99715a9ef0 51-52,54-59,61-62
+  s_7a1d48940fc846::t_8aa8460d712b6d 48-49
+  s_7a1d48940fc846::t_16ad815a2634c8 11-12
+  s_7a1d48940fc846::t_e4de28caed3486 76-78
+  s_6d10b5741483ee::t_6b613be28b68d7 3,64,68-70
+  s_7a1d48940fc846::t_2fb8e8654b9e4e 104
+  s_7a1d48940fc846::t_1683c13be2b2b2 34-35
+  s_7a1d48940fc846::t_b2ecde28132a7c 1-2,4-10,13-30,32-33,36-40,43-47,63,71-75,79-103,105-138,146-149,151-157,161-164
+  s_7a1d48940fc846::t_295123cc360c4f 65-67
+docs/spec/02-gameplay.md
+  s_7a1d48940fc846::t_711cdb571f5ef9 189-190
+  s_7a1d48940fc846::t_f629f609964562 22-23
+  s_7a1d48940fc846::t_3029c88d98122c 42-48,58,61-64
+  s_7a1d48940fc846::t_934eaa50e04d89 138-139
+  s_7a1d48940fc846::t_4ea619e3afdf61 69-70,73
+  s_7a1d48940fc846::t_9e467cb7ef70e9 178-179,182-184
+  s_7a1d48940fc846::t_ad0805f523c6cb 11-14,19-21
+  s_7a1d48940fc846::t_efb5e62edc25f6 81,85-88,93-95
+  s_7a1d48940fc846::t_66059e1c56da42 131-132,135-137
+  s_7a1d48940fc846::t_a862de5898b04c 24
+tests/game.test.ts
+  s_fd64f336a5714b::t_74fd271d0ba5d3 54-55
+  s_fd64f336a5714b::t_aa10c504730289 126
+  s_fd64f336a5714b::t_6b3a3da33c8a4d 18-19
+  s_fd64f336a5714b::t_df8954c30e7ee5 318,322
+  s_fd64f336a5714b::t_de653a840c638e 73-78
+  s_fd64f336a5714b::t_522eea43808199 71
+  s_fd64f336a5714b::t_dfd637018b5af4 127-130
+  s_fd64f336a5714b::t_d5d22086a78782 7
+docs/design.md
+  s_7a1d48940fc846::t_612f986ed3c83e 36-39,43-50,59
+  s_7a1d48940fc846::t_8af81b32f3949c 70-71
+  s_7a1d48940fc846::t_4cb293e9089687 60-61
+  s_7a1d48940fc846::t_12f58560c87bc4 79-81
+  s_7a1d48940fc846::t_2ff5aa36729b1c 18-19
+  s_7a1d48940fc846::t_e2d7b55e7d2765 62
+docs/plan/S05-character-art.md
+  s_7a1d48940fc846::t_4291f7c364a9be 3-7,11,15,19-20,24-28,32,45,49,53
+docs/plan/README.md
+  s_7a1d48940fc846::t_b9ee764205be26 127
+  s_7a1d48940fc846::t_f5f8a4f63c4366 4-6,35,37,39,41-44,46-50,53-54,59-63,65,68-70,79-83,85,87-89,93-101,105-117,126,128-135,137-139,142-152,159-160
+  s_7a1d48940fc846::t_af1be2f07166ec 10-11,15-25
+  s_7a1d48940fc846::t_4cf1327d859b31 140-141
+  s_7a1d48940fc846::t_0224f76d8886a6 7-9,12-14
+  s_7a1d48940fc846::t_b24b99cb5de5b5 26-27
+  s_6d10b5741483ee::t_fbca14702b4d7e 45
+docs/plan/artifacts/decisions-S07.md
+  s_6d10b5741483ee::t_a0960507f0b312 1-10
+  s_6d10b5741483ee::t_4b2bd4b3fff0f1 11-19
+tests/content.test.ts
+  s_fd64f336a5714b::t_f944fe4abb8da9 152-164
+  s_fd64f336a5714b::t_7a01fc8813abef 139-151
+  s_fd64f336a5714b::t_39ec5bd7d66a1f 6-7,15
+web/src/view/message-view.ts
+  s_fd64f336a5714b::t_5218481df17998 18,20,23,31,33,36
+docs/plan/S16-hd-tileset.md
+  s_7a1d48940fc846::t_bfb5ea5822b912 58-59
+  s_7a1d48940fc846::t_814da49f7509c9 1-57,60-67
+docs/plan/S11-arcade-physics.md
+  s_7a1d48940fc846::t_381f1d62b8bf02 7-8,10-12
+  s_7a1d48940fc846::t_31cc826f0898ce 70-71,73-74
+  s_7a1d48940fc846::t_248821092c03a3 26-27,32-33
+  s_7a1d48940fc846::t_261317b5cfd51c 124-126,128-129
+  s_7a1d48940fc846::t_6812f9f1afab7a 82
+tests/art-assets.test.ts
+  s_fd64f336a5714b::t_24dc81c767f67c 1-68
+docs/plan/artifacts/review-notes-S13.md
+  s_9b61093a475153::t_dcaa593099b3ee 39-40
+  s_9b61093a475153::t_13ed263ce5142b 58-59
+  s_9b61093a475153::t_5f7cb301663ece 10
+  s_9b61093a475153::t_c3d0f7c0d70e4c 6,11-13,17-18,20-22,25-29,48-56,63-69,74-75,79
+  s_9b61093a475153::t_25097a7c6c21bc 1-5,7-9,14-16,41-47,60-62,71-73,76-78
+  s_9b61093a475153::t_0d4c95643f8765 19,23-24,32-38,57,70,80-83
+  s_9b61093a475153::t_a65323ad29830a 30-31
+web/src/assets.ts
+  s_fd64f336a5714b::t_a27c4c1d59b3cb 1-7
+docs/plan/artifacts/decisions-S13.md
+  s_6d10b5741483ee::t_fb67273ff358ef 1-10
+  s_6d10b5741483ee::t_cfdb4dd0e98838 11-19
+docs/plan/S02-remove-unused-assets.md
+  s_7a1d48940fc846::t_6935a6aae9d7a5 42
+docs/plan/artifacts/decisions-S03.md
+  s_6d10b5741483ee::t_ad4e50c240f270 11-19
+docs/spec/04-hero.md
+  s_7a1d48940fc846::t_bab0adf89305ff 36-37
+  s_7a1d48940fc846::t_b964f32e0a16d4 41-42,48-49
+  s_7a1d48940fc846::t_430b66f72a684f 56-57
+docs/spec/05-animation.md
+  s_7a1d48940fc846::t_fc03589a4c86ef 16-18,21-22,26-33,37,43-44,59-60,75,79-80,114-116,124-126
+tests/helpers.ts
+  s_fd64f336a5714b::t_bdd0460b959de9 93
+tests/png.ts
+  s_fd64f336a5714b::t_86be596104b083 1-99
+e2e/physics.spec.ts
+  s_fd64f336a5714b::t_cc2db376e3fdf8 92-93
+  s_fd64f336a5714b::t_604f08d83553e7 133
+  s_fd64f336a5714b::t_a49e54acdb66d4 174-175
+  s_fd64f336a5714b::t_afb6f62e9c92c5 145
+docs/plan/artifacts/bug-report-S05.md
+  s_9ef9a5ba0edd54::t_ccffe4c70338ef 19
+  s_9ef9a5ba0edd54::t_8bca29e72f248c 27-28,31-32
+  s_9ef9a5ba0edd54::t_39230234c4bf90 16
+  s_9ef9a5ba0edd54::t_5c72b936e034c8 15
+  s_9ef9a5ba0edd54::t_605d4c1ee6c348 54,56-57
+  s_0712f8d38525ee::t_9f8e97c891f04b 58-64,68,72-75,91-95,103-109,111-115,122-124
+  s_9ef9a5ba0edd54::t_2ed8da29bd61b9 1-10,20,22-26,30,33-48,50-53
+  s_9ef9a5ba0edd54::t_911052b8ba32b3 14
+  s_9ef9a5ba0edd54::t_e7d5ab8b4e2c3c 11
+  s_0712f8d38525ee::t_c305a7447a0033 69-71
+  s_9ef9a5ba0edd54::t_4380788194e842 17,21,29,49
+  s_9ef9a5ba0edd54::t_f53cbb672b49ed 18
+  s_0712f8d38525ee::t_47846611a9fc2c 65-67,76-90,96-102,110,116-121,125-126
+  s_9ef9a5ba0edd54::t_92ff6fa7b8789c 13
+  s_9ef9a5ba0edd54::t_b60984d5a21439 12
+  s_9ef9a5ba0edd54::t_e18c255e7f88b3 55
+docs/plan/artifacts/review-notes-S05.md
+  s_606f7213a8b00e::t_43610a9c695fca 23-24
+  s_606f7213a8b00e::t_a891ba0ab84de8 74-75
+  s_606f7213a8b00e::t_947d8d9f90dc47 29-30
+  s_606f7213a8b00e::t_de958510cd7084 35-36
+  s_606f7213a8b00e::t_8e74784539ca4e 22
+  s_606f7213a8b00e::t_58c03a65059352 32-34
+  s_606f7213a8b00e::t_547e6d495f1954 47-54
+  s_606f7213a8b00e::t_1ed952ccb3a08b 58-59,62-63
+  s_606f7213a8b00e::t_bb63a26f6947f4 1-9,13-21,25-28,31,37-46,55-57,60-61,64-73,76-77
+  s_606f7213a8b00e::t_95765691a60391 12
+  s_606f7213a8b00e::t_cf20c91b3ef017 10-11
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "7f4fc3d941f39f5c9164891649a5d2cfaf626384",
+  "prompts": {},
+  "humans": {
+    "h_06e01297fc405a": {
+      "author": "stswoon <xx@xx.xx>"
+    }
+  },
+  "sessions": {
+    "s_0712f8d38525ee": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e21c0cf0effe5Zc1WCIPWSaj6d",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_606f7213a8b00e": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e21e2dc11ffeabMvipLoGKAysk",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_6d10b5741483ee": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e249e0225ffeQwrASalLP6z4ZW",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_7a1d48940fc846": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e21a91457ffesYBgT2QjgB00YQ",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_9b61093a475153": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e20fda136ffehW6v4viMMx1fgy",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_9ef9a5ba0edd54": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e2213ee55ffeRyBZu6sTSeDRN1",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_eeea806625ef68": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e2109a62dffePEhGe4B27DevQ8",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_fd64f336a5714b": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e21173344ffe3xkk0sXiBgZ2Nd",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    }
+  }
+}
