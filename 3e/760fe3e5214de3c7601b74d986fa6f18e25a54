@@ -1,0 +1,27 @@
+.opencode/agents/ui-designer-agent.md
+  s_6d10b5741483ee::t_56b8db9e266be4 16-18,20-22
+  s_6d10b5741483ee::t_345b01b072bee7 8-9
+AGENTS.md
+  s_6d10b5741483ee::t_11a90078c197d7 27-35
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "3e760fe3e5214de3c7601b74d986fa6f18e25a54",
+  "prompts": {},
+  "humans": {
+    "h_06e01297fc405a": {
+      "author": "stswoon <xx@xx.xx>"
+    }
+  },
+  "sessions": {
+    "s_6d10b5741483ee": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e249e0225ffeQwrASalLP6z4ZW",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    }
+  }
+}
