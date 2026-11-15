@@ -3,10 +3,13 @@
 // timeout. Stale e2e servers/artifacts from earlier runs are cleaned first, so a
 // crashed run cannot block the next one with "port 4173 is already used".
 import { spawn, execFileSync } from "node:child_process";
+import { createRequire } from "node:module";
 import { createServer } from "node:net";
 import { rm, readdir, stat } from "node:fs/promises";
 import { join, resolve } from "node:path";
 
+const require = createRequire(import.meta.url);
+const PLAYWRIGHT_CLI = require.resolve("@playwright/test/cli");
 const ROOT = resolve(import.meta.dirname, "..");
 const BASE_PORT = Number(process.env.PW_PORT ?? 4173);
 const PORT_TRIES = Number(process.env.PW_PORT_TRIES ?? 20);
@@ -103,8 +106,14 @@ async function main() {
   };
   const npx = process.platform === "win32" ? "npx.cmd" : "npx";
   const args = ["playwright", "test", ...process.argv.slice(2)];
-  console.log(`[e2e] port=${port} workers=${WORKERS} output=${OUTPUT}`);
-  const child = spawn(npx, args, { cwd: ROOT, env, stdio: "inherit", windowsHide: true });
+  const cliWorkers = process.argv.find((arg) => arg.startsWith("--workers="))?.split("=")[1];
+  console.log(`[e2e] port=${port} workers=${cliWorkers ?? WORKERS} output=${OUTPUT}`);
+  const child = spawn(process.execPath, [PLAYWRIGHT_CLI, "test", ...process.argv.slice(2)], {
+    cwd: ROOT,
+    env,
+    stdio: "inherit",
+    windowsHide: true,
+  });
   let timedOut = false;
   const timer = setTimeout(() => {
     timedOut = true;
