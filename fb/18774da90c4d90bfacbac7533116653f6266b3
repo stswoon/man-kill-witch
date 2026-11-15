@@ -1,0 +1,87 @@
+tests/animation-catalog.test.ts
+  s_668b466007750c::t_2e43c9a4ac0d30 22,77,79,84-91
+  s_668b466007750c::t_1dc9bffbdb1611 92-93
+tests/content.test.ts
+  s_668b466007750c::t_1d10feb329bae7 5-6,16,129
+  s_668b466007750c::t_3e47899e9c0414 155-164
+  s_6d10b5741483ee::t_2f70459c6d0851 165
+docs/plan/S10-door-sprite.md
+  s_6d10b5741483ee::t_9e0ea45d8cd43e 85
+  s_6d10b5741483ee::t_2f8002dc51ac05 3
+web/src/view/door-view.ts
+  s_668b466007750c::t_bb6da2afa44a46 15-17,36-41,46-47
+  s_668b466007750c::t_2da963e2488f1a 1-14,18-35,42-45,48-51
+web/src/phaser-view.ts
+  s_668b466007750c::t_5126f5b8af9b08 4,16,26
+  s_668b466007750c::t_e8ba2854b3d233 48,59
+docs/plan/artifacts/review-notes-S10.md
+  s_d346fedbfa7189::t_4d84393b57ab82 1-70
+tests/game.test.ts
+  s_668b466007750c::t_a9adda6ed73a47 317-328
+  s_668b466007750c::t_d3fea92596af45 259-266,271-283,285-299,302-308,311,314-316,329-352
+web/src/scenes/boot-scene.ts
+  s_668b466007750c::t_2c638b6af10795 40-44
+  s_6d10b5741483ee::t_36df919df2b488 3-5
+web/src/assets.ts
+  s_668b466007750c::t_d1121466cfdfe0 12-16
+docs/plan/artifacts/decisions-S10.md
+  s_6d10b5741483ee::t_3d83efa7065e0a 1-19
+web/src/game.ts
+  s_668b466007750c::t_ed4b8489b2b949 285,381,387-388,392-402,404-419,424-425,427-430,432-436,438-442,444
+  s_668b466007750c::t_9ee64b7aadab6d 274,282-284
+  s_668b466007750c::t_67ccdb147930c0 426,431,437,443
+  s_668b466007750c::t_d80b9b4b8113e3 243-255
+  s_668b466007750c::t_43b4bb57cc66f8 286
+  s_668b466007750c::t_630daf3e776236 445
+docs/plan/artifacts/bug-report-S10.md
+  s_366e7ec8a4b642::t_8464c617598cc2 7-10,17-30,36-42,45-46,63-65,71-82
+  s_366e7ec8a4b642::t_90382a268db245 1-6,11-15,31-35,50-62,68-70
+  s_366e7ec8a4b642::t_338f5055888d3e 43-44,47,66-67
+  s_366e7ec8a4b642::t_919009141c3902 16
+  s_366e7ec8a4b642::t_393b7a095b4276 48-49
+web/src/animation-catalog.ts
+  s_668b466007750c::t_41fe3aaad211f9 25-26,47-48
+  s_668b466007750c::t_9f865bad6eef6e 9
+docs/plan/README.md
+  s_6d10b5741483ee::t_cfc2817256f942 42
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "fb18774da90c4d90bfacbac7533116653f6266b3",
+  "prompts": {},
+  "sessions": {
+    "s_366e7ec8a4b642": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e20bbafc7ffeMfvNtxyEktEw3j",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_668b466007750c": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e20dda51fffewWbeycxpJJZ6RZ",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_6d10b5741483ee": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e249e0225ffeQwrASalLP6z4ZW",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_d346fedbfa7189": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e20aa13f0ffen4vqAyexTyWwVq",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    }
+  }
+}
