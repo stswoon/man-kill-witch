@@ -19,6 +19,7 @@ import {
 import { ANIMATIONS } from "../web/src/animation-catalog";
 import { Level, type Dir } from "../web/src/game";
 import { decodePng } from "./png";
+import { readWebpInfo } from "./webp";
 
 const ASSETS = resolve(process.cwd(), "web/public/assets");
 const LEVEL_DIR = join(ASSETS, "levels");
@@ -152,7 +153,7 @@ describe("asset manifest", () => {
   test("contains every file BootScene loads", () => {
     const expected = [
       "tiles.png",
-      "title1.png",
+      "title1.webp",
       "hud.png",
       join("fonts", "hud.png"),
       join("fonts", "hud.xml"),
@@ -174,10 +175,11 @@ describe("asset manifest", () => {
   });
 });
 
-describe("Png dimensions", () => {
+describe("Asset dimensions", () => {
   test("title screen is Full HD", () => {
-    const png = decodePng(readFileSync(join(ASSETS, "title1.png")));
-    expect([png.width, png.height]).toEqual([SCREEN_W, SCREEN_H]);
+    const webp = readWebpInfo(readFileSync(join(ASSETS, "title1.webp")));
+    expect([webp.width, webp.height]).toEqual([SCREEN_W, SCREEN_H]);
+    expect(webp.hasAlpha, "the title screen is opaque").toBe(false);
   });
 
   test("tileset keeps the 32x27 grid of 80px cells", () => {

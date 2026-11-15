@@ -25,7 +25,7 @@ export class BootScene extends Phaser.Scene {
   preload(): void {
     const base = "assets/";
     this.load.image(TILE_TEXTURE, `${base}tiles.png`);
-    this.load.image(TITLE_TEXTURE, `${base}title1.png`);
+    this.load.image(TITLE_TEXTURE, `${base}title1.webp`);
     this.load.image(HUD_TEXTURE, `${base}hud.png`);
     this.load.bitmapFont(HUD_FONT, `${base}fonts/hud.png`, `${base}fonts/hud.xml`);
     this.load.json("tileinfo", `${base}tileinfo.json`);

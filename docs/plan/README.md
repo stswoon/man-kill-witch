@@ -47,7 +47,7 @@ PNG-ассетов и удаление untracked `tests/art-assets.test.ts`,
 | S15 | HD-арт врагов | DONE | S10, S14, S16, S17 | S13 | S18 |
 | S16 | HD-тайлсет на месте | DONE | S10, S14, S15, S17 | S13 | S18 |
 | S17 | HD-HUD: панель и bitmap-шрифт | DONE | S11, S14, S15, S16 | S13 | S18 |
-| S18 | HD-финализация: доки, статус ассетов, приёмка | OPEN | нет | S10, S11, S12, S14, S15, S16, S17 | — |
+| S18 | HD-финализация: доки, статус ассетов, приёмка | IN_PROGRESS | нет | S10, S11, S12, S14, S15, S16, S17 | — |
 | S19 | LLM-пилот: бот-игрок и проверка проходимости | DONE | нет (не гейт) | S11; S12 по `game-scene.ts` | — |
 | S20 | Уровень 1: стартовый карман | DONE | нет | S19 | — |
 
@@ -154,7 +154,7 @@ S17 зависимостей от S10 не имеет, но по эксклюз�
 | `tests/hero-art.test.ts` | S14. |
 | `tests/enemy-art.test.ts` | S15. |
 | `e2e/**` | S13 → S11 → S12 → S20 (стена у спавна). |
-| `web/public/assets/title1.png` | S13. |
+| `web/public/assets/title1.webp` | S13. |
 | `web/public/assets/tiles.png` | S13 (временная ×5-копия) → S16. |
 | `web/public/assets/sprites/s_hero.png` | S13 (временная ×5-копия) → S14. |
 | `web/public/assets/sprites/s_chunk1.png`, `s_chunk2.png` | S13 (временные ×5-копии) → S15. |

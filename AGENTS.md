@@ -1,20 +1,27 @@
 # AGENTS.md
 
-Инструкции для AI-агентов, работающих в этом репозитории. Документация для людей — `README.md`, дизайн и параметры
-ощущения — `docs/design.md`.
+Инструкции для AI-агентов, работающих в этом репозитории. Документация для людей — `README.md`,
+спецификация — `docs/spec/` (герой — `docs/spec/04-hero.md`), дизайн и параметры ощущения — `docs/design.md`.
 
 ## Проект
 
 **Man Kill Witch** — браузерный ретро-платформер на Phaser 4 + TypeScript.
 
+- Рендер — Full HD `1920×1080`: тайл `80×80` px, опорная сетка `384×216` (1 единица = 5 px
+  экрана). Арт — HD-иллюстрация, не пиксель-арт; сглаживание включено (`antialias: true`,
+  `pixelArt: false`). Мир задан в px экрана, канвас — `Phaser.Scale.NONE` с CSS-подгонкой
+  под окно (`web/src/main.ts`), соотношение 16:9 сохраняется.
 - Логика идёт с фиксированным шагом **1/70 с** (`DT = 1 / 70` в `web/src/scenes/game-scene.ts`);
   правила и Arcade-мир делают ровно один шаг на тик.
 - Каркаса нет: esbuild собирает один бандл, `tools/build.mjs` публикует игру в `build/`,
   `tools/serve.mjs` раздаёт её.
 - Код на TypeScript strict, рендер на Phaser 4 (WebGL). Больше runtime-зависимостей нет.
 
-Статус — ранний прототип. Ассеты в `web/public/assets` временные и подлежат замене;
-игровой код переводится на собственный формат данных. Новые ассеты должны быть
+Статус — играбельный прототип. Графика HD и финальная: титул `1920×1080`, тайлсет `80×80`,
+кадры героя и врагов `120×160`, дверь `160×240`, HUD-панель `680×120` с bitmap-шрифтом.
+Арт оригинальный: нарисован с нуля для проекта (`docs/spec/03-art.md`), без трассировки
+старых спрайтов. Временными остаются данные уровней (`web/public/assets/levels/*.json`) и
+звук (синтезированные WebAudio-блипы в `web/src/sfx.ts`). Новые ассеты должны быть
 оригинальными.
 
 ## Агенты
@@ -58,62 +65,37 @@ npm run typecheck  # tsc --noEmit по web/src, tests и e2e, должен пр�
 
 Юнит-тесты — vitest (`tests/**/*.test.ts`, окружение node, конфиг `vitest.config.ts`).
 Phaser в node не импортируется, поэтому в node проверяются правила на фейковом
-`WorldSnapshot` (`tests/helpers.ts`), данные уровней и архитектурные запреты; движение,
-прыжки, стены, приземление и враги — в `e2e/physics.spec.ts`.
+`WorldSnapshot` (`tests/helpers.ts`), данные уровней, каталог анимаций, арт-ассеты через
+свой PNG-декодер (`tests/png.ts`: размеры, сетка кадров, альфа), HUD-панель и шрифт,
+вердикт бота и архитектурные запреты; движение, прыжки, стены, приземление и враги — в
+`e2e/physics.spec.ts`.
 Браузерные сценарии — Playwright (`e2e/**/*.spec.ts`, chromium). Playwright сам собирает
 `build/` и поднимает `tools/serve.mjs` на порту 4173 с `--strict`, поэтому отдельный
 сервер запускать не нужно. Первый запуск требует `npx playwright install chromium`;
 `npm test` не трогает `e2e/`, у vitest явный `include` только на `tests/`.
-
-## Бот-игрок (по запросу)
-
-`agent-bot` играет через `window.mkw.bot` **по данным движка**, без пикселей. Это
-диагностический инструмент, а не обязательный гейт: запускай после правок уровней, перед
-релизом или по жалобе «уровень не проходится», не в каждом прогоне.
-
-```js
-mkw.bot.reset(0, { seed: 1, render: true }) // observation; Phaser loop sleeps
-mkw.bot.act("right", 20)                    // observation; the only way to move
-mkw.bot.observe()
-mkw.bot.status()                            // PASS / FAIL / IN_PROGRESS / CANCELLED
-mkw.bot.log()                               // replayable action log
-mkw.bot.replay(route, { render: true })     // optional, after level edits
-mkw.bot.stop()
-mkw.setSpeed(4)                             // normal loop x1..x8
-```
-
-`act` шагает правила и Arcade ровно на `1/70` за тик и возвращает observation: тайлы,
-герой, враги, двери, предметы, окно 21×13, minimap 4×4. Вердикт считает harness, не LLM:
-behavior 2 — выход, fallback behavior 1, выход ближе 2 тайлов к спавну — `FAIL`
-(уровни 4/6/7). `e2e/bot-api.spec.ts` — детерминированный smoke API, он входит в
-`npm run test:e2e`; полный LLM-прогон уровней в обязательный цикл не входит.
-
-Первый живой прогон (уровень 1) подтвердил tooling и нашёл дефект данных: стартовый карман,
-ступень `(7,32)` — 3 тайла (240 px) над полом против прыжка 219 px; двери в кармане нет.
-Отчёт — `docs/plan/artifacts/bot-run-S19-level-1.md`. S20 исправил карман ступенями
-`(8,34)`/`(9,32)` и верхом стены `(11,30)`; повторный прогон — **PASS**: уровень 1 пройден
-за 20 действий / 569 тиков, 0 смертей. Отчёт — `docs/plan/artifacts/bot-run-S20-level-1.md`.
+Канвас в e2e — `1920×1080` с соотношением 16:9.
 
 ## Структура
 
 | Путь                           | Назначение                                                                                          |
 |--------------------------------|-----------------------------------------------------------------------------------------------------|
-| `web/src/main.ts`              | boot Phaser-игры, конфиг рендера и канваса                                                          |
-| `web/src/scenes/boot-scene.ts` | загрузка ассетов через Phaser Loader, передача их в игровую сцену                                   |
+| `web/src/main.ts`              | boot Phaser-игры, конфиг рендера (`1920×1080`, `antialias`, без `pixelArt`) и CSS-подгонка канваса  |
+| `web/src/scenes/boot-scene.ts` | загрузка ассетов через Phaser Loader: тайлы, титул, HUD, bitmap-шрифт, уровни, спрайты, дверь       |
 | `web/src/scenes/game-scene.ts` | состояния `title / play / gameover / win`, владелец `Game`, `RunState` и `ArcadeSim`, фиксированный тик, `window.mkw` |
 | `web/src/sim-contract.ts`      | чистый контракт правил и Arcade: `WorldSnapshot`, `TickCommands`, `PlayerIntent`, `EnemyIntent`, `PhysicsEvent`, числа |
 | `web/src/game.ts`              | правила без Phaser: уровни, очки, жизни, патроны, таймеры, дверь, камера, `tilePatches`, AI-намерения. **Без импортов Phaser и `arcade/*`** |
 | `web/src/arcade/arcade-sim.ts` | единственный владелец Arcade-мира: тела игрока, врагов и пуль, tilemap-коллизии, один шаг на тик     |
 | `web/src/bot/`                 | LLM-пилот: `observe/act`, виртуальный ввод, окно/minimap, выходы и вердикт. **Без Phaser и без записи в игру** |
-| `web/src/phaser-view.ts`, `web/src/view/*` | только отрисовка: tilemap, спрайты по `WorldSnapshot`, камера, HUD, сообщения. **Не меняет состояние игры** |
-| `web/src/assets.ts`            | константы (`TILE`, `SCREEN_W/H`, `TILE_FLAG_MASK`), типы и имена текстур                            |
+| `web/src/animation-catalog.ts`, `web/src/animations.ts` | каталог анимаций (кадры, fps, `repeat`) без Phaser и его регистрация в `this.anims` |
+| `web/src/phaser-view.ts`, `web/src/view/*` | только отрисовка: tilemap и backdrop, спрайты по `WorldSnapshot`, камера, дверь, HUD, сообщения. **Не меняет состояние игры** |
+| `web/src/assets.ts`            | константы (`TILE = 80`, `SPRITE_W/H`, `SCREEN_W/H`, `DOOR_W/H`, `BACKDROP_TILE`, `TILE_FLAG_MASK`), типы и имена текстур |
 | `web/src/input.ts`             | клавиатура: `isDown` / `wasPressed`, сброс в конце кадра                                            |
-| `web/src/sfx.ts`               | синтезированные WebAudio-блипы                                                                      |
-| `web/public/assets/`           | закоммиченные временные ассеты: `tiles.png`, `tileinfo.json`, `levels/*.json`, `sprites/*.png`      |
-| `web/index.html`               | подсказка по управлению, CSS канваса                                                                |
+| `web/src/sfx.ts`               | синтезированные WebAudio-блипы (временный звук)                                                    |
+| `web/public/assets/`           | HD-арт: `title1.webp` `1920×1080`, `tiles.png` `2560×2160` (ячейка `80×80`), `sprites/*.png`, `hud.png`, `fonts/`; данные уровней `levels/*.json` пока временные |
+| `web/index.html`               | хинт по управлению, CSS канваса                                                                    |
 | `build/`                       | собранная игра: `bundle.js`, `index.html`, `assets/` (не коммитится)                                |
 | `tools/*.mjs`                  | сборка в `build/`, статический сервер (порт, `--strict`), PNG-писатель                              |
-| `tests/`                       | юнит-тесты на vitest: правила, враги, данные уровней, архитектурные запреты                         |
+| `tests/`                       | юнит-тесты на vitest: правила, враги, анимации, данные уровней, арт-ассеты (PNG-декодер, WebP-заголовок), HUD, архитектурные запреты |
 | `e2e/`                         | браузерные тесты Playwright: boot, управление, физика (`mkw.tick`), уровни, масштаб канваса, `bot-api` |
 | `vitest.config.ts`             | конфиг юнит-тестов: только `tests/`, окружение node                                                 |
 | `playwright.config.ts`         | конфиг браузерных тестов: chromium, сборка и сервер на 4173                                         |
@@ -124,6 +106,13 @@ behavior 2 — выход, fallback behavior 1, выход ближе 2 тайл
 - Phaser используется как платформа: boot, сцены, загрузчик, tilemap, камера и рендер. Физика —
   Phaser Arcade Physics в `arcade/*` (D8); ввод и звук остаются собственными. Не переводи
   ввод на Phaser Input и звук на Phaser Audio без отдельного решения.
+- Рендер — Full HD `1920×1080`, `TILE = 80`: мировые координаты, размеры тел и скорости — в px
+  экрана. `camera.zoom` не используется; канвас подгоняется CSS под окно с сохранением 16:9
+  (`web/src/main.ts`). Сглаживание включено (`antialias: true`, `pixelArt: false`) — арт HD;
+  не включать `pixelArt` / nearest-фильтр.
+- Анимации — каталог `animation-catalog.ts` и `registerAnimations(scene)`; проигрывание идёт по
+  времени рендера и только визуально. Игровые таймеры (перезарядка, кулдаун, неуязвимость,
+  шаги двери) остаются тиковыми `1/70`.
 - Игровые правила живут в `game.ts` и не знают про Phaser. `Game.update(dt, input, snapshot)`
   читает `WorldSnapshot` и возвращает `TickCommands`; движение правила не интегрируют.
 - `web/src/arcade/*` — единственный владелец Arcade-мира и тел игрока, врагов и пуль.
@@ -165,9 +154,9 @@ behavior 2 — выход, fallback behavior 1, выход ближе 2 тайл
 
 Минимальный цикл:
 
-1. `npm test` — обязателен. Тесты покрывают правила, врагов, данные уровней и архитектуру;
-   падение теста на `content.test.ts` почти всегда означает битый уровень. Движение и
-   коллизии живут в e2e: Phaser не грузится в node.
+1. `npm test` — обязателен. Тесты покрывают правила, врагов, данные уровней, арт-ассеты,
+   HUD и архитектуру; падение теста на `content.test.ts` почти всегда означает битый уровень.
+   Движение и коллизии живут в e2e: Phaser не грузится в node.
 2. `npm run typecheck` — обязателен.
 3. `npm run test:e2e` — обязателен для правок рендера, ввода и сцен: Playwright сам
    собирает `build/` и поднимает сервер, проверяя загрузку, управление и переключение уровней.
@@ -177,8 +166,9 @@ behavior 2 — выход, fallback behavior 1, выход ближе 2 тайл
    дверь, уровни 1–8 по цифрам, смерть и GAME OVER, победа на 8-м уровне.
 6. Консоль браузера должна быть чистой; ошибки boot выводятся красным `<pre>` поверх канваса.
 7. Для отладки есть `window.mkw`: `mkw.game()`, `mkw.snapshot()`, `mkw.startLevel(n)`,
-   `mkw.advanceLevel(n)`, `mkw.step(dt)`, `mkw.tick(n, dt?)`, `mkw.getState()`, `mkw.renderer`,
-   `mkw.assets`, `mkw.phaser`. `mkw.startLevel(n)` — перезапуск уровня `n` (0-based) с новым
+   `mkw.advanceLevel(n)`, `mkw.step(dt)`, `mkw.tick(n, dt?)`, `mkw.getState()`, `mkw.setSpeed(n)`,
+   `mkw.renderer`, `mkw.assets`, `mkw.phaser`, `mkw.bot` (см. `.opencode/agents/agent-bot.md`).
+   `mkw.startLevel(n)` — перезапуск уровня `n` (0-based) с новым
    прохождением; `mkw.advanceLevel(n)` — переход на уровень `n` с тем же `RunState` (для e2e).
    `mkw.snapshot()` отдаёт `WorldSnapshot` с телами Arcade: позиции, скорости,
    размеры, `onGround`, `blocked`, `dir`, `alive` и события шага. `mkw.step` и `mkw.tick`
@@ -189,8 +179,9 @@ behavior 2 — выход, fallback behavior 1, выход ближе 2 тайл
    Это не обязательный шаг и не гейт; полный прогон в `npm test`/`test:e2e` не входит.
    `e2e/bot-api.spec.ts` — детерминированный smoke API, он входит в `test:e2e`.
 
-Для правок рендера дополнительно сверяй картинку в браузере: масштабирование без артефактов,
-края спрайтов и тайлов без швов и обрезки.
+Для правок рендера дополнительно сверяй картинку в браузере: канвас `1920×1080` и `16:9`,
+масштабирование без артефактов, края спрайтов, тайлов и двери без швов и обрезки, прокрутка
+держит 60 fps.
 
 ## Чего не делать
 
