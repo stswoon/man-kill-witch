@@ -1,7 +1,12 @@
 import Phaser from "phaser";
 import { registerAnimations } from "../animations";
 import { BULLET_TEXTURE } from "../assets";
-import type { Bullet, Enemy, Player } from "../game";
+import type {
+  BulletSnapshot,
+  EnemySnapshot,
+  PlayerSnapshot,
+  WorldSnapshot,
+} from "../sim-contract";
 
 /** Enemy sprite ids 2-8 live in `chunk1`, 9-12 in `chunk2` (05-animation.md). */
 function enemyTexture(sprite: number): string {
@@ -28,20 +33,20 @@ export class CharacterView {
     this.createBulletTexture();
   }
 
-  render(player: Player, enemies: Enemy[], bullets: Bullet[]): void {
-    this.drawPlayer(player);
-    this.drawEnemies(enemies);
-    this.drawBullets(bullets);
+  render(snapshot: WorldSnapshot): void {
+    this.drawPlayer(snapshot.player);
+    this.drawEnemies(snapshot.enemies);
+    this.drawBullets(snapshot.bullets);
   }
 
-  private drawPlayer(player: Player): void {
+  private drawPlayer(player: PlayerSnapshot): void {
     let animation = "hero-idle";
     if (!player.onGround) animation = "hero-jump";
     else if (Math.abs(player.vx) > 40) animation = "hero-run";
 
     // `play(key, true)` keeps a running animation going instead of restarting it every frame.
     this.playerSprite
-      .setFlipX(player.facing > 0)
+      .setFlipX(player.dir > 0)
       .setPosition(
         Math.round(player.x + player.w / 2),
         Math.round(player.y + player.h),
@@ -50,7 +55,7 @@ export class CharacterView {
       .play(animation, true);
   }
 
-  private drawEnemies(enemies: Enemy[]): void {
+  private drawEnemies(enemies: EnemySnapshot[]): void {
     while (this.enemySprites.length < enemies.length) {
       const enemy = enemies[this.enemySprites.length];
       this.enemySprites.push(
@@ -79,7 +84,7 @@ export class CharacterView {
     }
   }
 
-  private drawBullets(bullets: Bullet[]): void {
+  private drawBullets(bullets: BulletSnapshot[]): void {
     while (this.bulletSprites.length < bullets.length) {
       this.bulletSprites.push(
         this.scene.add

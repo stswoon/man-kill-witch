@@ -1,13 +1,15 @@
 import { expect, test, type Page } from "@playwright/test";
+import type { WorldSnapshot } from "../web/src/sim-contract";
 
 type GameState = "title" | "play" | "gameover" | "win";
 
 interface DebugApi {
   assets: { levels: Array<{ width: number; height: number }> };
   game: () => {
-    player: { x: number; ammo: number };
+    player: { ammo: number };
     level: { pixelWidth: number; pixelHeight: number };
   };
+  snapshot: () => WorldSnapshot;
   getState: () => GameState;
 }
 
@@ -32,7 +34,7 @@ async function snapshot(page: Page): Promise<Snapshot> {
     const game = api.game();
     return {
       state: api.getState(),
-      x: game.player.x,
+      x: api.snapshot().player.x,
       ammo: game.player.ammo,
       levelWidth: game.level.pixelWidth,
       levelHeight: game.level.pixelHeight,

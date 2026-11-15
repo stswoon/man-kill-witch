@@ -3,6 +3,8 @@ import {
   DOOR_H,
   DOOR_TEXTURE,
   DOOR_W,
+  HUD_FONT,
+  HUD_TEXTURE,
   LEVEL_COUNT,
   SPRITE_H,
   SPRITE_NAMES,
@@ -24,6 +26,8 @@ export class BootScene extends Phaser.Scene {
     const base = "assets/";
     this.load.image(TILE_TEXTURE, `${base}tiles.png`);
     this.load.image(TITLE_TEXTURE, `${base}title1.png`);
+    this.load.image(HUD_TEXTURE, `${base}hud.png`);
+    this.load.bitmapFont(HUD_FONT, `${base}fonts/hud.png`, `${base}fonts/hud.xml`);
     this.load.json("tileinfo", `${base}tileinfo.json`);
 
     for (let i = 1; i <= LEVEL_COUNT; i++) {

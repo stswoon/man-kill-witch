@@ -1,5 +1,6 @@
 import type Phaser from "phaser";
 import type { Game } from "./game";
+import type { TilePatch, WorldSnapshot } from "./sim-contract";
 import { CharacterView } from "./view/character-view";
 import { DoorView } from "./view/door-view";
 import { HudView } from "./view/hud-view";
@@ -8,8 +9,8 @@ import { MessageView } from "./view/message-view";
 
 /**
  * Phaser side of the game: composes the view modules and exposes them to the
- * scene. It only reads the state produced by game.ts; all positions come from
- * the fixed-step simulation.
+ * scene. It only reads the state produced by game.ts and the Arcade snapshot;
+ * the view never changes the rules.
  */
 export class PhaserView {
   private readonly levelView: LevelView;
@@ -24,6 +25,11 @@ export class PhaserView {
     this.hud = new HudView(scene);
     this.levelView = new LevelView(scene);
     this.door = new DoorView(scene);
+  }
+
+  /** The live tilemap layer shared with `ArcadeSim`. */
+  get tilemapLayer(): Phaser.Tilemaps.TilemapLayer {
+    return this.levelView.tilemapLayer;
   }
 
   showTitle(): void {
@@ -42,22 +48,26 @@ export class PhaserView {
     this.messages.hideMessage();
   }
 
-  /** Rebuild the tilemap and HUD for a freshly created level. */
-  buildLevel(game: Game): void {
+  /**
+   * Rebuild the tilemap and the level objects for a freshly created level.
+   * `withHud` is false for the level prepared behind the title screen, which
+   * must not show the HUD panel yet.
+   */
+  buildLevel(game: Game, withHud = true): void {
     this.levelView.build(game.level);
     this.door.hide();
-    this.hud.ensureCreated();
+    if (withHud) this.hud.ensureCreated();
   }
 
   /** Redraw only the changed tiles in the live tilemap layer. */
-  patchTiles(patches: { x: number; y: number; index: number }[]): void {
+  patchTiles(patches: TilePatch[]): void {
     this.levelView.patch(patches);
   }
 
-  render(game: Game, levelIndex: number): void {
+  render(game: Game, snapshot: WorldSnapshot, levelIndex: number): void {
     this.levelView.setCamera(game.cameraX, game.cameraY);
     this.door.render(game.door);
-    this.characters.render(game.player, game.enemies, game.bullets);
+    this.characters.render(snapshot);
     this.hud.render(game, levelIndex);
   }
 }

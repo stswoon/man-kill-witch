@@ -10,6 +10,8 @@ export const TILE_TEXTURE = "tiles";
 export const TITLE_TEXTURE = "title";
 export const BULLET_TEXTURE = "bullet";
 export const DOOR_TEXTURE = "door";
+export const HUD_TEXTURE = "hud";
+export const HUD_FONT = "hud-font";
 
 /** Door frame: a 2x3 block of tiles at `TILE = 80`, three frames side by side. */
 export const DOOR_W = 160;

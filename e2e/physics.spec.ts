@@ -1,21 +1,27 @@
 import { expect, test, type Page } from "@playwright/test";
 import { TILE } from "../web/src/assets";
+import type { EnemySnapshot, PlayerSnapshot, WorldSnapshot } from "../web/src/sim-contract";
 
 type GameState = "title" | "play" | "gameover" | "win";
 
-interface PlayerState {
-  x: number;
-  y: number;
-  w: number;
-  h: number;
-  vx: number;
-  vy: number;
-  onGround: boolean;
+interface EnemyRule {
+  id: number;
+  type: number;
+  speed: number;
+  fly: boolean;
+}
+
+interface GameRule {
+  player: { ammo: number };
+  enemies: EnemyRule[];
+  level: { pixelWidth: number; pixelHeight: number };
+  door: { tx: number; ty: number; step: number; timer: number } | null;
 }
 
 interface DebugApi {
   phaser: { loop: { sleep: () => void } };
-  game: () => { player: PlayerState };
+  game: () => GameRule;
+  snapshot: () => WorldSnapshot;
   startLevel: (index: number) => void;
   tick: (count: number, dt?: number) => void;
   getState: () => GameState;
@@ -26,8 +32,8 @@ const SETTLE_TICKS = 30;
 
 /**
  * Boots the game, focuses the page and stops the Phaser loop. With the loop
- * asleep only `mkw.tick` advances the simulation, so the real frame rate cannot
- * inject extra fixed steps between two reads and every expectation is exact.
+ * asleep only `mkw.tick` advances the rules and the Arcade world, so the real
+ * frame rate cannot inject extra fixed steps between two reads.
  */
 async function boot(page: Page): Promise<void> {
   await page.goto("/");
@@ -39,7 +45,7 @@ async function boot(page: Page): Promise<void> {
 }
 
 /** Starts level 1 from a clean run state and settles the player on the ledge. */
-async function startLevel1(page: Page): Promise<PlayerState> {
+async function startLevel1(page: Page): Promise<PlayerSnapshot> {
   const state = await page.evaluate(() => {
     const mkw = (window as unknown as { mkw: DebugApi }).mkw;
     mkw.startLevel(0);
@@ -50,17 +56,28 @@ async function startLevel1(page: Page): Promise<PlayerState> {
   return player(page);
 }
 
+async function startLevel(page: Page, index: number): Promise<void> {
+  await page.evaluate((level) => {
+    (window as unknown as { mkw: DebugApi }).mkw.startLevel(level);
+  }, index);
+}
+
 async function tick(page: Page, count: number): Promise<void> {
   await page.evaluate((steps) => {
     (window as unknown as { mkw: DebugApi }).mkw.tick(steps);
   }, count);
 }
 
-async function player(page: Page): Promise<PlayerState> {
-  return page.evaluate(() => {
-    const p = (window as unknown as { mkw: DebugApi }).mkw.game().player;
-    return { x: p.x, y: p.y, w: p.w, h: p.h, vx: p.vx, vy: p.vy, onGround: p.onGround };
-  });
+async function snapshot(page: Page): Promise<WorldSnapshot> {
+  return page.evaluate(() => (window as unknown as { mkw: DebugApi }).mkw.snapshot());
+}
+
+async function player(page: Page): Promise<PlayerSnapshot> {
+  return (await snapshot(page)).player;
+}
+
+async function enemies(page: Page): Promise<EnemySnapshot[]> {
+  return (await snapshot(page)).enemies;
 }
 
 test("Space jumps from the ground and clears two tiles but not three", async ({ page }) => {
@@ -71,14 +88,13 @@ test("Space jumps from the ground and clears two tiles but not three", async ({ 
   await page.keyboard.press("Space");
   const jump = await page.evaluate(() => {
     const mkw = (window as unknown as { mkw: DebugApi }).mkw;
-    const p = mkw.game().player;
-    const startY = p.y;
-    let highest = p.y;
+    const startY = mkw.snapshot().player.y;
+    let highest = startY;
     let landed = false;
     for (let i = 0; i < 120; i++) {
       mkw.tick(1);
-      highest = Math.min(highest, p.y);
-      if (p.onGround) {
+      highest = Math.min(highest, mkw.snapshot().player.y);
+      if (mkw.snapshot().player.onGround) {
         landed = true;
         break;
       }
@@ -145,6 +161,37 @@ test("runs right up to the run speed within ten fixed ticks", async ({ page }) =
   expect(running.vx).toBe(660);
   expect(running.x, "player must move right").toBeGreaterThan(ground.x);
   expect(running.onGround).toBe(true);
+
+  await page.keyboard.up("ArrowRight");
+  await tick(page, 10);
+  const stopped = await player(page);
+  expect(stopped.vx, "friction must bring the run to a full stop").toBe(0);
+  expect(stopped.x, "the body must coast forward while it brakes").toBeGreaterThan(running.x);
+});
+
+test("caps the fall speed at the documented 2600 px/s", async ({ page }) => {
+  await boot(page);
+  // Level 8 spawns over a deep shaft, so the body reaches terminal velocity.
+  await startLevel(page, 7);
+
+  const fall = await page.evaluate(() => {
+    const mkw = (window as unknown as { mkw: DebugApi }).mkw;
+    let maxVy = 0;
+    let landed = false;
+    for (let i = 0; i < 200; i++) {
+      mkw.tick(1);
+      const player = mkw.snapshot().player;
+      maxVy = Math.max(maxVy, player.vy);
+      if (player.onGround) {
+        landed = true;
+        break;
+      }
+    }
+    return { maxVy, landed };
+  });
+
+  expect(fall.maxVy, "MAX_FALL must clamp the body").toBe(2600);
+  expect(fall.landed, "the body must reach the floor of the shaft").toBe(true);
 });
 
 test("lands on the floor and does not sink into it", async ({ page }) => {
@@ -155,18 +202,19 @@ test("lands on the floor and does not sink into it", async ({ page }) => {
   await page.keyboard.press("Space");
   const landing = await page.evaluate(() => {
     const mkw = (window as unknown as { mkw: DebugApi }).mkw;
-    const p = mkw.game().player;
     let landed = false;
     for (let i = 0; i < 120; i++) {
       mkw.tick(1);
-      if (p.onGround) {
+      if (mkw.snapshot().player.onGround) {
         landed = true;
         break;
       }
     }
-    const feetOnTouchdown = p.y + p.h;
+    const player = mkw.snapshot().player;
+    const feetOnTouchdown = player.y + player.h;
     mkw.tick(10);
-    return { landed, feetOnTouchdown, feet: p.y + p.h, onGround: p.onGround };
+    const rested = mkw.snapshot().player;
+    return { landed, feetOnTouchdown, feet: rested.y + rested.h, onGround: rested.onGround };
   });
 
   expect(landing.landed, "player must land").toBe(true);
@@ -175,10 +223,156 @@ test("lands on the floor and does not sink into it", async ({ page }) => {
   expect(Math.abs(landing.feet - groundFeet), "body must rest on the floor").toBeLessThanOrEqual(5);
 });
 
+test("stops at the wall right of the spawn ledge", async ({ page }) => {
+  await boot(page);
+  const ground = await startLevel1(page);
+
+  await page.keyboard.down("ArrowRight");
+  await tick(page, 60);
+  const blocked = await player(page);
+  await page.keyboard.up("ArrowRight");
+
+  // The solid column 10 starts at x = 800; the 60 px body must stop at 740.
+  expect(blocked.x, "body must rest against the wall").toBeCloseTo(10 * TILE - ground.w, 0);
+  expect(blocked.blocked.right, "the wall must be reported to the rules").toBe(true);
+  expect(blocked.vx, "a wall stops the run").toBe(0);
+});
+
+test("stops at the left wall of the level", async ({ page }) => {
+  await boot(page);
+  await startLevel1(page);
+
+  await page.keyboard.down("ArrowLeft");
+  await tick(page, 40);
+  const blocked = await player(page);
+  await page.keyboard.up("ArrowLeft");
+
+  // The spawn ledge starts with solid columns 0-1, so the body rests at x = 160.
+  expect(blocked.x, "body must rest against the left wall").toBeCloseTo(2 * TILE, 0);
+  expect(blocked.blocked.left).toBe(true);
+  expect(blocked.x, "the body must never leave the level").toBeGreaterThanOrEqual(0);
+});
+
+test("enemy bodies match the documented speeds and sizes", async ({ page }) => {
+  await boot(page);
+  await startLevel(page, 0);
+  await tick(page, 2);
+
+  const rules = await page.evaluate(() => (window as unknown as { mkw: DebugApi }).mkw.game().enemies);
+  const bodies = await enemies(page);
+
+  expect(bodies.length, "every rule enemy owns one body").toBe(rules.length);
+  expect(rules.some((enemy) => enemy.speed === 130), "level 1 has walkers").toBe(true);
+  expect(rules.some((enemy) => enemy.fly), "level 1 has flyers").toBe(true);
+  for (const body of bodies) {
+    const rule = rules.find((candidate) => candidate.id === body.id);
+    expect(rule, `body ${body.id} must have a rule enemy`).toBeDefined();
+    expect(body.alive).toBe(true);
+    expect([body.w, body.h], "enemy body is 60x60").toEqual([60, 60]);
+    if (!rule) continue;
+    if (rule.fly) {
+      expect(Math.abs(body.vy), "a flyer never exceeds the sine amplitude").toBeLessThanOrEqual(121);
+    } else {
+      expect(
+        Math.abs(body.vx) === 0 || Math.abs(body.vx) === rule.speed,
+        `walker speed ${body.vx} must be 0 or ${rule.speed}`,
+      ).toBe(true);
+    }
+  }
+});
+
+test("a walker keeps its documented speed in the open room of level 4", async ({ page }) => {
+  await boot(page);
+  await startLevel(page, 3);
+  await tick(page, 60);
+
+  const before = (await enemies(page))[0];
+  await tick(page, 10);
+  const after = (await enemies(page))[0];
+
+  expect(before.alive).toBe(true);
+  expect(Math.abs(before.vx), "level 4 walker runs at 150 px/s").toBe(150);
+  expect(after.x - before.x, "ten ticks move the body by vx * 10 * 1/70").toBeCloseTo(
+    before.vx * 10 * (1 / 70),
+    6,
+  );
+});
+
+test("a walker turns around at the wall of level 4", async ({ page }) => {
+  await boot(page);
+  await startLevel(page, 3);
+
+  // Catch the tick the patrol direction flips: the body must be at the wall.
+  const turn = await page.evaluate(() => {
+    const mkw = (window as unknown as { mkw: DebugApi }).mkw;
+    let previous = mkw.snapshot().enemies[0].dir;
+    for (let i = 0; i < 400; i++) {
+      mkw.tick(1);
+      const enemy = mkw.snapshot().enemies[0];
+      if (enemy.dir !== previous) return { tick: i + 1, x: enemy.x, dir: enemy.dir, w: enemy.w };
+      previous = enemy.dir;
+    }
+    return null;
+  });
+
+  if (!turn) throw new Error("the walker never reached the wall");
+  expect(turn.dir, "the wall must flip the patrol direction").toBe(-1);
+  // The flip is read one step after the separation: allow one tick of walk-back.
+  expect(
+    Math.abs(turn.x - (22 * TILE - turn.w)),
+    "the body must rest at the wall when it turns",
+  ).toBeLessThanOrEqual(3);
+
+  await tick(page, 30);
+  const walkedBack = (await enemies(page))[0];
+  expect(walkedBack.x, "a turned walker must walk away from the wall").toBeLessThan(turn.x - 30);
+});
+
+test("the S10 exit door still opens and completes the level", async ({ page }) => {
+  await boot(page);
+  // Level 4 is one screen wide: the spawn is in (4, 12), the door tile in (3, 12).
+  await startLevel(page, 3);
+  await tick(page, 20);
+
+  await page.keyboard.down("ArrowLeft");
+  const centreTile = await page.evaluate(() => {
+    const mkw = (window as unknown as { mkw: DebugApi }).mkw;
+    const tile = (): number => {
+      const player = mkw.snapshot().player;
+      return Math.floor((player.x + player.w / 2) / 80);
+    };
+    for (let i = 0; i < 60 && tile() > 3; i++) mkw.tick(1);
+    return tile();
+  });
+  await page.keyboard.up("ArrowLeft");
+  expect(centreTile, "the hero must stand under the door tile").toBe(3);
+
+  // The door row is above the standing centre, so the jump puts the centre in it.
+  await page.keyboard.press("Space");
+  const door = await page.evaluate(() => {
+    const mkw = (window as unknown as { mkw: DebugApi }).mkw;
+    let opened = mkw.game().door;
+    for (let i = 0; i < 40 && !opened; i++) {
+      mkw.tick(1);
+      opened = mkw.game().door;
+    }
+    return opened;
+  });
+  expect(door).toEqual({ tx: 3, ty: 12, step: 0, timer: 0 });
+
+  const nextLevelWidth = await page.evaluate(() => {
+    const mkw = (window as unknown as { mkw: DebugApi }).mkw;
+    mkw.tick(15);
+    return mkw.game().level.pixelWidth;
+  });
+  // 15 ticks after the trigger the level is complete and level 5 (56 tiles) starts.
+  expect(nextLevelWidth).toBe(56 * TILE);
+});
+
 test("replaying the same tick sequence reproduces the same player position", async ({ page }) => {
   await boot(page);
 
-  const run = async (): Promise<PlayerState> => {
+  const run = async (): Promise<PlayerSnapshot> => {
     await startLevel1(page);
     await page.keyboard.press("Space");
     await tick(page, 12);

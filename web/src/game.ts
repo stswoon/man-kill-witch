@@ -1,4 +1,21 @@
-import { LevelData, TileInfoData, TILE, TILE_FLAG_MASK } from "./assets";
+import { LevelData, SCREEN_H, SCREEN_W, TILE, TILE_FLAG_MASK, TileInfoData } from "./assets";
+import {
+  BULLET_LIFE,
+  MAGAZINE,
+  PLAYER_H,
+  PLAYER_W,
+  RELOAD_TICKS,
+  RUN_SPEED,
+  SHOT_COOLDOWN,
+  BULLET_SPEED,
+  type BulletSpawn,
+  type EnemyIntent,
+  type PlayerIntent,
+  type RespawnPoint,
+  type TickCommands,
+  type TilePatch,
+  type WorldSnapshot,
+} from "./sim-contract";
 
 /** The part of the keyboard state the simulation needs. `Input` satisfies it structurally. */
 export interface InputState {
@@ -6,23 +23,14 @@ export interface InputState {
   wasPressed(...codes: string[]): boolean;
 }
 
-// Physics values are product decisions; the reference table lives in
-// docs/design.md. They are the previous 16-px values x5.
-const GRAVITY = 4900;
-const RUN_SPEED = 660;
-const ACCEL = 7000;
-const FRICTION = 9000;
-const JUMP_SPEED = 1500;
-const MAX_FALL = 2600;
-const BULLET_SPEED = 1900;
-const BULLET_LIFE = 40;
-/** Drawn as 15x5, but the hit box is 15x10 so edge-on shots still land. */
-const BULLET_W = 15;
-const BULLET_H = 10;
-const SHOT_COOLDOWN = 8;
-const RELOAD_TICKS = 26;
-
 export type Dir = "up" | "down" | "left" | "right";
+
+/** Flyer sine: `phase += dt * 2.4`, vertical speed `sin(phase) * 120`. */
+const FLYER_PHASE_RATE = 2.4;
+const FLYER_AMPLITUDE = 120;
+/** A flyer above this line or below `pixelHeight - 120` is lost. */
+const FLYER_TOP_LIMIT = 40;
+const FLYER_BOTTOM_MARGIN = 120;
 
 /** Entity marker id -> sprite id. Temporary mapping for the prototype level data. */
 const SPRITE_BY_ID: Record<number, number> = {
@@ -79,118 +87,26 @@ export class Level {
   }
 }
 
-interface Body {
-  x: number; y: number; w: number; h: number; vx: number; vy: number; onGround: boolean;
-}
-
-function blocked(level: Level, body: Body, x: number, y: number, dir: Dir): boolean {
-  const y0 = Math.floor(y / TILE);
-  const y1 = Math.floor((y + body.h - 1) / TILE);
-  const x0 = Math.floor(x / TILE);
-  const x1 = Math.floor((x + body.w - 1) / TILE);
-  if (dir === "left" || dir === "right") {
-    const tx = dir === "left" ? x0 : x1;
-    for (let ty = y0; ty <= y1; ty++) if (level.blocks(tx, ty, dir)) return true;
-  } else {
-    const ty = dir === "up" ? y0 : y1;
-    for (let tx = x0; tx <= x1; tx++) if (level.blocks(tx, ty, dir)) return true;
-  }
-  return false;
-}
-
-function moveBody(level: Level, body: Body, dx: number, dy: number): void {
-  const step = 40;
-  let remaining = Math.abs(dx || dy);
-  const signX = Math.sign(dx);
-  const signY = Math.sign(dy);
-  while (remaining > 0) {
-    const move = Math.min(step, remaining);
-    remaining -= move;
-    if (signX) {
-      const nx = body.x + move * signX;
-      if (blocked(level, body, nx, body.y, signX > 0 ? "right" : "left")) { body.vx = 0; break; }
-      body.x = nx;
-    }
-    if (signY) {
-      const ny = body.y + move * signY;
-      if (blocked(level, body, body.x, ny, signY > 0 ? "down" : "up")) {
-        body.vy = 0;
-        break;
-      }
-      body.y = ny;
-    }
-  }
-}
-
 /**
- * Ground contact is probed five pixels below the feet instead of being derived
- * from a blocked step: gravity moves in fractions of a pixel, so the blocked
- * step only happens every other tick and `onGround` would flicker.
+ * Rules-side hero state: ammo, timers and facing. The body and its motion live
+ * in the Arcade layer and arrive as a `WorldSnapshot`.
  */
-function touchesGround(level: Level, body: Body): boolean {
-  return blocked(level, body, body.x, body.y + 5, "down");
-}
-
-export class Player implements Body {
-  x = 64;
-  y = 64;
-  vx = 0;
-  vy = 0;
-  readonly w = 60;
-  readonly h = 120;
-  onGround = false;
+export class Player {
   facing = 1;
   aim = 0;
-  ammo = 8;
+  ammo = MAGAZINE;
   cooldown = 0;
   reload = 0;
   invuln = 0;
-
-  get cx(): number { return this.x + this.w / 2; }
-  get cy(): number { return this.y + this.h / 2; }
-
-  update(dt: number, level: Level, input: InputState): void {
-    this.cooldown = Math.max(0, this.cooldown - 1);
-    this.invuln = Math.max(0, this.invuln - 1);
-    // Reload only while standing: docs/design.md. Progress freezes in the air.
-    if (this.cooldown === 0 && this.ammo === 0 && this.onGround) {
-      this.reload++;
-      if (this.reload >= RELOAD_TICKS) { this.ammo = 8; this.reload = 0; }
-    }
-
-    const left = input.isDown("ArrowLeft", "KeyA");
-    const right = input.isDown("ArrowRight", "KeyD");
-    this.aim = input.isDown("ArrowUp", "KeyW") ? -1 : input.isDown("ArrowDown", "KeyS") ? 1 : 0;
-
-    let target = 0;
-    if (left !== right) {
-      target = (right ? 1 : -1) * RUN_SPEED;
-      this.facing = right ? 1 : -1;
-    }
-    const rate = target === 0 ? FRICTION : ACCEL;
-    if (this.vx < target) this.vx = Math.min(target, this.vx + rate * dt);
-    else if (this.vx > target) this.vx = Math.max(target, this.vx - rate * dt);
-
-    if (input.wasPressed("Space") && this.onGround) {
-      this.vy = -JUMP_SPEED;
-      this.onGround = false;
-    }
-
-    this.vy = Math.min(MAX_FALL, this.vy + GRAVITY * dt);
-
-    moveBody(level, this, this.vx * dt, 0);
-    moveBody(level, this, 0, this.vy * dt);
-    this.onGround = touchesGround(level, this);
-  }
 }
 
-export class Enemy implements Body {
+/**
+ * Rules-side enemy: spawn data, patrol state and the decisions the rules make.
+ * `ArcadeSim` owns the body that moves; `alive` mirrors the kill decision.
+ */
+export class Enemy {
   alive = true;
-  onGround = false;
-  vy = 0;
-  dir: number;
-  w = 60;
-  h = 60;
+  dir = 1;
   sprite = 0;
   fly = false;
   speed = 150;
@@ -198,46 +114,24 @@ export class Enemy implements Body {
   turnsAtLedge = true;
   private phase = Math.random() * Math.PI * 2;
 
-  constructor(public type: number, public x: number, public y: number, public vx = 0) {
-    this.dir = 1;
-  }
+  constructor(
+    public readonly id: number,
+    public readonly type: number,
+    /** Spawn position, kept for tests and for the Arcade layer to build the body. */
+    public readonly x: number,
+    public readonly y: number,
+  ) {}
 
-  update(dt: number, level: Level): void {
-    if (!this.alive) return;
-    if (this.fly) {
-      this.phase += dt * 2.4;
-      this.x += this.dir * this.speed * dt;
-      this.y += Math.sin(this.phase) * 120 * dt;
-      const tx = Math.floor((this.dir > 0 ? this.x + this.w + 1 : this.x - 1) / TILE);
-      const ty = Math.floor((this.y + this.h / 2) / TILE);
-      if (level.blocks(tx, ty, this.dir > 0 ? "right" : "left")) this.dir = -this.dir;
-      if (this.y < 40 || this.y > level.pixelHeight - 120) this.alive = false;
-      return;
-    }
-
-    this.vx = this.dir * this.speed;
-    this.vy = Math.min(MAX_FALL, this.vy + GRAVITY * dt);
-
-    const beforeX = this.x;
-    moveBody(level, this, this.vx * dt, 0);
-    if (this.x === beforeX && this.vx === 0) this.dir = -this.dir;
-
-    moveBody(level, this, 0, this.vy * dt);
-    this.onGround = touchesGround(level, this);
-
-    // turn at ledges
-    if (this.onGround && this.turnsAtLedge) {
-      const probeX = this.dir > 0 ? this.x + this.w + 1 : this.x - 1;
-      const tx = Math.floor(probeX / TILE);
-      const ty = Math.floor((this.y + this.h + 1) / TILE);
-      if (!level.blocks(tx, ty, "down")) this.dir = -this.dir;
-    }
+  /** Advances the flyer sine and returns its vertical speed. */
+  flyerSpeed(dt: number): number {
+    this.phase += dt * FLYER_PHASE_RATE;
+    return Math.sin(this.phase) * FLYER_AMPLITUDE;
   }
 }
 
+/** Rules-side bullet: the 40-tick life; the body is created and removed by Arcade. */
 export class Bullet {
-  life = BULLET_LIFE;
-  constructor(public x: number, public y: number, public vx: number, public vy: number) {}
+  constructor(public readonly id: number, public life = BULLET_LIFE) {}
 }
 
 /** Door opening: 2 tiles wide, 3 tall, top-left corner at `(tx-1, ty-1)`. */
@@ -255,8 +149,6 @@ export interface DoorState {
   readonly timer: number;
 }
 
-export interface TilePatch { x: number; y: number; index: number }
-
 export class Game {
   level: Level;
   player = new Player();
@@ -271,12 +163,21 @@ export class Game {
   hurtFlash = 0;
   levelComplete = false;
   tilePatches: TilePatch[] = [];
+  /** Top-left corner of the hero body on the spawn marker. */
+  readonly spawnX: number;
+  readonly spawnY: number;
   private doorState: DoorState | null = null;
   private nextExtraLife = 5000;
+  private nextBulletId = 1;
 
   constructor(level: Level) {
     this.level = level;
-    this.spawn();
+    const [spawnTx, spawnTy] = this.findSpawn();
+    this.spawnX = spawnTx * TILE + 10;
+    this.spawnY = spawnTy * TILE + TILE - PLAYER_H;
+    this.enemies = this.spawnEnemies();
+    this.player.invuln = 30;
+    this.focusCamera(this.spawnX + PLAYER_W / 2, this.spawnY + PLAYER_H / 2);
   }
 
   /** Active door opening; the view can read it but never write it. */
@@ -284,105 +185,90 @@ export class Game {
     return this.doorState;
   }
 
-  spawn(): void {
-    let sx = 2, sy = 2;
-    for (let i = 0; i < this.level.entities.length; i++) {
-      if (this.level.entities[i] === 255) {
-        sx = i % this.level.width;
-        sy = Math.floor(i / this.level.width);
-        break;
-      }
-    }
-    this.player.x = sx * TILE + 10;
-    this.player.y = sy * TILE + TILE - this.player.h;
-    this.player.vx = 0;
-    this.player.vy = 0;
-    this.player.invuln = 30;
-
-    this.enemies = [];
-    for (let i = 0; i < this.level.entities.length; i++) {
-      const id = this.level.entities[i];
-      if (id === 0 || id === 255 || id >= 0x8000) continue;
-      const sprite = SPRITE_BY_ID[id];
-      if (sprite === undefined) continue; // not a spawn marker we understand
-      const tx = i % this.level.width;
-      const ty = Math.floor(i / this.level.width);
-      const e = new Enemy(id, tx * TILE + 10, ty * TILE + 20);
-      e.sprite = sprite;
-      if (id >= 14 && id <= 19) {
-        e.fly = true;
-        e.speed = 170;
-        e.w = 60;
-        e.h = 60;
-      } else if (id === 1 || id === 2) {
-        e.speed = 130;
-      } else if (id === 6 || id === 7 || id === 9) {
-        e.speed = 200;
-        e.turnsAtLedge = false;
-      } else {
-        e.speed = 150;
-      }
-      this.enemies.push(e);
-    }
-    this.updateCamera();
-  }
-
-  update(dt: number, input: InputState): void {
+  /**
+   * One fixed tick of rules. Reads the world as it was at the start of the
+   * tick, never integrates motion, and returns what the Arcade layer has to do
+   * before its single `1/70` step.
+   */
+  update(dt: number, input: InputState, snapshot: WorldSnapshot): TickCommands {
     this.tick++;
     const p = this.player;
-    p.update(dt, this.level, input);
-
-    if (input.wasPressed("ControlLeft", "ControlRight") && p.ammo > 0 && p.cooldown === 0) {
-      p.ammo--;
-      p.cooldown = SHOT_COOLDOWN;
-      const vx = p.facing * BULLET_SPEED;
-      const vy = p.aim * BULLET_SPEED * 0.75;
-      this.bullets.push(new Bullet(p.cx + p.facing * 30, p.cy + p.aim * 30, vx, vy));
+    p.cooldown = Math.max(0, p.cooldown - 1);
+    p.invuln = Math.max(0, p.invuln - 1);
+    // Reload only while standing: docs/design.md. Progress freezes in the air.
+    if (p.cooldown === 0 && p.ammo === 0 && snapshot.player.onGround) {
+      p.reload++;
+      if (p.reload >= RELOAD_TICKS) { p.ammo = MAGAZINE; p.reload = 0; }
     }
 
-    for (const b of this.bullets) {
-      b.x += b.vx * dt;
-      b.y += b.vy * dt;
-      b.life--;
-      const tx = Math.floor(b.x / TILE);
-      const ty = Math.floor(b.y / TILE);
-      if (this.level.blocks(tx, ty, "left") || this.level.blocks(tx, ty, "right")) b.life = 0;
-      for (const e of this.enemies) {
-        if (!e.alive) continue;
-        if (
-          b.x + BULLET_W > e.x && b.x < e.x + e.w &&
-          b.y + BULLET_H > e.y && b.y < e.y + e.h
-        ) {
-          e.alive = false;
-          b.life = 0;
+    const left = input.isDown("ArrowLeft", "KeyA");
+    const right = input.isDown("ArrowRight", "KeyD");
+    p.aim = input.isDown("ArrowUp", "KeyW") ? -1 : input.isDown("ArrowDown", "KeyS") ? 1 : 0;
+
+    let targetVx = 0;
+    if (left !== right) {
+      targetVx = (right ? 1 : -1) * RUN_SPEED;
+      p.facing = right ? 1 : -1;
+    }
+
+    const killed = new Set<number>();
+    const despawned = new Set<number>();
+    const enemyIntents = this.updateEnemies(dt, snapshot, killed);
+    const spawnBullet = this.tryShoot(input, snapshot);
+    let respawnPlayer: RespawnPoint | null = null;
+
+    for (const event of snapshot.events) {
+      if (event.type === "bulletHitEnemy") {
+        if (this.killEnemy(event.enemyId)) {
+          killed.add(event.enemyId);
           this.score += 100;
         }
-      }
-    }
-    this.bullets = this.bullets.filter((b) => b.life > 0);
-
-    for (const e of this.enemies) {
-      e.update(dt, this.level);
-      if (e.alive && p.invuln === 0 && this.overlaps(p, e)) {
-        this.hurtPlayer();
+        despawned.add(event.bulletId);
+      } else if (event.type === "bulletHitWall") {
+        despawned.add(event.bulletId);
+      } else if (event.type === "playerTouchedEnemy") {
+        if (!this.gameOver && p.invuln === 0) respawnPlayer = this.hurtPlayer();
       }
     }
 
-    this.clampPlayer();
-    this.updateCamera();
-    this.interact();
+    // The 40-tick life belongs to the rules; Arcade only owns the body.
+    for (const bullet of this.bullets) {
+      bullet.life--;
+      if (bullet.life <= 0) despawned.add(bullet.id);
+    }
+    this.bullets = this.bullets.filter((b) => b.life > 0 && !despawned.has(b.id));
+
+    this.interact(snapshot);
+    this.focusCamera(
+      snapshot.player.x + snapshot.player.w / 2,
+      snapshot.player.y + snapshot.player.h / 2,
+    );
 
     while (this.score >= this.nextExtraLife) {
       this.lives++;
       this.nextExtraLife += 5000;
     }
+
+    const player: PlayerIntent = {
+      targetVx,
+      jump: input.wasPressed("Space") && snapshot.player.onGround,
+      facing: p.facing,
+    };
+
+    return {
+      player,
+      enemies: enemyIntents,
+      spawnBullet,
+      despawnBullet: [...despawned],
+      killEnemy: [...killed],
+      respawnPlayer,
+    };
   }
 
-  /** Doors open as a 2x3 sprite animation; special tiles act as pickups. */
-  private interact(): void {
-    const p = this.player;
-    const tx = Math.floor((p.x + p.w / 2) / TILE);
-    const ty = Math.floor((p.y + p.h / 2) / TILE);
+  /** Door tiles before the opening, the sprite trigger after it. */
+  private interact(snapshot: WorldSnapshot): void {
+    const tx = Math.floor((snapshot.player.x + snapshot.player.w / 2) / TILE);
+    const ty = Math.floor((snapshot.player.y + snapshot.player.h / 2) / TILE);
 
     if (this.doorState) {
       this.advanceDoor();
@@ -397,7 +283,7 @@ export class Game {
       this.level.setTile(tx, ty, 0);
       this.tilePatches.push({ x: tx, y: ty, index: 0 });
     } else if (beh >= 105 && beh <= 109) {
-      p.ammo = Math.min(8, p.ammo + 1);
+      this.player.ammo = Math.min(MAGAZINE, this.player.ammo + 1);
       this.level.setTile(tx, ty, 0);
       this.tilePatches.push({ x: tx, y: ty, index: 0 });
     }
@@ -443,44 +329,129 @@ export class Game {
     this.doorState = null;
   }
 
-  private overlaps(a: Body, b: Body): boolean {
-    return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+  private tryShoot(input: InputState, snapshot: WorldSnapshot): BulletSpawn | null {
+    const p = this.player;
+    if (!input.wasPressed("ControlLeft", "ControlRight") || p.ammo === 0 || p.cooldown !== 0) {
+      return null;
+    }
+    p.ammo--;
+    p.cooldown = SHOT_COOLDOWN;
+    const bullet = new Bullet(this.nextBulletId++);
+    this.bullets.push(bullet);
+    return {
+      id: bullet.id,
+      x: snapshot.player.x + snapshot.player.w / 2 + p.facing * 30,
+      y: snapshot.player.y + snapshot.player.h / 2 + p.aim * 30,
+      vx: p.facing * BULLET_SPEED,
+      vy: p.aim * BULLET_SPEED * 0.75,
+    };
   }
 
-  private hurtPlayer(): void {
-    this.lives--;
+  /**
+   * AI decisions from the snapshot: walkers and chargers patrol and turn at
+   * walls and (walkers only) ledges, flyers follow a sine and die out of bounds.
+   */
+  private updateEnemies(dt: number, snapshot: WorldSnapshot, killed: Set<number>): EnemyIntent[] {
+    const intents: EnemyIntent[] = [];
+    const bodies = new Map(snapshot.enemies.map((body) => [body.id, body]));
+
+    for (const enemy of this.enemies) {
+      if (!enemy.alive) continue;
+      const body = bodies.get(enemy.id);
+      if (!body || !body.alive) {
+        // Arcade no longer has a live body: keep the rules in sync.
+        enemy.alive = false;
+        continue;
+      }
+
+      if (enemy.fly) {
+        const flyerVy = enemy.flyerSpeed(dt);
+        const probeX = enemy.dir > 0 ? body.x + body.w + 1 : body.x - 1;
+        const tx = Math.floor(probeX / TILE);
+        const ty = Math.floor((body.y + body.h / 2) / TILE);
+        if (this.level.blocks(tx, ty, enemy.dir > 0 ? "right" : "left")) enemy.dir = -enemy.dir;
+        if (body.x < 0 || body.x + body.w > this.level.pixelWidth) enemy.dir = -enemy.dir;
+        if (body.y < FLYER_TOP_LIMIT || body.y > this.level.pixelHeight - FLYER_BOTTOM_MARGIN) {
+          enemy.alive = false;
+          killed.add(enemy.id);
+          continue;
+        }
+        intents.push({ id: enemy.id, targetVx: enemy.dir * enemy.speed, dir: enemy.dir, flyerVy });
+        continue;
+      }
+
+      if (body.blocked.left && enemy.dir < 0) enemy.dir = 1;
+      if (body.blocked.right && enemy.dir > 0) enemy.dir = -1;
+      if (body.onGround && enemy.turnsAtLedge) {
+        const probeX = enemy.dir > 0 ? body.x + body.w + 1 : body.x - 1;
+        const tx = Math.floor(probeX / TILE);
+        const ty = Math.floor((body.y + body.h + 1) / TILE);
+        if (!this.level.blocks(tx, ty, "down")) enemy.dir = -enemy.dir;
+      }
+      intents.push({ id: enemy.id, targetVx: enemy.dir * enemy.speed, dir: enemy.dir, flyerVy: 0 });
+    }
+
+    return intents;
+  }
+
+  private killEnemy(id: number): boolean {
+    const enemy = this.enemies.find((candidate) => candidate.id === id);
+    if (!enemy || !enemy.alive) return false;
+    enemy.alive = false;
+    return true;
+  }
+
+  private hurtPlayer(): RespawnPoint | null {
+    this.lives = Math.max(0, this.lives - 1);
     this.hurtFlash = 40;
-    if (this.lives <= 0) {
+    if (this.lives === 0) {
       this.gameOver = true;
-      return;
+      return null;
     }
     this.player.invuln = 60;
-    let sx = 2, sy = 2;
+    return { x: this.spawnX, y: this.spawnY };
+  }
+
+  private focusCamera(cx: number, cy: number): void {
+    this.cameraX = Math.round(cx - SCREEN_W / 2);
+    this.cameraY = Math.round(cy - SCREEN_H / 2);
+    this.cameraX = Math.max(0, Math.min(this.level.pixelWidth - SCREEN_W, this.cameraX));
+    this.cameraY = Math.max(0, Math.min(this.level.pixelHeight - SCREEN_H, this.cameraY));
+  }
+
+  private findSpawn(): [number, number] {
     for (let i = 0; i < this.level.entities.length; i++) {
       if (this.level.entities[i] === 255) {
-        sx = i % this.level.width;
-        sy = Math.floor(i / this.level.width);
-        break;
+        return [i % this.level.width, Math.floor(i / this.level.width)];
       }
     }
-    this.player.x = sx * TILE + 10;
-    this.player.y = sy * TILE + TILE - this.player.h;
-    this.player.vx = 0;
-    this.player.vy = 0;
+    return [2, 2];
   }
 
-  private clampPlayer(): void {
-    const p = this.player;
-    p.x = Math.max(0, Math.min(this.level.pixelWidth - p.w, p.x));
-    if (p.y > this.level.pixelHeight) { p.y = 2 * TILE; p.vy = 0; }
-    if (p.y < 0) { p.y = 0; p.vy = 0; }
-  }
-
-  private updateCamera(): void {
-    const p = this.player;
-    this.cameraX = Math.round(p.cx - 960);
-    this.cameraY = Math.round(p.cy - 540);
-    this.cameraX = Math.max(0, Math.min(this.level.pixelWidth - 1920, this.cameraX));
-    this.cameraY = Math.max(0, Math.min(this.level.pixelHeight - 1080, this.cameraY));
+  private spawnEnemies(): Enemy[] {
+    const enemies: Enemy[] = [];
+    for (let i = 0; i < this.level.entities.length; i++) {
+      const id = this.level.entities[i];
+      if (id === 0 || id === 255 || id >= 0x8000) continue;
+      const sprite = SPRITE_BY_ID[id];
+      if (sprite === undefined) continue; // not a spawn marker we understand
+      const tx = i % this.level.width;
+      const ty = Math.floor(i / this.level.width);
+      const enemy = new Enemy(enemies.length, id, tx * TILE + 10, ty * TILE + 20);
+      enemy.sprite = sprite;
+      if (id >= 14 && id <= 19) {
+        enemy.fly = true;
+        enemy.speed = 170;
+      } else if (id === 1 || id === 2) {
+        enemy.speed = 130;
+      } else if (id === 6 || id === 7 || id === 9) {
+        enemy.speed = 200;
+        enemy.turnsAtLedge = false;
+      } else {
+        enemy.speed = 150;
+      }
+      enemies.push(enemy);
+    }
+    return enemies;
   }
 }

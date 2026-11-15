@@ -1,27 +1,23 @@
 import { describe, expect, test } from "vitest";
 import { TILE } from "../web/src/assets";
-import { Bullet, Game, type Level } from "../web/src/game";
+import { Game, Level } from "../web/src/game";
+import { PLAYER_H, PLAYER_W } from "../web/src/sim-contract";
 import {
   AMMO,
   DOOR,
-  DT,
   GEM_100,
   GEM_250,
   GEM_500,
   SPAWN,
-  SOLID,
   fakeInput,
   makeArena,
+  makeSnapshot,
+  putPlayerInTile,
   tick,
 } from "./helpers";
 
 const SPAWN_X = 2 * TILE + 10;
 const SPAWN_Y = 11 * TILE + TILE - 120;
-
-function centreTile(game: Game): [number, number] {
-  const p = game.player;
-  return [Math.floor(p.cx / TILE), Math.floor(p.cy / TILE)];
-}
 
 function withEnemy(extra: Parameters<typeof makeArena>[0] = {}): Game {
   return new Game(
@@ -35,64 +31,46 @@ function withEnemy(extra: Parameters<typeof makeArena>[0] = {}): Game {
   );
 }
 
-function touchEnemy(game: Game): void {
-  const enemy = game.enemies[0];
-  enemy.speed = 0;
-  game.player.x = enemy.x;
-  game.player.y = enemy.y;
-}
-
 describe("Game.spawn", () => {
   test("places the player on the spawn marker with short invulnerability", () => {
     const game = new Game(makeArena());
 
-    expect(game.player.x).toBe(SPAWN_X);
-    expect(game.player.y).toBe(SPAWN_Y);
-    expect(game.player.vx).toBe(0);
-    expect(game.player.vy).toBe(0);
+    expect(game.spawnX).toBe(SPAWN_X);
+    expect(game.spawnY).toBe(SPAWN_Y);
     expect(game.player.invuln).toBe(30);
-    expect(game.player.w).toBe(60);
-    expect(game.player.h).toBe(120);
+    expect(game.player.ammo).toBe(8);
     expect(game.lives).toBe(3);
     expect(game.score).toBe(0);
+  });
+
+  test("puts the hero body on the spawn marker", () => {
+    const game = new Game(makeArena());
+    const snapshot = makeSnapshot(game);
+
+    expect(snapshot.player.x).toBe(SPAWN_X);
+    expect(snapshot.player.y).toBe(SPAWN_Y);
+    expect(snapshot.player.w).toBe(PLAYER_W);
+    expect(snapshot.player.h).toBe(PLAYER_H);
   });
 });
 
 describe("Shooting", () => {
-  test("spends a cartridge and fires forward", () => {
+  test("spends a cartridge and fires forward from the muzzle", () => {
     const game = new Game(makeArena());
     const input = fakeInput();
-
     input.press("ControlLeft");
-    tick(game, input, 1);
+
+    const [commands] = tick(game, input);
 
     expect(game.player.ammo).toBe(7);
-    expect(game.bullets).toHaveLength(1);
-    expect(game.bullets[0].vx).toBe(1900);
-    expect(game.bullets[0].vy).toBe(0);
-    // The bullet is integrated once in the tick that spawns it.
-    expect(game.bullets[0].x, "the shot leaves 30px in front of the body").toBeCloseTo(
-      game.player.cx + 30 + 1900 * DT,
-      5,
-    );
-    expect(game.bullets[0].y, "the shot leaves at gun height").toBeCloseTo(game.player.cy, 5);
-  });
-
-  test("hits an enemy standing on the same floor", () => {
-    const game = new Game(makeArena({
-      entities: [
-        [2, 11, SPAWN],
-        [7, 11, 1],
-      ],
-    }));
-    game.enemies[0].speed = 0;
-    const input = fakeInput();
-
-    input.press("ControlLeft");
-    tick(game, input, 20);
-
-    expect(game.enemies[0].alive).toBe(false);
-    expect(game.score).toBe(100);
+    expect(commands.spawnBullet).toEqual({
+      id: 1,
+      x: SPAWN_X + PLAYER_W / 2 + 30,
+      y: SPAWN_Y + PLAYER_H / 2,
+      vx: 1900,
+      vy: 0,
+    });
+    expect(game.bullets.map((bullet) => bullet.id)).toEqual([1]);
   });
 
   test("respects the shot cooldown", () => {
@@ -100,33 +78,34 @@ describe("Shooting", () => {
     const input = fakeInput();
 
     input.press("ControlLeft");
-    tick(game, input, 1);
+    const [first] = tick(game, input);
+    expect(first.spawnBullet).not.toBeNull();
     expect(game.player.ammo).toBe(7);
 
     input.press("ControlLeft");
-    tick(game, input, 1);
-    expect(game.player.ammo, "second shot must be blocked by the cooldown").toBe(7);
-    expect(game.bullets).toHaveLength(1);
+    const [second] = tick(game, input);
+    expect(second.spawnBullet, "second shot must be blocked by the cooldown").toBeNull();
+    expect(game.player.ammo).toBe(7);
 
-    tick(game, input, 8);
+    tick(game, input, makeSnapshot(game), 7);
     input.press("ControlLeft");
-    tick(game, input, 1);
+    const [third] = tick(game, input);
+    expect(third.spawnBullet).not.toBeNull();
     expect(game.player.ammo).toBe(6);
-    expect(game.bullets).toHaveLength(2);
+    expect(game.bullets.map((bullet) => bullet.id)).toEqual([1, 2]);
   });
 
   test("aims diagonally with the vertical keys", () => {
     const game = new Game(makeArena());
     const input = fakeInput();
     input.down.add("ArrowUp");
-
     input.press("ControlLeft");
-    tick(game, input, 1);
 
-    expect(game.bullets[0].vy).toBe(-1425);
-    expect(game.bullets[0].y, "aiming up moves the muzzle 30px up").toBeCloseTo(
-      game.player.cy - 30 - 1425 * DT,
-      5,
+    const [commands] = tick(game, input);
+
+    expect(commands.spawnBullet?.vy).toBe(-1425);
+    expect(commands.spawnBullet?.y, "aiming up moves the muzzle 30px up").toBe(
+      SPAWN_Y + PLAYER_H / 2 - 30,
     );
   });
 
@@ -137,89 +116,118 @@ describe("Shooting", () => {
     game.player.cooldown = 0;
 
     input.press("ControlLeft");
-    tick(game, input, 1);
+    const [commands] = tick(game, input);
 
-    expect(game.bullets).toHaveLength(0);
+    expect(commands.spawnBullet).toBeNull();
   });
 });
 
 describe("Bullets", () => {
-  test("kill an enemy, score, and disappear", () => {
-    const game = new Game(makeArena({
-      entities: [
-        [2, 11, SPAWN],
-        [6, 11, 1],
-      ],
-    }));
-    const enemy = game.enemies[0];
-    enemy.speed = 0;
+  test("live for forty ticks and then ask Arcade to despawn them", () => {
+    const game = new Game(makeArena());
     const input = fakeInput();
-    game.bullets.push(new Bullet(enemy.x + 2, enemy.y + 6, 0, 0));
+    input.press("ControlLeft");
+    tick(game, input);
+    expect(game.bullets).toHaveLength(1);
 
-    tick(game, input, 1);
+    const quiet = tick(game, input, makeSnapshot(game), 38);
+    expect(quiet.every((commands) => commands.despawnBullet.length === 0)).toBe(true);
+    expect(game.bullets).toHaveLength(1);
 
-    expect(enemy.alive).toBe(false);
-    expect(game.score).toBe(100);
+    const [expired] = tick(game, input);
+    expect(expired.despawnBullet).toEqual([1]);
     expect(game.bullets).toHaveLength(0);
   });
 
-  test("die on a wall", () => {
-    const game = new Game(makeArena({
-      tiles: [
-        [9, 10, SOLID],
-        [9, 11, SOLID],
+  test("kill an enemy, score and disappear", () => {
+    const game = withEnemy();
+    const shot = makeSnapshot(game, {
+      events: [{ type: "bulletHitEnemy", bulletId: 7, enemyId: 0 }],
+    });
+
+    const [commands] = tick(game, fakeInput(), shot);
+
+    expect(game.enemies[0].alive).toBe(false);
+    expect(game.score).toBe(100);
+    expect(commands.killEnemy).toEqual([0]);
+    expect(commands.despawnBullet).toEqual([7]);
+  });
+
+  test("a repeated hit event does not double the score", () => {
+    const game = withEnemy();
+    const duplicated = makeSnapshot(game, {
+      events: [
+        { type: "bulletHitEnemy", bulletId: 7, enemyId: 0 },
+        { type: "bulletHitEnemy", bulletId: 8, enemyId: 0 },
       ],
-    }));
-    const input = fakeInput();
-    input.press("ControlLeft");
+    });
 
-    tick(game, input, 20);
+    const [commands] = tick(game, fakeInput(), duplicated);
 
-    expect(game.bullets).toHaveLength(0);
+    expect(game.score).toBe(100);
+    expect(commands.killEnemy).toEqual([0]);
+  });
+
+  test("die on a wall", () => {
+    const game = new Game(makeArena());
+    const wall = makeSnapshot(game, { events: [{ type: "bulletHitWall", bulletId: 3 }] });
+
+    const [commands] = tick(game, fakeInput(), wall);
+
+    expect(commands.despawnBullet).toEqual([3]);
     expect(game.score).toBe(0);
   });
 });
 
 describe("Damage", () => {
-  test("costs a life, grants invulnerability and respawns", () => {
+  test("costs a life, grants invulnerability and asks for a respawn", () => {
     const game = withEnemy();
-    const input = fakeInput();
-    tick(game, input, 30);
-    touchEnemy(game);
+    game.player.invuln = 0;
+    const touch = makeSnapshot(game, { events: [{ type: "playerTouchedEnemy", enemyId: 0 }] });
 
-    tick(game, input, 1);
+    const [commands] = tick(game, fakeInput(), touch);
 
     expect(game.lives).toBe(2);
     expect(game.player.invuln).toBe(60);
-    expect(game.player.x).toBe(SPAWN_X);
-    expect(game.player.y).toBe(SPAWN_Y);
+    expect(game.hurtFlash).toBe(40);
+    expect(commands.respawnPlayer).toEqual({ x: SPAWN_X, y: SPAWN_Y });
   });
 
   test("does not stack while invulnerable", () => {
     const game = withEnemy();
-    const input = fakeInput();
-    tick(game, input, 30);
-    touchEnemy(game);
-    tick(game, input, 1);
-    expect(game.lives).toBe(2);
+    game.player.invuln = 30;
+    const touch = makeSnapshot(game, { events: [{ type: "playerTouchedEnemy", enemyId: 0 }] });
 
-    touchEnemy(game);
-    tick(game, input, 10);
+    const [commands] = tick(game, fakeInput(), touch);
 
-    expect(game.lives).toBe(2);
+    expect(game.lives).toBe(3);
+    expect(commands.respawnPlayer).toBeNull();
   });
 
   test("ends the game when the last life is gone", () => {
     const game = withEnemy();
-    const input = fakeInput();
-    tick(game, input, 30);
     game.lives = 1;
-    touchEnemy(game);
+    game.player.invuln = 0;
+    const touch = makeSnapshot(game, { events: [{ type: "playerTouchedEnemy", enemyId: 0 }] });
 
-    tick(game, input, 1);
+    const [commands] = tick(game, fakeInput(), touch);
 
     expect(game.lives).toBe(0);
     expect(game.gameOver).toBe(true);
+    expect(commands.respawnPlayer, "a finished run cannot respawn").toBeNull();
+  });
+
+  test("ignores further touches after game over", () => {
+    const game = withEnemy();
+    game.lives = 1;
+    game.player.invuln = 0;
+    const touch = makeSnapshot(game, { events: [{ type: "playerTouchedEnemy", enemyId: 0 }] });
+    tick(game, fakeInput(), touch);
+    expect(game.gameOver).toBe(true);
+
+    tick(game, fakeInput(), touch);
+
+    expect(game.lives).toBe(0);
   });
 });
 
@@ -233,9 +241,9 @@ describe("Pickups", () => {
 
     for (const [tile, score] of cases) {
       const game = new Game(makeArena({ tiles: [[2, 11, tile]] }));
-      const input = fakeInput();
+      const snapshot = putPlayerInTile(makeSnapshot(game), 2, 11);
 
-      tick(game, input, 1);
+      tick(game, fakeInput(), snapshot);
 
       expect(game.score).toBe(score);
       expect(game.level.tileAt(2, 11)).toBe(0);
@@ -246,11 +254,11 @@ describe("Pickups", () => {
   test("ammo pickups add a cartridge up to the magazine size", () => {
     const game = new Game(makeArena({ tiles: [[2, 11, AMMO]] }));
     game.player.ammo = 7;
-    tick(game, fakeInput(), 1);
+    tick(game, fakeInput(), putPlayerInTile(makeSnapshot(game), 2, 11));
     expect(game.player.ammo).toBe(8);
 
     const full = new Game(makeArena({ tiles: [[2, 11, AMMO]] }));
-    tick(full, fakeInput(), 1);
+    tick(full, fakeInput(), putPlayerInTile(makeSnapshot(full), 2, 11));
     expect(full.player.ammo).toBe(8);
   });
 });
@@ -266,8 +274,9 @@ describe("Exit door", () => {
   test("clears the 2x3 block, steps the animation and completes after 15 ticks", () => {
     const game = new Game(makeArena({ tiles: [[2, 11, DOOR]] }));
     const input = fakeInput();
+    const atDoor = putPlayerInTile(makeSnapshot(game), 2, 11);
 
-    tick(game, input, 1);
+    tick(game, input, atDoor, 1);
     expect(game.door, "the trigger tick opens the door on step 0").toEqual({
       tx: 2,
       ty: 11,
@@ -282,7 +291,7 @@ describe("Exit door", () => {
       expect(game.level.tileAt(x, y), `tile (${x}, ${y}) must be cleared`).toBe(0);
     }
 
-    tick(game, input, 4);
+    tick(game, input, atDoor, 4);
     expect(game.door, "step 0 holds for its five ticks").toEqual({
       tx: 2,
       ty: 11,
@@ -290,7 +299,7 @@ describe("Exit door", () => {
       timer: 4,
     });
 
-    tick(game, input, 1);
+    tick(game, input, atDoor, 1);
     expect(game.door, "step 1 comes five ticks after the trigger").toEqual({
       tx: 2,
       ty: 11,
@@ -298,7 +307,7 @@ describe("Exit door", () => {
       timer: 0,
     });
 
-    tick(game, input, 5);
+    tick(game, input, atDoor, 5);
     expect(game.door, "step 2 comes ten ticks after the trigger").toEqual({
       tx: 2,
       ty: 11,
@@ -307,7 +316,7 @@ describe("Exit door", () => {
     });
     expect(game.levelComplete).toBe(false);
 
-    tick(game, input, 5);
+    tick(game, input, atDoor, 5);
     expect(game.door, "the door is gone at the fifteenth tick").toBeNull();
     expect(game.levelComplete).toBe(true);
     expect(game.score).toBe(1000);
@@ -316,10 +325,10 @@ describe("Exit door", () => {
 
   test("keeps the static door tiles until the trigger", () => {
     const game = new Game(makeArena({ tiles: [[2, 11, DOOR]] }));
-    const input = fakeInput();
-    game.player.y = 760; // centre in (2, 10), one tile above the trigger
+    // Centre in (2, 10), one tile above the trigger.
+    const above = makeSnapshot(game, { player: { y: 760 } });
 
-    tick(game, input, 5);
+    tick(game, fakeInput(), above, 5);
 
     expect(game.door).toBeNull();
     expect(game.tilePatches, "the static tiles must not change before the trigger").toHaveLength(0);
@@ -328,21 +337,19 @@ describe("Exit door", () => {
 
   test("triggers on the player center without requiring ground contact", () => {
     const game = new Game(makeArena({ tiles: [[2, 11, DOOR]] }));
-    const input = fakeInput();
-    game.player.y = 820; // centre in (2, 11), feet still above the floor
+    const airborne = makeSnapshot(game, { player: { onGround: false } });
 
-    tick(game, input, 1);
+    tick(game, fakeInput(), airborne, 1);
 
-    expect(game.player.onGround).toBe(false);
     expect(game.door).toEqual({ tx: 2, ty: 11, step: 0, timer: 0 });
   });
 
   test("leaves cells outside the map alone", () => {
     const game = new Game(makeArena({ tiles: [[0, 11, DOOR]] }));
-    const input = fakeInput();
-    game.player.x = 0; // centre x = 30, so tx = 0 and the block starts at x = -1
+    // Centre x = 30, so tx = 0 and the block starts at x = -1.
+    const atEdge = makeSnapshot(game, { player: { x: 0 } });
 
-    tick(game, input, 1);
+    tick(game, fakeInput(), atEdge, 1);
 
     expect(game.door).toEqual({ tx: 0, ty: 11, step: 0, timer: 0 });
     expect(game.tilePatches).toEqual([
@@ -358,51 +365,30 @@ describe("Score", () => {
     const game = new Game(makeArena({ tiles: [[2, 11, GEM_100]] }));
     game.score = 4900;
 
-    tick(game, fakeInput(), 1);
+    tick(game, fakeInput(), putPlayerInTile(makeSnapshot(game), 2, 11));
 
     expect(game.score).toBe(5000);
     expect(game.lives).toBe(4);
   });
 });
 
-describe("Level bounds", () => {
-  test("keeps the player inside the map", () => {
-    const game = new Game(makeArena());
-    const input = fakeInput();
-
-    game.player.x = -50;
-    tick(game, input, 1);
-    expect(game.player.x).toBe(0);
-
-    game.player.x = game.level.pixelWidth + 50;
-    tick(game, input, 1);
-    expect(game.player.x).toBe(game.level.pixelWidth - game.player.w);
-
-    game.player.y = game.level.pixelHeight + 10;
-    tick(game, input, 1);
-    expect(game.player.y).toBe(2 * TILE);
-  });
-
+describe("Camera", () => {
   test("clamps the camera to the level bounds", () => {
     const game = new Game(makeArena());
-    const input = fakeInput();
 
-    tick(game, input, 1);
+    tick(game, fakeInput(), makeSnapshot(game));
     expect(game.cameraX).toBe(0);
     expect(game.cameraY).toBe(game.level.pixelHeight - 1080);
 
-    game.player.x = game.level.pixelWidth - 20;
-    tick(game, input, 1);
+    tick(game, fakeInput(), makeSnapshot(game, { player: { x: game.level.pixelWidth - 20 } }));
     expect(game.cameraX).toBe(game.level.pixelWidth - 1920);
   });
 
   test("keeps the camera fixed on a level smaller than the screen", () => {
     const level: Level = makeArena({ width: 10, height: 8, floor: 6, entities: [[2, 5, 255]] });
     const game = new Game(level);
-    const input = fakeInput();
 
-    game.player.x = 5 * TILE;
-    tick(game, input, 1);
+    tick(game, fakeInput(), makeSnapshot(game));
 
     expect(game.cameraX).toBe(0);
     expect(game.cameraY).toBe(0);
@@ -412,11 +398,9 @@ describe("Level bounds", () => {
 describe("Tile patches", () => {
   test("expose every runtime tile change to the renderer", () => {
     const game = new Game(makeArena({ tiles: [[2, 11, GEM_500]] }));
-    const input = fakeInput();
-    const [tx, ty] = centreTile(game);
 
-    tick(game, input, 1);
+    tick(game, fakeInput(), putPlayerInTile(makeSnapshot(game), 2, 11));
 
-    expect(game.tilePatches).toContainEqual({ x: tx, y: ty, index: 0 });
+    expect(game.tilePatches).toContainEqual({ x: 2, y: 11, index: 0 });
   });
 });

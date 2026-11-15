@@ -1,220 +1,121 @@
 import { describe, expect, test } from "vitest";
-import { TILE } from "../web/src/assets";
-import { Player, type Level } from "../web/src/game";
-import { DT, SOLID, fakeInput, makeLevel, placeOnFloor, type FakeInput } from "./helpers";
+import { Game } from "../web/src/game";
+import { RUN_SPEED } from "../web/src/sim-contract";
+import { fakeInput, makeArena, makeSnapshot, tick } from "./helpers";
 
-const FLOOR = 10;
-const FLOOR_TOP = FLOOR * TILE;
-
-function step(player: Player, level: Level, input: FakeInput, count = 1): void {
-  for (let i = 0; i < count; i++) {
-    player.update(DT, level, input);
-    input.hits.clear();
-  }
-}
-
-function standOnFloor(): { player: Player; level: Level; input: FakeInput } {
-  const level = makeLevel({ width: 20, height: 15, floor: FLOOR });
-  const player = new Player();
-  placeOnFloor(player, 2, FLOOR);
-  return { player, level, input: fakeInput() };
-}
-
-describe("Player movement", () => {
-  test("falls with gravity and lands on the floor", () => {
-    const level = makeLevel({ width: 20, height: 15, floor: FLOOR });
-    const player = new Player();
-    placeOnFloor(player, 2, FLOOR);
-    player.y = 3 * TILE;
+/**
+ * Rules-side player tests. Motion, gravity, walls, ceilings and landings moved
+ * to `e2e/physics.spec.ts`: the rules only turn input into `PlayerIntent`.
+ */
+describe("Player intents", () => {
+  test("running right asks Arcade for the run speed and faces right", () => {
+    const game = new Game(makeArena());
     const input = fakeInput();
-
-    step(player, level, input, 60);
-
-    expect(player.onGround).toBe(true);
-    expect(player.y + player.h, "feet must not sink into the floor").toBeLessThanOrEqual(FLOOR_TOP + 5);
-    expect(player.y + player.h, "feet must come to rest on the floor").toBeGreaterThanOrEqual(FLOOR_TOP - 5);
-    expect(player.vy).toBe(0);
-  });
-
-  test("accelerates up to the run speed", () => {
-    const { player, level, input } = standOnFloor();
-    const startX = player.x;
     input.down.add("ArrowRight");
 
-    step(player, level, input, 10);
+    const [commands] = tick(game, input);
 
-    expect(player.vx).toBe(660);
-    expect(player.facing).toBe(1);
-    expect(player.x).toBeGreaterThan(startX);
+    expect(commands.player).toEqual({ targetVx: RUN_SPEED, jump: false, facing: 1 });
+    expect(commands.player.targetVx).toBe(660);
   });
 
-  test("friction stops the player when input is released", () => {
-    const { player, level, input } = standOnFloor();
-    input.down.add("ArrowRight");
-    step(player, level, input, 10);
+  test("released keys ask for friction and keep the last facing", () => {
+    const game = new Game(makeArena());
+    const input = fakeInput();
+    input.down.add("ArrowLeft");
+    tick(game, input);
 
-    input.down.delete("ArrowRight");
-    step(player, level, input, 10);
+    input.down.delete("ArrowLeft");
+    const [commands] = tick(game, input);
 
-    expect(player.vx).toBe(0);
-    expect(player.facing).toBe(1);
+    expect(commands.player, "target 0 means friction, not a reverse run").toEqual({
+      targetVx: 0,
+      jump: false,
+      facing: -1,
+    });
   });
 
   test("faces left while running left", () => {
-    const { player, level, input } = standOnFloor();
+    const game = new Game(makeArena());
+    const input = fakeInput();
     input.down.add("ArrowLeft");
-    step(player, level, input, 5);
-    expect(player.facing).toBe(-1);
-    expect(player.vx).toBeLessThan(0);
+
+    const [commands] = tick(game, input);
+
+    expect(commands.player.targetVx).toBe(-RUN_SPEED);
+    expect(commands.player.facing).toBe(-1);
+    expect(game.player.facing).toBe(-1);
   });
 
-  test("caps the falling speed", () => {
-    const level = makeLevel({ width: 20, height: 40 });
-    const player = new Player();
+  test("jumps only from the ground", () => {
+    const game = new Game(makeArena());
     const input = fakeInput();
 
-    step(player, level, input, 50);
+    input.press("Space");
+    const [airborne] = tick(game, input, makeSnapshot(game, { player: { onGround: false } }));
+    expect(airborne.player.jump, "airborne Space must not request a jump").toBe(false);
 
-    expect(player.vy).toBe(2600);
+    input.press("Space");
+    const [grounded] = tick(game, input, makeSnapshot(game, { player: { onGround: true } }));
+    expect(grounded.player.jump).toBe(true);
   });
 
-  test("stops at a wall", () => {
-    const level = makeLevel({
-      width: 20,
-      height: 15,
-      floor: FLOOR,
-      tiles: [
-        [5, 8, SOLID],
-        [5, 9, SOLID],
-      ],
-    });
-    const player = new Player();
-    placeOnFloor(player, 3, FLOOR);
+  test("aim follows the vertical keys and never changes the facing", () => {
+    const game = new Game(makeArena());
     const input = fakeInput();
     input.down.add("ArrowRight");
+    tick(game, input);
 
-    step(player, level, input, 120);
+    input.down.add("ArrowUp");
+    tick(game, input);
+    expect(game.player.aim).toBe(-1);
+    expect(game.player.facing).toBe(1);
 
-    expect(player.x + player.w, "body must not pass the wall").toBeLessThanOrEqual(5 * TILE + 5);
-    expect(player.x + player.w, "body must reach the wall").toBeGreaterThanOrEqual(5 * TILE - 5);
-  });
+    input.down.delete("ArrowUp");
+    input.down.add("ArrowDown");
+    tick(game, input);
+    expect(game.player.aim).toBe(1);
 
-  test("stops at a ceiling", () => {
-    const level = makeLevel({
-      width: 20,
-      height: 15,
-      floor: FLOOR,
-      tiles: [
-        [0, 6, SOLID],
-        [1, 6, SOLID],
-        [2, 6, SOLID],
-        [3, 6, SOLID],
-        [4, 6, SOLID],
-      ],
-    });
-    const player = new Player();
-    placeOnFloor(player, 2, FLOOR);
-    const input = fakeInput();
-
-    input.press("Space");
-    let highest = player.y;
-    for (let i = 0; i < 60; i++) {
-      player.update(DT, level, input);
-      input.hits.clear();
-      highest = Math.min(highest, player.y);
-    }
-
-    expect(highest, "head must not pass the ceiling").toBeGreaterThanOrEqual(7 * TILE);
-    expect(player.onGround).toBe(true);
-  });
-});
-
-describe("Player jump", () => {
-  test("jumps only from the ground", () => {
-    const { player, level, input } = standOnFloor();
-    step(player, level, input, 1);
-
-    input.press("Space");
-    player.update(DT, level, input);
-    input.hits.clear();
-    expect(player.vy, "jump must launch upwards").toBeLessThan(0);
-    expect(player.onGround).toBe(false);
-
-    const beforeSecondPress = player.vy;
-    input.press("Space");
-    player.update(DT, level, input);
-    input.hits.clear();
-    expect(player.vy, "airborne Space must not re-launch").toBeGreaterThan(beforeSecondPress);
-  });
-
-  test("clears two tiles but not three, as design.md requires", () => {
-    const { player, level, input } = standOnFloor();
-    step(player, level, input, 1);
-    const startY = player.y;
-
-    input.press("Space");
-    player.update(DT, level, input);
-    input.hits.clear();
-    let highest = player.y;
-    for (let i = 0; i < 90; i++) {
-      player.update(DT, level, input);
-      input.hits.clear();
-      highest = Math.min(highest, player.y);
-      if (player.onGround && i > 5) break;
-    }
-
-    const rise = startY - highest;
-    expect(rise, `rise ${rise}px must clear two tiles`).toBeGreaterThan(2 * TILE);
-    expect(rise, `rise ${rise}px must not reach three tiles`).toBeLessThan(3 * TILE);
-    expect(rise, `rise ${rise}px should stay in the documented 200-250px band`).toBeGreaterThanOrEqual(200);
-    expect(rise, `rise ${rise}px should stay in the documented 200-250px band`).toBeLessThanOrEqual(250);
+    input.down.delete("ArrowDown");
+    tick(game, input);
+    expect(game.player.aim).toBe(0);
   });
 });
 
 describe("Player reload", () => {
   test("reloads while standing on the ground", () => {
-    const { player, level, input } = standOnFloor();
-    step(player, level, input, 1);
-    player.ammo = 0;
-    player.cooldown = 0;
+    const game = new Game(makeArena());
+    game.player.ammo = 0;
+    game.player.cooldown = 0;
 
-    step(player, level, input, 26);
+    tick(game, fakeInput(), makeSnapshot(game), 26);
 
-    expect(player.ammo).toBe(8);
-    expect(player.reload).toBe(0);
+    expect(game.player.ammo).toBe(8);
+    expect(game.player.reload).toBe(0);
   });
 
   test("freezes reload progress in the air and resumes on landing", () => {
-    const { player, level, input } = standOnFloor();
-    step(player, level, input, 1);
-    player.ammo = 0;
-    player.cooldown = 0;
-    step(player, level, input, 10);
-    expect(player.reload).toBe(10);
+    const game = new Game(makeArena());
+    const input = fakeInput();
+    game.player.ammo = 0;
+    game.player.cooldown = 0;
 
-    input.press("Space");
-    step(player, level, input, 1);
-    const frozen = player.reload;
-    expect(player.onGround).toBe(false);
-    step(player, level, input, 5);
-    expect(player.reload, "reload must not advance in the air").toBe(frozen);
-    expect(player.ammo).toBe(0);
+    tick(game, input, makeSnapshot(game, { player: { onGround: false } }), 10);
+    expect(game.player.reload, "reload must not advance in the air").toBe(0);
 
-    step(player, level, input, 100);
-    expect(player.onGround).toBe(true);
-    expect(player.ammo).toBe(8);
+    tick(game, input, makeSnapshot(game, { player: { onGround: true } }), 26);
+    expect(game.player.ammo).toBe(8);
   });
 
   test("waits for the shot cooldown before reloading", () => {
-    const { player, level, input } = standOnFloor();
-    step(player, level, input, 1);
-    player.ammo = 0;
-    player.cooldown = 5;
+    const game = new Game(makeArena());
+    game.player.ammo = 0;
+    game.player.cooldown = 5;
 
-    step(player, level, input, 1);
-    expect(player.reload).toBe(0);
+    tick(game, fakeInput(), makeSnapshot(game), 1);
+    expect(game.player.reload).toBe(0);
 
-    step(player, level, input, 4);
-    expect(player.reload).toBe(1);
+    tick(game, fakeInput(), makeSnapshot(game), 4);
+    expect(game.player.reload).toBe(1);
   });
 });

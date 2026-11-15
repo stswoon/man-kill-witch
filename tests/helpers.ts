@@ -1,10 +1,24 @@
 import { TILE, type LevelData, type TileInfoData } from "../web/src/assets";
 import { Game, Level, type InputState } from "../web/src/game";
+import {
+  ENEMY_H,
+  ENEMY_W,
+  PLAYER_H,
+  PLAYER_W,
+  TICK,
+  type BlockedSides,
+  type BulletSnapshot,
+  type EnemySnapshot,
+  type PhysicsEvent,
+  type PlayerSnapshot,
+  type TickCommands,
+  type WorldSnapshot,
+} from "../web/src/sim-contract";
 
 /** Fixed simulation step, same as `DT` in the game scene. */
-export const DT = 1 / 70;
+export const DT = TICK;
 
-/** Spawn marker id that `Game.spawn` looks for in the entity layer. */
+/** Spawn marker id that `Game` looks for in the entity layer. */
 export const SPAWN = 255;
 
 /**
@@ -88,12 +102,6 @@ export function makeArena(spec: LevelSpec = {}): Level {
   });
 }
 
-/** Stands the player on top of `floorRow` at tile column `tx`. */
-export function placeOnFloor(player: { x: number; y: number; h: number }, tx: number, floorRow: number): void {
-  player.x = tx * TILE + 10;
-  player.y = floorRow * TILE - player.h;
-}
-
 export interface FakeInput extends InputState {
   readonly down: Set<string>;
   readonly hits: Set<string>;
@@ -119,13 +127,88 @@ export function fakeInput(): FakeInput {
   };
 }
 
+function noBlocked(): BlockedSides {
+  return { left: false, right: false, up: false, down: false };
+}
+
+export interface SnapshotPatch {
+  player?: Partial<PlayerSnapshot>;
+  /** Per-enemy overrides, in spawn order. */
+  enemies?: Partial<EnemySnapshot>[];
+  bullets?: BulletSnapshot[];
+  events?: PhysicsEvent[];
+}
+
 /**
- * Advances the simulation `count` fixed steps. One-shot presses are cleared
- * after each step, mirroring `Input.endFrame` in the scene loop.
+ * A stand-in `WorldSnapshot` for the rules tests: every body stands still at
+ * its spawn point on the ground. There is no real physics in node; movement,
+ * walls and landings are covered by `e2e/physics.spec.ts`.
  */
-export function tick(game: Game, input: FakeInput, count = 1, dt = DT): void {
+export function makeSnapshot(game: Game, patch: SnapshotPatch = {}): WorldSnapshot {
+  const player: PlayerSnapshot = {
+    x: game.spawnX,
+    y: game.spawnY,
+    w: PLAYER_W,
+    h: PLAYER_H,
+    vx: 0,
+    vy: 0,
+    onGround: true,
+    blocked: { ...noBlocked(), down: true },
+    dir: 1,
+    ...patch.player,
+  };
+
+  const enemies: EnemySnapshot[] = game.enemies.map((enemy, index) => ({
+    id: enemy.id,
+    x: enemy.x,
+    y: enemy.y,
+    w: ENEMY_W,
+    h: ENEMY_H,
+    vx: 0,
+    vy: 0,
+    onGround: true,
+    blocked: { ...noBlocked(), down: true },
+    dir: enemy.dir,
+    alive: enemy.alive,
+    sprite: enemy.sprite,
+    ...patch.enemies?.[index],
+  }));
+
+  return {
+    player,
+    enemies,
+    bullets: patch.bullets ?? [],
+    events: patch.events ?? [],
+  };
+}
+
+/** Moves the fake player so the body centre sits in the middle of tile `(tx, ty)`. */
+export function putPlayerInTile(snapshot: WorldSnapshot, tx: number, ty: number): WorldSnapshot {
+  return {
+    ...snapshot,
+    player: {
+      ...snapshot.player,
+      x: tx * TILE + (TILE - PLAYER_W) / 2,
+      y: ty * TILE + (TILE - PLAYER_H) / 2,
+    },
+  };
+}
+
+/**
+ * Advances the rules `count` fixed steps against one fake snapshot and clears
+ * one-shot presses after each step, mirroring `Input.endFrame`. Returns the
+ * commands of every tick so a test can inspect the exact tick it cares about.
+ */
+export function tick(
+  game: Game,
+  input: FakeInput,
+  snapshot: WorldSnapshot = makeSnapshot(game),
+  count = 1,
+): TickCommands[] {
+  const ticks: TickCommands[] = [];
   for (let i = 0; i < count; i++) {
-    game.update(dt, input);
+    ticks.push(game.update(DT, input, snapshot));
     input.hits.clear();
   }
+  return ticks;
 }

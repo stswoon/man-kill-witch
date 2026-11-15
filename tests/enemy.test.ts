@@ -1,14 +1,9 @@
 import { describe, expect, test, vi } from "vitest";
 import { TILE } from "../web/src/assets";
-import { Enemy, Game } from "../web/src/game";
-import { DT, SPAWN, SOLID, makeArena, makeLevel } from "./helpers";
+import { Game } from "../web/src/game";
+import { DT, SPAWN, SOLID, fakeInput, makeArena, makeLevel, makeSnapshot, tick } from "./helpers";
 
 const FLOOR = 12;
-const FLOOR_TOP = FLOOR * TILE;
-
-function run(enemy: Enemy, level: ReturnType<typeof makeLevel>, ticks: number): void {
-  for (let i = 0; i < ticks; i++) enemy.update(DT, level);
-}
 
 function wallLevel(): ReturnType<typeof makeLevel> {
   return makeLevel({
@@ -19,19 +14,25 @@ function wallLevel(): ReturnType<typeof makeLevel> {
       [8, 10, SOLID],
       [8, 11, SOLID],
     ],
+    entities: [
+      [2, 11, SPAWN],
+      [5, 11, 6],
+    ],
   });
 }
 
-/** Floor only under the first eight columns, so the enemy can run off the edge. */
+/** Floor only under the first eight columns, so an enemy can reach the edge. */
 function ledgeLevel(): ReturnType<typeof makeLevel> {
   const tiles = Array.from({ length: 8 }, (_, x): [number, number, number] => [x, FLOOR, SOLID]);
-  return makeLevel({ width: 20, height: 15, tiles });
-}
-
-function walkerAt(x: number, level = wallLevel()): Enemy {
-  const enemy = new Enemy(1, x * TILE, FLOOR_TOP - 60);
-  enemy.speed = 130;
-  return enemy;
+  return makeLevel({
+    width: 20,
+    height: 15,
+    tiles,
+    entities: [
+      [2, 11, SPAWN],
+      [5, 11, 1],
+    ],
+  });
 }
 
 describe("Enemy spawn mapping", () => {
@@ -51,6 +52,7 @@ describe("Enemy spawn mapping", () => {
 
     const byType = new Map(game.enemies.map((enemy) => [enemy.type, enemy]));
     expect(game.enemies).toHaveLength(3);
+    expect(game.enemies.map((enemy) => enemy.id)).toEqual([0, 1, 2]);
     expect(byType.get(1)?.sprite).toBe(2);
     expect(byType.get(6)?.sprite).toBe(5);
     expect(byType.get(14)?.sprite).toBe(9);
@@ -60,8 +62,6 @@ describe("Enemy spawn mapping", () => {
     expect(byType.get(1)?.fly).toBe(false);
     expect(byType.get(6)?.fly).toBe(false);
     expect(byType.get(14)?.fly).toBe(true);
-    expect(byType.get(1)?.w).toBe(60);
-    expect(byType.get(1)?.h).toBe(60);
     expect(byType.get(1)?.x, "spawn x is tx * TILE + 10").toBe(5 * TILE + 10);
     expect(byType.get(1)?.y, "spawn y is ty * TILE + 20").toBe(11 * TILE + 20);
   });
@@ -82,103 +82,188 @@ describe("Enemy spawn mapping", () => {
   });
 });
 
-describe("Enemy terrain", () => {
-  test("walker turns around at a wall", () => {
-    const enemy = walkerAt(6);
-    const level = wallLevel();
+describe("Enemy patrol intents", () => {
+  test("a walker asks to move right at its speed", () => {
+    const game = new Game(makeArena({
+      entities: [
+        [2, 11, SPAWN],
+        [5, 11, 1],
+      ],
+    }));
 
-    run(enemy, level, 200);
+    const [commands] = tick(game, fakeInput(), makeSnapshot(game));
 
-    expect(enemy.dir).toBe(-1);
-    expect(enemy.x + enemy.w).toBeLessThanOrEqual(8 * TILE + 5);
+    expect(commands.enemies).toEqual([{ id: 0, targetVx: 130, dir: 1, flyerVy: 0 }]);
   });
 
-  test("walker turns around at a ledge", () => {
-    const enemy = walkerAt(7);
+  test("a walker turns around at a wall", () => {
+    const game = new Game(makeArena({
+      entities: [
+        [2, 11, SPAWN],
+        [5, 11, 1],
+      ],
+    }));
+    const blocked = makeSnapshot(game, {
+      enemies: [{ blocked: { left: false, right: true, up: false, down: false } }],
+    });
+
+    const [commands] = tick(game, fakeInput(), blocked);
+
+    expect(commands.enemies[0].dir).toBe(-1);
+    expect(commands.enemies[0].targetVx).toBe(-130);
+    expect(game.enemies[0].dir).toBe(-1);
+  });
+
+  test("a walker turns around at a ledge", () => {
     const level = ledgeLevel();
+    const game = new Game(level);
+    const enemy = game.enemies[0];
+    // Stand the body past the last floor column: the tile ahead-below is empty.
+    const offEdge = makeSnapshot(game, { enemies: [{ x: 8 * TILE, y: FLOOR * TILE - 60 }] });
 
-    run(enemy, level, 40);
+    const [commands] = tick(game, fakeInput(), offEdge);
 
-    expect(enemy.dir).toBe(-1);
-    expect(Math.abs(enemy.y - (FLOOR_TOP - 60)), "walker must stay on the platform").toBeLessThanOrEqual(5);
+    expect(enemy.turnsAtLedge).toBe(true);
+    expect(commands.enemies[0].dir).toBe(-1);
+    expect(commands.enemies[0].targetVx).toBe(-130);
   });
 
-  test("charger runs straight off a ledge", () => {
+  test("a charger runs straight off a ledge", () => {
     const level = ledgeLevel();
-    const enemy = new Enemy(6, 7 * TILE, FLOOR_TOP - 60);
-    enemy.speed = 200;
-    enemy.turnsAtLedge = false;
+    const game = new Game(level);
+    game.enemies[0].turnsAtLedge = false;
+    game.enemies[0].speed = 200;
+    const offEdge = makeSnapshot(game, { enemies: [{ x: 8 * TILE, y: FLOOR * TILE - 60 }] });
 
-    run(enemy, level, 60);
+    const [commands] = tick(game, fakeInput(), offEdge);
 
-    expect(enemy.dir).toBe(1);
-    expect(enemy.y, "charger must leave the platform").toBeGreaterThan(FLOOR_TOP - 60);
-    expect(enemy.alive).toBe(true);
+    expect(commands.enemies[0].dir).toBe(1);
+    expect(commands.enemies[0].targetVx).toBe(200);
   });
 
-  test("charger still turns around at a wall", () => {
-    const level = wallLevel();
-    const enemy = new Enemy(6, 6 * TILE, FLOOR_TOP - 60);
-    enemy.speed = 200;
-    enemy.turnsAtLedge = false;
+  test("a charger still turns around at a wall", () => {
+    const game = new Game(wallLevel());
+    const blocked = makeSnapshot(game, {
+      enemies: [{ blocked: { left: true, right: false, up: false, down: false } }],
+    });
+    game.enemies[0].dir = -1;
 
-    run(enemy, level, 120);
+    const [commands] = tick(game, fakeInput(), blocked);
 
-    expect(enemy.dir).toBe(-1);
+    expect(commands.enemies[0].dir).toBe(1);
+    expect(commands.enemies[0].targetVx).toBe(game.enemies[0].speed);
   });
 
-  test("ground enemy rests on the bottom edge of the map", () => {
-    // Out-of-bounds is solid, so nothing can fall out of the level.
-    const level = makeLevel({ width: 20, height: 15 });
-    const enemy = new Enemy(1, 4 * TILE, 2 * TILE);
+  test("dead enemies get no intent", () => {
+    const game = new Game(makeArena({
+      entities: [
+        [2, 11, SPAWN],
+        [5, 11, 1],
+      ],
+    }));
+    game.enemies[0].alive = false;
 
-    run(enemy, level, 300);
+    const [commands] = tick(game, fakeInput(), makeSnapshot(game));
 
-    expect(enemy.alive).toBe(true);
-    expect(enemy.y + enemy.h).toBeLessThanOrEqual(level.pixelHeight + 5);
+    expect(commands.enemies).toEqual([]);
+  });
+
+  test("an enemy whose body disappeared is marked dead", () => {
+    const game = new Game(makeArena({
+      entities: [
+        [2, 11, SPAWN],
+        [5, 11, 1],
+      ],
+    }));
+
+    tick(game, fakeInput(), makeSnapshot(game, { enemies: [{ alive: false }] }));
+
+    expect(game.enemies[0].alive).toBe(false);
   });
 });
 
 describe("Enemy flying", () => {
-  test("flyer reverses at a wall", () => {
+  test("a flyer asks for the sine speed and its patrol direction", () => {
     vi.spyOn(Math, "random").mockReturnValue(0);
-    const level = makeLevel({
-      width: 20,
-      height: 15,
+    const game = new Game(makeArena({
+      entities: [
+        [2, 11, SPAWN],
+        [6, 5, 14],
+      ],
+    }));
+
+    const [commands] = tick(game, fakeInput(), makeSnapshot(game));
+
+    expect(commands.enemies[0].targetVx).toBe(170);
+    expect(commands.enemies[0].flyerVy).toBeCloseTo(Math.sin(DT * 2.4) * 120, 10);
+  });
+
+  test("a flyer reverses at a wall", () => {
+    vi.spyOn(Math, "random").mockReturnValue(0);
+    const game = new Game(makeArena({
+      entities: [
+        [2, 11, SPAWN],
+        [6, 5, 14],
+      ],
       tiles: [
         [8, 5, SOLID],
         [8, 6, SOLID],
       ],
-    });
-    const enemy = new Enemy(14, 6 * TILE, 5 * TILE - 30);
-    enemy.fly = true;
-    enemy.speed = 170;
+    }));
+    // Body right edge one pixel from the wall at column 8, mid height in row 5.
+    const atWall = makeSnapshot(game, { enemies: [{ x: 8 * TILE - 61, y: 5 * TILE - 30 }] });
 
-    run(enemy, level, 200);
+    const [commands] = tick(game, fakeInput(), atWall);
 
-    expect(enemy.dir).toBe(-1);
-    expect(enemy.x, "flyer must not pass the wall").toBeLessThan(8 * TILE);
+    expect(commands.enemies[0].dir).toBe(-1);
+    expect(commands.enemies[0].targetVx).toBe(-170);
   });
 
-  test("flyer dies above the top of the map", () => {
+  test("a flyer dies above the top of the map", () => {
     vi.spyOn(Math, "random").mockReturnValue(0);
-    const level = makeLevel({ width: 20, height: 15 });
-    const enemy = new Enemy(14, 4 * TILE, 0);
-    enemy.fly = true;
+    const game = new Game(makeArena({
+      entities: [
+        [2, 11, SPAWN],
+        [6, 5, 14],
+      ],
+    }));
 
-    run(enemy, level, 1);
+    const [commands] = tick(game, fakeInput(), makeSnapshot(game, { enemies: [{ y: 30 }] }));
 
-    expect(enemy.alive).toBe(false);
+    expect(commands.killEnemy).toEqual([0]);
+    expect(commands.enemies).toEqual([]);
+    expect(game.enemies[0].alive).toBe(false);
   });
 
-  test("flyer dies below the bottom of the map", () => {
+  test("a flyer dies below the bottom of the map", () => {
     vi.spyOn(Math, "random").mockReturnValue(0);
-    const level = makeLevel({ width: 20, height: 15 });
-    const enemy = new Enemy(14, 4 * TILE, level.pixelHeight - 10);
-    enemy.fly = true;
+    const game = new Game(makeArena({
+      entities: [
+        [2, 11, SPAWN],
+        [6, 5, 14],
+      ],
+    }));
+    const below = game.level.pixelHeight - 120 + 1;
 
-    run(enemy, level, 1);
+    const [commands] = tick(game, fakeInput(), makeSnapshot(game, { enemies: [{ y: below }] }));
 
-    expect(enemy.alive).toBe(false);
+    expect(commands.killEnemy).toEqual([0]);
+    expect(game.enemies[0].alive).toBe(false);
+  });
+
+  test("a flyer reverses at the left edge of the map", () => {
+    vi.spyOn(Math, "random").mockReturnValue(0);
+    const game = new Game(makeArena({
+      entities: [
+        [2, 11, SPAWN],
+        [6, 5, 14],
+      ],
+    }));
+    game.enemies[0].dir = -1;
+
+    const [commands] = tick(game, fakeInput(), makeSnapshot(game, { enemies: [{ x: 0 }] }));
+
+    expect(commands.enemies[0].dir).toBe(1);
+    expect(commands.enemies[0].targetVx).toBe(170);
   });
 });

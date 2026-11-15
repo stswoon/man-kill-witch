@@ -54,4 +54,13 @@ export class LevelView {
   setCamera(x: number, y: number): void {
     this.scene.cameras.main.setScroll(x, y);
   }
+
+  /**
+   * The live tilemap layer. `ArcadeSim` reuses it for collisions instead of
+   * building a second hidden layer.
+   */
+  get tilemapLayer(): Phaser.Tilemaps.TilemapLayer {
+    if (!this.layer) throw new Error("level view is not built yet");
+    return this.layer;
+  }
 }

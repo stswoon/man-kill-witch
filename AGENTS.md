@@ -7,7 +7,8 @@
 
 **Man Kill Witch** — браузерный ретро-платформер на Phaser 4 + TypeScript.
 
-- Логика идёт с фиксированным шагом **1/70 с** (`DT = 1 / 70` в `web/src/scenes/game-scene.ts`).
+- Логика идёт с фиксированным шагом **1/70 с** (`DT = 1 / 70` в `web/src/scenes/game-scene.ts`);
+  правила и Arcade-мир делают ровно один шаг на тик.
 - Каркаса нет: esbuild собирает один бандл, `tools/build.mjs` публикует игру в `build/`,
   `tools/serve.mjs` раздаёт её.
 - Код на TypeScript strict, рендер на Phaser 4 (WebGL). Больше runtime-зависимостей нет.
@@ -18,21 +19,25 @@
 
 ## Агенты
 
-В `.opencode/agents/` два профильных сабагента на `opencode/gpt-6.1-sol#xhigh`
+В `.opencode/agents/` три профильных сабагента на `opencode/gpt-6.1-sol#xhigh`
 (`mode: subagent` — в меню выбора основной модели их нет, только делегирование):
 
 - `ui-designer-agent` — 2D-графика: спрайты, атласы, кадры и тайминги анимаций.
 - `music-agent` — музыка и эффекты на WebAudio-синтезе, без аудиофайлов.
+- `agent-bot` — LLM-пилот: играет через `mkw.bot.observe/act` по данным движка, проверяет
+  проходимость уровней и отдаёт отчёт с координатами блокеров. Вызывается **по запросу**
+  (после правок уровней, перед релизом, по жалобе), не в каждом прогоне и не как гейт.
 
 **Обязательное правило:** любую задачу на рисование (спрайты, тайлы, атласы,
 титульные экраны, HUD, bitmap-шрифты, кадры анимаций) выполняет `ui-designer-agent`;
 любую задачу на музыку и звук — `music-agent`. Не рисовать арт и не писать звук силами
 `dev` или оркестратора. Игровую логику и раскладку уровней дизайнер не меняет, музыкант —
-код вне звука.
+код вне звука. `agent-bot` не меняет игру и уровни: он только играет и отчитывается.
 
 В пайплайне `stsTeamImpl` арт- и звуковые стори идут так: профильный агент создаёт
 ассеты → `dev` интегрирует их и пишет/обновляет тесты, если это нужно → QA → Lead.
 Если стори состоит только из ассетов, после профильного агента сразу QA → Lead.
+Проверка ботом — отдельный диагностический шаг по запросу; она не блокирует пайплайн.
 
 ## Команды
 
@@ -52,10 +57,36 @@ npm run typecheck  # tsc --noEmit по web/src, tests и e2e, должен пр�
 и `web/public/` подхватываются после перезапуска.
 
 Юнит-тесты — vitest (`tests/**/*.test.ts`, окружение node, конфиг `vitest.config.ts`).
+Phaser в node не импортируется, поэтому в node проверяются правила на фейковом
+`WorldSnapshot` (`tests/helpers.ts`), данные уровней и архитектурные запреты; движение,
+прыжки, стены, приземление и враги — в `e2e/physics.spec.ts`.
 Браузерные сценарии — Playwright (`e2e/**/*.spec.ts`, chromium). Playwright сам собирает
 `build/` и поднимает `tools/serve.mjs` на порту 4173 с `--strict`, поэтому отдельный
 сервер запускать не нужно. Первый запуск требует `npx playwright install chromium`;
 `npm test` не трогает `e2e/`, у vitest явный `include` только на `tests/`.
+
+## Бот-игрок (по запросу)
+
+`agent-bot` играет через `window.mkw.bot` **по данным движка**, без пикселей. Это
+диагностический инструмент, а не обязательный гейт: запускай после правок уровней, перед
+релизом или по жалобе «уровень не проходится», не в каждом прогоне.
+
+```js
+mkw.bot.reset(0, { seed: 1, render: true }) // observation; Phaser loop sleeps
+mkw.bot.act("right", 20)                    // observation; the only way to move
+mkw.bot.observe()
+mkw.bot.status()                            // PASS / FAIL / IN_PROGRESS / CANCELLED
+mkw.bot.log()                               // replayable action log
+mkw.bot.replay(route, { render: true })     // optional, after level edits
+mkw.bot.stop()
+mkw.setSpeed(4)                             // normal loop x1..x8
+```
+
+`act` шагает правила и Arcade ровно на `1/70` за тик и возвращает observation: тайлы,
+герой, враги, двери, предметы, окно 21×13, minimap 4×4. Вердикт считает harness, не LLM:
+behavior 2 — выход, fallback behavior 1, выход ближе 2 тайлов к спавну — `FAIL`
+(уровни 4/6/7). `e2e/bot-api.spec.ts` — детерминированный smoke API, он входит в
+`npm run test:e2e`; полный LLM-прогон уровней в обязательный цикл не входит.
 
 ## Структура
 
@@ -63,9 +94,12 @@ npm run typecheck  # tsc --noEmit по web/src, tests и e2e, должен пр�
 |--------------------------------|-----------------------------------------------------------------------------------------------------|
 | `web/src/main.ts`              | boot Phaser-игры, конфиг рендера и канваса                                                          |
 | `web/src/scenes/boot-scene.ts` | загрузка ассетов через Phaser Loader, передача их в игровую сцену                                   |
-| `web/src/scenes/game-scene.ts` | состояния `title / play / gameover / win`, фиксированный шаг, отладочный `window.mkw`               |
-| `web/src/game.ts`              | вся игровая логика: физика, коллизии, враги, пули, двери, предметы, камера. **Без импортов Phaser** |
-| `web/src/phaser-view.ts`       | только отрисовка: tilemap, спрайты, камера, HUD, сообщения. **Не меняет состояние игры**            |
+| `web/src/scenes/game-scene.ts` | состояния `title / play / gameover / win`, владелец `Game` и `ArcadeSim`, фиксированный тик, `window.mkw` |
+| `web/src/sim-contract.ts`      | чистый контракт правил и Arcade: `WorldSnapshot`, `TickCommands`, `PlayerIntent`, `EnemyIntent`, `PhysicsEvent`, числа |
+| `web/src/game.ts`              | правила без Phaser: уровни, очки, жизни, патроны, таймеры, дверь, камера, `tilePatches`, AI-намерения. **Без импортов Phaser и `arcade/*`** |
+| `web/src/arcade/arcade-sim.ts` | единственный владелец Arcade-мира: тела игрока, врагов и пуль, tilemap-коллизии, один шаг на тик     |
+| `web/src/bot/`                 | LLM-пилот: `observe/act`, виртуальный ввод, окно/minimap, выходы и вердикт. **Без Phaser и без записи в игру** |
+| `web/src/phaser-view.ts`, `web/src/view/*` | только отрисовка: tilemap, спрайты по `WorldSnapshot`, камера, HUD, сообщения. **Не меняет состояние игры** |
 | `web/src/assets.ts`            | константы (`TILE`, `SCREEN_W/H`, `TILE_FLAG_MASK`), типы и имена текстур                            |
 | `web/src/input.ts`             | клавиатура: `isDown` / `wasPressed`, сброс в конце кадра                                            |
 | `web/src/sfx.ts`               | синтезированные WebAudio-блипы                                                                      |
@@ -73,26 +107,37 @@ npm run typecheck  # tsc --noEmit по web/src, tests и e2e, должен пр�
 | `web/index.html`               | подсказка по управлению, CSS канваса                                                                |
 | `build/`                       | собранная игра: `bundle.js`, `index.html`, `assets/` (не коммитится)                                |
 | `tools/*.mjs`                  | сборка в `build/`, статический сервер (порт, `--strict`), PNG-писатель                              |
-| `tests/`                       | юнит-тесты на vitest: физика, враги, правила, данные уровней                                        |
-| `e2e/`                         | браузерные тесты Playwright: boot, управление, уровни, масштаб канваса                              |
+| `tests/`                       | юнит-тесты на vitest: правила, враги, данные уровней, архитектурные запреты                         |
+| `e2e/`                         | браузерные тесты Playwright: boot, управление, физика (`mkw.tick`), уровни, масштаб канваса, `bot-api` |
 | `vitest.config.ts`             | конфиг юнит-тестов: только `tests/`, окружение node                                                 |
 | `playwright.config.ts`         | конфиг браузерных тестов: chromium, сборка и сервер на 4173                                         |
 | `docs/design.md`               | дизайн: правила, ощущение, враги, уровни                                                            |
 
 ## Правила архитектуры
 
-- Phaser используется как платформа: boot, сцены, загрузчик, tilemap, камера и рендер.
-  Физика, ввод с привязкой к фиксированному шагу и звук остаются собственными. Не переводи
-  их на Arcade Physics, Phaser Input или Phaser Audio без отдельного решения.
-- Игровые правила живут в `game.ts` и не знают про Phaser. Рендер читает состояние
-  (`game.level`, `game.enemies`, `game.bullets`, `game.player`, `game.tilePatches`).
+- Phaser используется как платформа: boot, сцены, загрузчик, tilemap, камера и рендер. Физика —
+  Phaser Arcade Physics в `arcade/*` (D8); ввод и звук остаются собственными. Не переводи
+  ввод на Phaser Input и звук на Phaser Audio без отдельного решения.
+- Игровые правила живут в `game.ts` и не знают про Phaser. `Game.update(dt, input, snapshot)`
+  читает `WorldSnapshot` и возвращает `TickCommands`; движение правила не интегрируют.
+- `web/src/arcade/*` — единственный владелец Arcade-мира и тел игрока, врагов и пуль.
+  Tilemap-слой переиспользуется из `LevelView`, отдельного скрытого слоя нет. Правил
+  (очки, жизни, двери, подборы) здесь нет.
+- Фиксированный тик: в цикле аккумулятора `snapshot → game.update → arcade.apply →
+  arcade.applyTilePatches → arcade.step`; рендер-кадр делает один `view.render` и один
+  `controls.endFrame`. Arcade-мир идёт с `customUpdate: true` и ровно одним шагом `1/70`
+  на тик.
+- Общие типы и числа — только через `sim-contract.ts`: `game.ts` не импортирует `arcade/*`.
+- `web/src/bot/*` — отладочный LLM-пилот: читает `Level`, `WorldSnapshot` и `Game`, двигает
+  героя только через `InputState`. Не импортирует Phaser, `phaser-view` и сцены, не пишет
+  в `Game`/`Level`/`ArcadeSim`; вердикт считает harness, не LLM.
 - Уровень строится как Phaser tilemap; изменения тайлов во время игры идут через
-  `Game.tilePatches` и применяются через `layer.putTileAt()` / `layer.removeTileAt()`.
+  `Game.tilePatches`, применяются к `ArcadeSim` до шага и к `PhaserView` перед рендером.
   Не пересобирай tilemap каждый кадр.
 - Любое изменение видимого поведения должно сохранять сетку: координаты и размеры
   кратны тайлу там, где это было задумано; спрайты позиционируются по `Math.round`.
 - Индексы тайлов маскируются `TILE_FLAG_MASK` (`0x3ff`): старшие биты — флаги.
-- Физические константы в начале `game.ts` — продуктовые. Меняя их, обновляй таблицу
+- Физические константы в `sim-contract.ts` — продуктовые. Меняя их, обновляй таблицу
   в `docs/design.md`.
 
 ## Стиль кода
@@ -114,8 +159,9 @@ npm run typecheck  # tsc --noEmit по web/src, tests и e2e, должен пр�
 
 Минимальный цикл:
 
-1. `npm test` — обязателен. Тесты покрывают физику, врагов, правила и данные уровней;
-   падение теста на `content.test.ts` почти всегда означает битый уровень.
+1. `npm test` — обязателен. Тесты покрывают правила, врагов, данные уровней и архитектуру;
+   падение теста на `content.test.ts` почти всегда означает битый уровень. Движение и
+   коллизии живут в e2e: Phaser не грузится в node.
 2. `npm run typecheck` — обязателен.
 3. `npm run test:e2e` — обязателен для правок рендера, ввода и сцен: Playwright сам
    собирает `build/` и поднимает сервер, проверяя загрузку, управление и переключение уровней.
@@ -124,11 +170,16 @@ npm run typecheck  # tsc --noEmit по web/src, tests и e2e, должен пр�
 5. Проверить затронутое: титульный экран → Space, ходьба/прыжок/выстрел, переход через
    дверь, уровни 1–8 по цифрам, смерть и GAME OVER, победа на 8-м уровне.
 6. Консоль браузера должна быть чистой; ошибки boot выводятся красным `<pre>` поверх канваса.
-7. Для отладки есть `window.mkw`: `mkw.game()`, `mkw.startLevel(n)`, `mkw.step(dt)`,
-   `mkw.tick(n, dt?)`, `mkw.getState()`, `mkw.renderer`, `mkw.assets`, `mkw.phaser`.
-   `mkw.tick` прокручивает симуляцию ровно `n` фиксированных шагов без рендера и сбрасывает
-   одиночные нажатия после каждого шага — только для e2e-тестов физики, чтобы они не зависели
-   от fps рендера. Обычный цикл он не меняет.
+7. Для отладки есть `window.mkw`: `mkw.game()`, `mkw.snapshot()`, `mkw.startLevel(n)`,
+   `mkw.step(dt)`, `mkw.tick(n, dt?)`, `mkw.getState()`, `mkw.renderer`, `mkw.assets`,
+   `mkw.phaser`. `mkw.snapshot()` отдаёт `WorldSnapshot` с телами Arcade: позиции, скорости,
+   размеры, `onGround`, `blocked`, `dir`, `alive` и события шага. `mkw.step` и `mkw.tick`
+   прокручивают и правила, и Arcade ровно на фиксированные шаги `1/70`; `mkw.tick`
+   дополнительно сбрасывает одиночные нажатия после каждого шага и не рендерит — только для
+   e2e-тестов физики, чтобы они не зависели от fps рендера. Обычный цикл они не меняют.
+8. По запросу — `agent-bot` (LLM-пилот через `mkw.bot`) для проверки проходимости уровней.
+   Это не обязательный шаг и не гейт; полный прогон в `npm test`/`test:e2e` не входит.
+   `e2e/bot-api.spec.ts` — детерминированный smoke API, он входит в `test:e2e`.
 
 Для правок рендера дополнительно сверяй картинку в браузере: масштабирование без артефактов,
 края спрайтов и тайлов без швов и обрезки.
@@ -140,5 +191,8 @@ npm run typecheck  # tsc --noEmit по web/src, tests и e2e, должен пр�
 - Не «улучшать» раскладку уровней и физику без записи решения в `docs/design.md`.
 - Не добавлять CI и линтеры без запроса: тестовый стек — vitest + Playwright, новых
   раннеров не нужно.
+- Не делать `agent-bot`/`mkw.bot` обязательным гейтом и не запускать полный LLM-прогон в
+  каждом прогоне; `e2e/bot-api.spec.ts` — только smoke API.
+- Не тянуть Phaser в `web/src/bot` и не писать из бота в `Game`/`Level`/`ArcadeSim`.
 - Не менять физические константы и правила, не поправив `docs/design.md` и `tests/`.
 - Не коммитить `build/`, `node_modules/`, `work/`, `.temp/`.

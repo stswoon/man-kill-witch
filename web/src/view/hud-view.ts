@@ -1,20 +1,18 @@
 import Phaser from "phaser";
+import { HUD_FONT, HUD_TEXTURE } from "../assets";
 import type { Game } from "../game";
 
-/** Temporary system HUD; S17 replaces it with the HD panel and bitmap font. */
-const HUD_STYLE: Phaser.Types.GameObjects.Text.TextStyle = {
-  fontFamily: "monospace",
-  fontSize: "40px",
-  color: "#ffff55",
-  padding: { x: 5, y: 5 },
-};
+/** Both readout lines start 20 px inside the 680x120 panel, 50 px apart. */
+const TEXT_LEFT = 20;
+const TEXT_TOP = 15;
+const TEXT_BOTTOM = 65;
 
-/** Level, lives, ammo and score readout in the top-left corner. */
+/** Level, lives, ammo and score readout over the HD HUD panel. */
 export class HudView {
   private readonly scene: Phaser.Scene;
-  private hudBg: Phaser.GameObjects.Rectangle | null = null;
-  private hudText: Phaser.GameObjects.Text | null = null;
-  private hudAmmo: Phaser.GameObjects.Text | null = null;
+  private panel: Phaser.GameObjects.Image | null = null;
+  private hudText: Phaser.GameObjects.BitmapText | null = null;
+  private hudAmmo: Phaser.GameObjects.BitmapText | null = null;
 
   constructor(scene: Phaser.Scene) {
     this.scene = scene;
@@ -22,18 +20,18 @@ export class HudView {
 
   /** Creates the HUD objects once, on the first level build. */
   ensureCreated(): void {
-    if (this.hudBg) return;
-    this.hudBg = this.scene.add
-      .rectangle(0, 0, 660, 105, 0x000000, 0.7)
+    if (this.panel) return;
+    this.panel = this.scene.add
+      .image(0, 0, HUD_TEXTURE)
       .setOrigin(0, 0)
       .setScrollFactor(0)
       .setDepth(100);
     this.hudText = this.scene.add
-      .text(15, 10, "", HUD_STYLE)
+      .bitmapText(TEXT_LEFT, TEXT_TOP, HUD_FONT, "")
       .setScrollFactor(0)
       .setDepth(101);
     this.hudAmmo = this.scene.add
-      .text(15, 55, "", { ...HUD_STYLE, color: "#55ffff" })
+      .bitmapText(TEXT_LEFT, TEXT_BOTTOM, HUD_FONT, "")
       .setScrollFactor(0)
       .setDepth(101);
   }

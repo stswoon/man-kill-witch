@@ -48,10 +48,14 @@ PNG-ассетов и удаление untracked `tests/art-assets.test.ts`,
 | S16 | HD-тайлсет на месте | DONE | S10, S14, S15, S17 | S13 | S18 |
 | S17 | HD-HUD: панель и bitmap-шрифт | IN_PROGRESS | S11, S14, S15, S16 | S13 | S18 |
 | S18 | HD-финализация: доки, статус ассетов, приёмка | OPEN | нет | S10, S11, S12, S14, S15, S16, S17 | — |
+| S19 | LLM-пилот: бот-игрок и проверка проходимости | IN_PROGRESS | нет (не гейт) | S11; S12 по `game-scene.ts` | — |
 
 S12 — это **run state** (очки/жизни), а не миграция тестов. Миграция тестов входит в S11.
 S18 — не новая механика: только синхронизация `AGENTS.md`/`README.md`/`docs/design.md` и
 сквозная проверка.
+S19 — диагностический инструмент по запросу: LLM-агент играет через `mkw.bot`, harness
+судит; полный LLM-прогон в обязательный цикл и CI не входит. Детерминированный
+`e2e/bot-api.spec.ts` — только smoke API и часть обычного `npm run test:e2e`.
 
 ## Граф дорожек
 
@@ -126,7 +130,8 @@ S17 зависимостей от S10 не имеет, но по эксклюз�
 | `web/src/assets.ts`, `web/src/scenes/boot-scene.ts`, `tests/content.test.ts` | S13 → S10 → S17. |
 | `web/src/main.ts` | S13 (HD-рендер, `antialias`, без `pixelArt`). |
 | `web/src/game.ts`, `tests/game.test.ts` | S13 → S10 → S11 → S12. |
-| `web/src/scenes/game-scene.ts` | S11 → S12. |
+| `web/src/scenes/game-scene.ts` | S11 → S12 → S19. |
+| `web/src/bot/**`, `e2e/bot-api.spec.ts`, `tests/bot-report.test.ts`, `.opencode/agents/agent-bot.md`, `docs/plan/S19-agent-bot.md` | S19. |
 | `web/src/view/hud-view.ts` | S13 (временный системный HUD) → S17. |
 | `web/src/view/message-view.ts` | S13. |
 | `web/src/view/character-view.ts` | S13 → S11. |
@@ -136,6 +141,7 @@ S17 зависимостей от S10 не имеет, но по эксклюз�
 | `web/src/sim-contract.ts`, `web/src/arcade/**` | S11. |
 | `tests/helpers.ts`, `tests/player.test.ts`, `tests/enemy.test.ts`, `tests/smoke.test.ts` | S13 → S11. |
 | `tests/architecture.test.ts` | S11. |
+| `tests/bot-report.test.ts` | S19. |
 | `tests/png.ts`, `tests/art-assets.test.ts` | S13. |
 | `tests/hero-art.test.ts` | S14. |
 | `tests/enemy-art.test.ts` | S15. |
@@ -147,8 +153,8 @@ S17 зависимостей от S10 не имеет, но по эксклюз�
 | `web/public/assets/hud.png`, `web/public/assets/fonts/**` | S17. |
 | `web/public/assets/sprites/s_door.png` | S10. |
 | `docs/design.md` | S13 (числа) → S11 (физика) → S12 (run state) → S18 (финал). |
-| `AGENTS.md` | S11 (архитектура/тесты) → S12 (`mkw`) → S18 (статус HD). |
-| `README.md` | S11 (структура) → S18 (статус HD). |
+| `AGENTS.md` | S11 (архитектура/тесты) → S12 (`mkw`) → S19 (бот-игрок) → S18 (статус HD). |
+| `README.md` | S11 (структура) → S19 (бот-игрок) → S18 (статус HD). |
 | `docs/spec/**` | analyst; стори спеку не переписывают. |
 
 ## Правила
@@ -158,3 +164,6 @@ S17 зависимостей от S10 не имеет, но по эксклюз�
 - Не менять чужие папки из таблицы эксклюзивов без согласования.
 - `S03`, `S05`, `S07`, `S09` отменены: их арт и правки не сливаются.
 - Арт выполняет только `ui-designer-agent`, звук — только `music-agent` (`AGENTS.md`).
+- S19 — не гейт: `agent-bot` запускается по запросу (после правок уровней, перед релизом,
+  по жалобе), не в каждом прогоне и не в CI. Обязательный цикл — `npm test`,
+  `npm run typecheck`, `npm run test:e2e`.
