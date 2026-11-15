@@ -8,6 +8,12 @@ build/
 .temp/
 work/
 
+# secrets / local env
+.env
+.env.local
+.env.*.local
+!.env.example
+
 # test artifacts
 test-results/
 playwright-report/
@@ -19,3 +25,4 @@ blob-report/
 .DS_Store
 Thumbs.db
 desktop.ini
+/.serena/

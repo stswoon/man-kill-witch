@@ -19,7 +19,7 @@ const MIME = {
   ".css": "text/css; charset=utf-8",
 };
 
-const server = createServer(async (req, res) => {
+async function handle(req, res) {
   try {
     const url = decodeURIComponent((req.url ?? "/").split("?")[0]);
     let path = normalize(join(ROOT, url === "/" ? "index.html" : url));
@@ -27,12 +27,25 @@ const server = createServer(async (req, res) => {
     const info = await stat(path);
     if (info.isDirectory()) path = join(path, "index.html");
     const data = await readFile(path);
+    if (res.writableEnded || res.destroyed) return;
     res.writeHead(200, { "content-type": MIME[extname(path)] ?? "application/octet-stream" });
     res.end(data);
-  } catch {
+  } catch (err) {
+    // A browser that closes a page mid-download aborts the socket; that is not
+    // a server failure, and an unhandled rejection here would kill the process
+    // in the middle of a Playwright run.
+    if (res.writableEnded || res.destroyed) return;
     res.writeHead(404, { "content-type": "text/plain" }).end("not found");
+    void err;
   }
+}
+
+const server = createServer((req, res) => {
+  void handle(req, res).catch(() => res.destroy());
 });
+
+// Broken pipes from cancelled requests must not take the server down.
+server.on("clientError", (_err, socket) => socket.destroy());
 
 // If the port is busy (e.g. another dev server is already running), take the next one.
 function listen(port, triesLeft) {
