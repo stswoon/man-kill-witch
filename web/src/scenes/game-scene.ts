@@ -299,6 +299,9 @@ export class GameScene extends Phaser.Scene {
     const patches = this.sim.tilePatches;
     if (!patches.length) return;
     this.view.patchTiles(patches);
+    // `putTileAt` in the view marks a tile collidable on every face; re-apply the
+    // directional flags so a future non-empty patch keeps the tileinfo semantics.
+    this.arcade.applyTilePatches(patches);
     patches.length = 0;
   }
 }

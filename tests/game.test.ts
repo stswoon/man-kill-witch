@@ -229,6 +229,25 @@ describe("Damage", () => {
 
     expect(game.lives).toBe(0);
   });
+
+  test("a bullet kills the enemy before the same-tick touch is resolved", () => {
+    const game = withEnemy();
+    game.player.invuln = 0;
+    // The touch event comes first on purpose: the rules must kill first anyway.
+    const both = makeSnapshot(game, {
+      events: [
+        { type: "playerTouchedEnemy", enemyId: 0 },
+        { type: "bulletHitEnemy", bulletId: 7, enemyId: 0 },
+      ],
+    });
+
+    const [commands] = tick(game, fakeInput(), both);
+
+    expect(game.score).toBe(100);
+    expect(game.enemies[0].alive).toBe(false);
+    expect(game.lives, "a dead enemy cannot hurt the hero in the same tick").toBe(3);
+    expect(commands.respawnPlayer).toBeNull();
+  });
 });
 
 describe("Pickups", () => {

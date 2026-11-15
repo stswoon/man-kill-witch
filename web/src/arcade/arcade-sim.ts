@@ -199,12 +199,20 @@ export class ArcadeSim {
 
     for (const [id, body] of this.bullets) {
       if (!body.enable) continue;
-      world.collide(body, this.layer, undefined, (_bullet: unknown, tile: unknown) =>
-        this.stopsBullet(tile as Phaser.Tilemaps.Tile),
+      // The bullet dies on the tile it actually touches, on any face: a solid
+      // floor or ceiling stops it exactly like a wall. One-way platforms are
+      // filtered out by `stopsBullet`, so the shot still passes through them.
+      let hitWall = false;
+      world.collide(
+        body,
+        this.layer,
+        () => {
+          if (hitWall) return;
+          hitWall = true;
+          this.events.push({ type: "bulletHitWall", bulletId: id });
+        },
+        (_bullet: unknown, tile: unknown) => this.stopsBullet(tile as Phaser.Tilemaps.Tile),
       );
-      if (body.blocked.left || body.blocked.right) {
-        this.events.push({ type: "bulletHitWall", bulletId: id });
-      }
       for (const enemy of this.enemies) {
         if (!enemy.alive || !enemy.body.enable) continue;
         if (world.overlap(body, enemy.body)) {

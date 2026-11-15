@@ -19,6 +19,7 @@ interface GameRule {
 }
 
 interface DebugApi {
+  assets: { levels: Array<{ width: number; height: number; tiles: number[] }> };
   phaser: { loop: { sleep: () => void } };
   game: () => GameRule;
   snapshot: () => WorldSnapshot;
@@ -78,6 +79,50 @@ async function player(page: Page): Promise<PlayerSnapshot> {
 
 async function enemies(page: Page): Promise<EnemySnapshot[]> {
   return (await snapshot(page)).enemies;
+}
+
+/** Row of the injected ceiling: it ends at `(CEILING_ROW + 1) * TILE`. */
+const CEILING_ROW = 32;
+
+/**
+ * Puts a solid ceiling over the level 1 spawn. The level data is edited in the
+ * page before `startLevel`, so both the tilemap and the Arcade collision are
+ * built from the patched rows. The row is wide enough for an upward shot, which
+ * travels 27 px right per 20 px up.
+ */
+async function injectCeiling(page: Page): Promise<void> {
+  await page.evaluate((row) => {
+    const mkw = (window as unknown as { mkw: DebugApi }).mkw;
+    const level = mkw.assets.levels[0];
+    const solid = level.tiles[35 * level.width + 4]; // the floor tile under the spawn
+    for (let x = 3; x <= 8; x++) level.tiles[row * level.width + x] = solid;
+  }, CEILING_ROW);
+}
+
+interface BulletProbe {
+  /** Tick the bullet first showed `vy = 0`, i.e. it touched the surface. -1 if never. */
+  contactTick: number;
+  /** Tick the bullet was gone. -1 if it survived the observation window. */
+  goneTick: number;
+}
+
+/** Ticks one bullet until it disappears and reports when it touched the surface. */
+async function watchBullet(page: Page): Promise<BulletProbe> {
+  return page.evaluate(() => {
+    const mkw = (window as unknown as { mkw: DebugApi }).mkw;
+    let contactTick = -1;
+    let goneTick = -1;
+    for (let i = 1; i <= 40; i++) {
+      mkw.tick(1);
+      const bullets = mkw.snapshot().bullets;
+      if (bullets.length === 0) {
+        if (contactTick >= 0) goneTick = i;
+        break;
+      }
+      if (contactTick < 0 && bullets[0].vy === 0) contactTick = i;
+    }
+    return { contactTick, goneTick };
+  });
 }
 
 test("Space jumps from the ground and clears two tiles but not three", async ({ page }) => {
@@ -221,6 +266,73 @@ test("lands on the floor and does not sink into it", async ({ page }) => {
   expect(landing.onGround, "player must stand on the floor after landing").toBe(true);
   expect(landing.feetOnTouchdown, "feet must not pass through the floor").toBeLessThanOrEqual(groundFeet + 5);
   expect(Math.abs(landing.feet - groundFeet), "body must rest on the floor").toBeLessThanOrEqual(5);
+});
+
+test("a bullet fired down dies on the floor and does not slide", async ({ page }) => {
+  await boot(page);
+  const ground = await startLevel1(page);
+  expect(ground.onGround, "player must stand on the floor").toBe(true);
+
+  await page.keyboard.down("ArrowDown");
+  await page.keyboard.press("ControlLeft");
+  const shot = await watchBullet(page);
+  await page.keyboard.up("ArrowDown");
+
+  expect(shot.contactTick, "the bullet must reach the floor").toBeGreaterThan(0);
+  expect(shot.goneTick, "the bullet must be despawned").toBeGreaterThan(0);
+  expect(
+    shot.goneTick - shot.contactTick,
+    "a solid floor must despawn the bullet on contact, not let it slide",
+  ).toBeLessThanOrEqual(2);
+});
+
+test("a bullet fired up dies on the ceiling and does not slide", async ({ page }) => {
+  await boot(page);
+  await injectCeiling(page);
+  await startLevel1(page);
+
+  await page.keyboard.down("ArrowUp");
+  await page.keyboard.press("ControlLeft");
+  const shot = await watchBullet(page);
+  await page.keyboard.up("ArrowUp");
+
+  expect(shot.contactTick, "the bullet must reach the ceiling").toBeGreaterThan(0);
+  expect(shot.goneTick, "the bullet must be despawned").toBeGreaterThan(0);
+  expect(
+    shot.goneTick - shot.contactTick,
+    "a solid ceiling must despawn the bullet on contact, not let it slide",
+  ).toBeLessThanOrEqual(2);
+});
+
+test("jumps into a ceiling and has the jump cut short", async ({ page }) => {
+  await boot(page);
+  await injectCeiling(page);
+  const ground = await startLevel1(page);
+
+  await page.keyboard.press("Space");
+  const jump = await page.evaluate(() => {
+    const mkw = (window as unknown as { mkw: DebugApi }).mkw;
+    let highest = mkw.snapshot().player.y;
+    let blockedUp = false;
+    let landed = false;
+    for (let i = 0; i < 120; i++) {
+      mkw.tick(1);
+      const player = mkw.snapshot().player;
+      highest = Math.min(highest, player.y);
+      blockedUp = blockedUp || player.blocked.up;
+      if (player.onGround && i > 5) {
+        landed = true;
+        break;
+      }
+    }
+    return { highest, blockedUp, landed };
+  });
+
+  // The injected ceiling ends at `(CEILING_ROW + 1) * TILE`; the body must not pass it.
+  expect(jump.highest, "the head must stop at the ceiling").toBeGreaterThanOrEqual((CEILING_ROW + 1) * TILE);
+  expect(ground.y - jump.highest, "the ceiling must cut the 230 px jump short").toBeLessThan(200);
+  expect(jump.blockedUp, "the ceiling must be reported to the rules").toBe(true);
+  expect(jump.landed, "the player must fall back to the floor").toBe(true);
 });
 
 test("stops at the wall right of the spawn ledge", async ({ page }) => {

@@ -226,9 +226,17 @@ export class Game {
         despawned.add(event.bulletId);
       } else if (event.type === "bulletHitWall") {
         despawned.add(event.bulletId);
-      } else if (event.type === "playerTouchedEnemy") {
-        if (!this.gameOver && p.invuln === 0) respawnPlayer = this.hurtPlayer();
       }
+    }
+
+    // Touches come after the kills: an enemy shot in this same step is already
+    // dead and cannot hurt the hero (the pre-S11 order did the same).
+    for (const event of snapshot.events) {
+      if (event.type !== "playerTouchedEnemy") continue;
+      if (this.gameOver || p.invuln > 0) continue;
+      const enemy = this.enemies.find((candidate) => candidate.id === event.enemyId);
+      if (!enemy || !enemy.alive) continue;
+      respawnPlayer = this.hurtPlayer();
     }
 
     // The 40-tick life belongs to the rules; Arcade only owns the body.
