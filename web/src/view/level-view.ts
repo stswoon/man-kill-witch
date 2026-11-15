@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { TILE, TILE_TEXTURE } from "../assets";
+import { BACKDROP_TILE, TILE, TILE_TEXTURE } from "../assets";
 import type { Level } from "../game";
 
 /** Owns the Phaser tilemap layer and the camera scroll of the level. */
@@ -7,6 +7,8 @@ export class LevelView {
   private readonly scene: Phaser.Scene;
   private map: Phaser.Tilemaps.Tilemap | null = null;
   private layer: Phaser.Tilemaps.TilemapLayer | null = null;
+  private backdropMap: Phaser.Tilemaps.Tilemap | null = null;
+  private backdropLayer: Phaser.Tilemaps.TilemapLayer | null = null;
 
   constructor(scene: Phaser.Scene) {
     this.scene = scene;
@@ -16,16 +18,33 @@ export class LevelView {
   build(level: Level): void {
     this.layer?.destroy();
     this.map?.destroy();
+    this.backdropLayer?.destroy();
+    this.backdropMap?.destroy();
 
+    const backdrop: number[][] = [];
     const data: number[][] = [];
     for (let ty = 0; ty < level.height; ty++) {
+      const backdropRow: number[] = [];
       const row: number[] = [];
       for (let tx = 0; tx < level.width; tx++) {
+        backdropRow.push(BACKDROP_TILE);
         const index = level.tileAt(tx, ty);
         row.push(index > 0 ? index : -1);
       }
+      backdrop.push(backdropRow);
       data.push(row);
     }
+
+    const backdropMap = this.scene.make.tilemap({
+      data: backdrop,
+      tileWidth: TILE,
+      tileHeight: TILE,
+    });
+    const backdropTileset = backdropMap.addTilesetImage("tiles", TILE_TEXTURE, TILE, TILE, 0, 0);
+    if (!backdropTileset) throw new Error("failed to bind the backdrop tileset");
+    const backdropLayer = backdropMap.createLayer(0, backdropTileset, 0, 0);
+    if (!backdropLayer) throw new Error("failed to create the backdrop layer");
+    backdropLayer.setDepth(-10);
 
     const map = this.scene.make.tilemap({
       data,
@@ -38,6 +57,8 @@ export class LevelView {
     if (!layer) throw new Error("failed to create the tilemap layer");
 
     layer.setDepth(0);
+    this.backdropMap = backdropMap;
+    this.backdropLayer = backdropLayer as Phaser.Tilemaps.TilemapLayer;
     this.map = map;
     this.layer = layer as Phaser.Tilemaps.TilemapLayer;
   }

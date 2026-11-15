@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { SCREEN_H, SCREEN_W } from "./assets";
+import { BACKDROP_COLOR, SCREEN_H, SCREEN_W } from "./assets";
 import { BootScene } from "./scenes/boot-scene";
 import { GameScene } from "./scenes/game-scene";
 
@@ -19,7 +19,7 @@ const game = new Phaser.Game({
   type: Phaser.AUTO,
   width: SCREEN_W,
   height: SCREEN_H,
-  backgroundColor: 0x000000,
+  backgroundColor: BACKDROP_COLOR,
   banner: false,
   audio: { noAudio: true },
   render: { antialias: true, pixelArt: false },

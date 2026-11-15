@@ -2,6 +2,7 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { describe, expect, test } from "vitest";
 import {
+  BACKDROP_TILE,
   DOOR_H,
   DOOR_W,
   HUD_FONT,
@@ -58,6 +59,15 @@ describe("tileinfo.json", () => {
   test("covers the tile indices used by the levels", () => {
     const used = Math.max(...levels.flatMap((level) => level.tiles.map((t) => t & TILE_FLAG_MASK)));
     expect(used, `level tile ${used} must exist in tileinfo (count ${info.count})`).toBeLessThan(info.count);
+  });
+
+  test("the backdrop tile is passable and not interactive", () => {
+    expect(BACKDROP_TILE).toBeLessThan(info.count);
+    expect(info.blockUp[BACKDROP_TILE]).toBe(0);
+    expect(info.blockDown[BACKDROP_TILE]).toBe(0);
+    expect(info.blockLeft[BACKDROP_TILE]).toBe(0);
+    expect(info.blockRight[BACKDROP_TILE]).toBe(0);
+    expect(info.behavior[BACKDROP_TILE]).toBe(0);
   });
 });
 

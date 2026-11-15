@@ -6,6 +6,10 @@ const BASE_URL = `http://127.0.0.1:${PORT}`;
 export default defineConfig({
   testDir: "e2e",
   fullyParallel: true,
+  // Each test boots Phaser/WebGL and loads the whole bundle; parallel workers
+  // starve the CPU and turn `page.goto`/`tick` into timeouts on slower machines.
+  workers: 1,
+  timeout: 60_000,
   forbidOnly: Boolean(process.env.CI),
   retries: 0,
   reporter: [["list"]],

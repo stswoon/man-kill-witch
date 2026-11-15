@@ -18,6 +18,7 @@ export type BotAction =
   | "shoot"
   | "shoot_up"
   | "shoot_down"
+  | "up"
   | "wait"
   | "stop";
 
@@ -35,6 +36,7 @@ export const BOT_ACTIONS: readonly BotAction[] = [
   "shoot",
   "shoot_up",
   "shoot_down",
+  "up",
   "wait",
   "stop",
 ];

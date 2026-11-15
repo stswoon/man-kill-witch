@@ -164,7 +164,7 @@ export class BotSession {
         result = this.game.player.ammo < startAmmo || this.game.player.cooldown > startCooldown
           ? "shot"
           : this.game.player.cooldown > 0 ? "cooldown" : "no-ammo";
-      } else if (action === "wait") {
+      } else if (action === "wait" || action === "up") {
         result = "waited";
       } else if (action === "stop") {
         result = "stopped";
@@ -332,7 +332,7 @@ export class BotSession {
     const fallback = this.isJumpLike(action) || this.isDrop(action) ? MAX_ACTION_TICKS
       : DEFAULT_TICKS;
     const requested = ticks === undefined ? fallback : Math.max(1, Math.floor(ticks));
-    if (this.isShoot(action) || action === "stop") return 1;
+    if (this.isShoot(action) || action === "stop" || action === "up") return 1;
     return Math.min(requested, MAX_ACTION_TICKS);
   }
 

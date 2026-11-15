@@ -458,9 +458,13 @@ test("the S10 exit door still opens and completes the level", async ({ page }) =
   });
   await page.keyboard.up("ArrowLeft");
   expect(centreTile, "the hero must stand under the door tile").toBe(3);
+  expect(
+    await page.evaluate(() => (window as unknown as { mkw: DebugApi }).mkw.game().door),
+    "walking into the door must not open it",
+  ).toBeNull();
 
-  // The door row is above the standing centre, so the jump puts the centre in it.
-  await page.keyboard.press("Space");
+  // The door row is above the standing centre, so ↑ under the arch opens it.
+  await page.keyboard.down("ArrowUp");
   const door = await page.evaluate(() => {
     const mkw = (window as unknown as { mkw: DebugApi }).mkw;
     let opened = mkw.game().door;
@@ -470,6 +474,7 @@ test("the S10 exit door still opens and completes the level", async ({ page }) =
     }
     return opened;
   });
+  await page.keyboard.up("ArrowUp");
   expect(door).toEqual({ tx: 3, ty: 12, step: 0, timer: 0 });
 
   const nextLevelWidth = await page.evaluate(() => {

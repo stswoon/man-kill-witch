@@ -7,6 +7,14 @@ export const SPRITE_W = 120;
 export const SPRITE_H = 160;
 
 export const TILE_TEXTURE = "tiles";
+/**
+ * Seamless quiet fog cell of `tiles.png`. `LevelView` tiles it under the whole
+ * level so empty cells read as deep background instead of black holes. The
+ * tileset keeps this index in the calm background family; see `work/s16-hd-tiles`.
+ */
+export const BACKDROP_TILE = 11;
+/** Base color of the fog tile, used for the camera clear color. */
+export const BACKDROP_COLOR = 0x101c29;
 export const TITLE_TEXTURE = "title";
 export const BULLET_TEXTURE = "bullet";
 export const DOOR_TEXTURE = "door";

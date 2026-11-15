@@ -39,6 +39,7 @@ export class BotInput implements InputState {
     if (direction === "right") this.down.add("ArrowRight");
     if (action === "shoot_up") this.down.add("ArrowUp");
     if (action === "shoot_down") this.down.add("ArrowDown");
+    if (action === "up") this.down.add("ArrowUp");
 
     if (tick === 0 && (action.startsWith("jump") || action.startsWith("hop"))) {
       this.hits.add("Space");
