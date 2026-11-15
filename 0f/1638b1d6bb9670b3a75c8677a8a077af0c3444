@@ -1,0 +1,80 @@
+.opencode/agents/agent-bot.md
+  s_46660f32373108::t_a88aff1ba50205 121-122
+  s_46660f32373108::t_cee53e9e584b26 96
+  s_46660f32373108::t_4234cfafc31fca 123,125,128
+web/src/bot/bot-session.ts
+  s_46660f32373108::t_284c4cf04b08fb 167
+  s_46660f32373108::t_52670bb98326bc 335
+tests/content.test.ts
+  s_46660f32373108::t_1dcb5c97b98e57 5
+  s_4c0733311dd7d2::t_229dd6b626bc83 63-71
+web/index.html
+  s_46660f32373108::t_e8ead405a505b3 17
+README.md
+  s_46660f32373108::t_9dc2eccf82c146 33
+  s_f089c3588df7d9::t_24e9802b105d1d 58-60
+docs/spec/05-animation.md
+  s_46660f32373108::t_4b9e5e0e20fb14 110,113-116
+  s_46660f32373108::t_30e1047ed3ea5d 111-112
+playwright.config.ts
+  s_4afe45fe780ee3::t_fcb5f29d7524c5 9-12
+web/src/assets.ts
+  s_46660f32373108::t_31447354c4ec11 10-17
+web/src/bot/types.ts
+  s_46660f32373108::t_dc87fef71dffa3 21,39
+web/src/bot/bot-input.ts
+  s_46660f32373108::t_9293585b54026e 42
+web/src/view/level-view.ts
+  s_46660f32373108::t_8adc231b76f8fb 2,10-11,21-22,24,27,30,34,38-48,60-61
+web/src/main.ts
+  s_46660f32373108::t_36b0169404df96 22
+  s_4afe45fe780ee3::t_890c20eb328e82 2
+e2e/physics.spec.ts
+  s_46660f32373108::t_969899088284de 466-467,477
+  s_46660f32373108::t_8d8222650fe90c 461-464
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "0f1638b1d6bb9670b3a75c8677a8a077af0c3444",
+  "prompts": {},
+  "humans": {
+    "h_06e01297fc405a": {
+      "author": "stswoon <xx@xx.xx>"
+    }
+  },
+  "sessions": {
+    "s_46660f32373108": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e20078a1effelZiD8gT5FX9ck0",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_4afe45fe780ee3": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e2635a27effeH2P8bWZgeDGHmc",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_4c0733311dd7d2": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e1ffcc8baffe21qdFNTA7AdKbH",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_f089c3588df7d9": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e2096f6d3ffeR8yS6rArxBiSw9",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    }
+  }
+}
