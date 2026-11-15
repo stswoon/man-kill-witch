@@ -1,0 +1,127 @@
+AGENTS.md
+  s_49c58e7c60cab3::t_c2f7943c206e96 182-184
+  s_49c58e7c60cab3::t_08e8eda5b8a0c9 89-91,93,95
+  s_28988b663875bc::t_9bffa0ed5f3615 3-4
+  s_49c58e7c60cab3::t_fa344ea7cde3cd 82-83
+  s_49c58e7c60cab3::t_f3f3b3a1c3d629 157-159
+  s_49c58e7c60cab3::t_6394f0cf25673d 169,171
+  s_1acae08633c568::t_6705493137ba0f 98
+  s_49c58e7c60cab3::t_18ae91bb4bb0bf 68-71,76
+  s_49c58e7c60cab3::t_5ee12fcc1c4c13 109-115
+  s_49c58e7c60cab3::t_eb83c52add5cd0 10-13,20-24
+  s_49c58e7c60cab3::t_d87b130fee0143 94
+  s_49c58e7c60cab3::t_bf8d3442570138 170
+docs/plan/S18-hd-finalization.md
+  s_6d10b5741483ee::t_221669666550e5 3
+docs/plan/artifacts/bug-report-S18.md
+  s_d4c336b075df03::t_68b8290279706e 7-9,15-35,41-42,45,47,51-52,70-74,79-87
+  s_d4c336b075df03::t_15da27f57c4297 1-6,10-14,36-40,43,53-69,75-78
+  s_d4c336b075df03::t_206a9dfe4087ec 48-50
+  s_d4c336b075df03::t_dabc9436b23474 44,46
+web/src/scenes/boot-scene.ts
+  s_1acae08633c568::t_d7796ff21aa167 28
+docs/plan/artifacts/review-notes-S18.md
+  s_1035d5b94875f2::t_4e882b20177222 3-7,11-25,29-45,49-50,54-57,61,63-70,73-74
+  s_1035d5b94875f2::t_291fc9cec5dadb 8-10
+  s_1035d5b94875f2::t_bd7bbb3624acf4 1-2,26-28,46-48,51-53,58-60,62,71-72
+docs/spec/01-architecture.md
+  s_1acae08633c568::t_8fd700b9886ee8 193
+docs/plan/README.md
+  s_6d10b5741483ee::t_bf9261e78bfeb1 50
+  s_1acae08633c568::t_d3ba01cf6d8cfd 157
+docs/design.md
+  s_49c58e7c60cab3::t_212d4e30eba6f5 64-65
+  s_49c58e7c60cab3::t_cf21259209392e 131-132
+  s_49c58e7c60cab3::t_549425d3273f8d 107
+  s_49c58e7c60cab3::t_5e3e6eb13c2a2c 115
+  s_49c58e7c60cab3::t_2394cd6ff9a6db 86-94
+  s_49c58e7c60cab3::t_affd4694657061 54
+  s_49c58e7c60cab3::t_cf3b92be7bcd04 74-75
+  s_49c58e7c60cab3::t_a6da94d3420a42 99,104
+  s_49c58e7c60cab3::t_de09c45f4047c9 42,50
+  s_49c58e7c60cab3::t_1e3ff21759edd1 102-103,105-106
+  s_49c58e7c60cab3::t_e1647e0f14f862 120
+  s_49c58e7c60cab3::t_9f806f943265a7 122-123
+docs/spec/03-art.md
+  s_1acae08633c568::t_81e3fa89811873 90,98-99
+  s_1acae08633c568::t_bf307049f5a9af 32
+  s_ee7db033c957f4::t_98fa3eeb6c7984 49
+README.md
+  s_28988b663875bc::t_deebb8f3adebd2 10-13,24-26
+tests/webp.ts
+  s_1acae08633c568::t_e64977c0fbfd92 1-56
+tests/content.test.ts
+  s_1acae08633c568::t_1f9097d6a5438c 22,156
+  s_6d10b5741483ee::t_16ad60c011e018 178,180-182
+tools/serve.mjs
+  s_1acae08633c568::t_fe4916df2afcfc 18
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "9ba3cf339561ca33fc59ca340f1ec656518ccb95",
+  "prompts": {},
+  "humans": {
+    "h_06e01297fc405a": {
+      "author": "stswoon <xx@xx.xx>"
+    }
+  },
+  "sessions": {
+    "s_1035d5b94875f2": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e1fc4a152ffeTpo93Bovxle9bb",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_1acae08633c568": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e1fc32f6effeth25OSx5pB4GR3",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_28988b663875bc": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e1fbed969ffeq3vUl94ACB9qS1",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_49c58e7c60cab3": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e1feaed19ffeGSPbQogR6cV1Rq",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_6d10b5741483ee": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e249e0225ffeQwrASalLP6z4ZW",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_d4c336b075df03": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e1fd32c28ffeofJF5379nuyPa1",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_ee7db033c957f4": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e2510d8e1ffeewxA65b37VGG5u",
+        "model": "unknown"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    }
+  }
+}
