@@ -1,0 +1,66 @@
+docs/plan/S18-hd-finalization.md
+  s_6d10b5741483ee::t_68128431afefd0 3
+docs/plan/README.md
+  s_b3f21a259998f7::t_228ce91cb2ca7c 31-36,64
+  s_6d10b5741483ee::t_3143eb774d41d0 59
+  s_b3f21a259998f7::t_e198be7d5e2520 28-29
+  s_b3f21a259998f7::t_99194626264712 161
+  s_b3f21a259998f7::t_5a60b6a5ad035f 96
+  s_b3f21a259998f7::t_2dc2a9480169ee 188-190
+  s_b3f21a259998f7::t_4752fc698af7d6 187
+  s_b3f21a259998f7::t_d6097f7fc07342 185-186
+  s_b3f21a259998f7::t_60008f6448e630 62-63
+  s_6d10b5741483ee::t_e7ee7437880f31 30,78-84,97,170,178,181-183
+docs/plan/artifacts/bug-report-S18.md
+  s_d4c336b075df03::t_be54bea72060a6 157-178
+  s_d4c336b075df03::t_96eaafaa0488f8 88-127
+  s_d4c336b075df03::t_58cc7f93df6a90 128-156
+docs/plan/artifacts/review-notes-S18.md
+  s_1035d5b94875f2::t_19557b75a653f8 3-24,28-29,33-40,46-55,57-62,66-69
+  s_1035d5b94875f2::t_3f6d2ee050bb88 44-45
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "1b98808c656e1cf87fc20d4af2e7f797101b7a7a",
+  "prompts": {},
+  "humans": {
+    "h_06e01297fc405a": {
+      "author": "stswoon <xx@xx.xx>"
+    }
+  },
+  "sessions": {
+    "s_1035d5b94875f2": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e1fc4a152ffeTpo93Bovxle9bb",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_6d10b5741483ee": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e249e0225ffeQwrASalLP6z4ZW",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_b3f21a259998f7": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e1fbcaf7cffexnyce5lVudhFZk",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    },
+    "s_d4c336b075df03": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e1fd32c28ffeofJF5379nuyPa1",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    }
+  }
+}
