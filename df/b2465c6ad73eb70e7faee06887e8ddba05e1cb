@@ -1,0 +1,27 @@
+.opencode/agents/music-agent.md
+  s_6d10b5741483ee::t_cbbf378e416d36 4
+.opencode/agents/ui-designer-agent.md
+  s_6d10b5741483ee::t_987215af8564c6 8-10,17
+  s_6d10b5741483ee::t_2d1b3e44aed444 4
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "dfb2465c6ad73eb70e7faee06887e8ddba05e1cb",
+  "prompts": {},
+  "humans": {
+    "h_06e01297fc405a": {
+      "author": "stswoon <xx@xx.xx>"
+    }
+  },
+  "sessions": {
+    "s_6d10b5741483ee": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e249e0225ffeQwrASalLP6z4ZW",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    }
+  }
+}
