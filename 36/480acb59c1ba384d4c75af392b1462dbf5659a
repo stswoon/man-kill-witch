@@ -1,0 +1,24 @@
+e2e/bot-api.spec.ts
+  s_46660f32373108::t_6b4878ab23b079 109-111,115
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "36480acb59c1ba384d4c75af392b1462dbf5659a",
+  "prompts": {},
+  "humans": {
+    "h_06e01297fc405a": {
+      "author": "stswoon <xx@xx.xx>"
+    }
+  },
+  "sessions": {
+    "s_46660f32373108": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_e20078a1effelZiD8gT5FX9ck0",
+        "model": "deepseek-v4.1-flash"
+      },
+      "human_author": "stswoon <xx@xx.xx>"
+    }
+  }
+}
