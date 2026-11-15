@@ -1,6 +1,7 @@
 import type Phaser from "phaser";
 import type { Game } from "./game";
 import { CharacterView } from "./view/character-view";
+import { DoorView } from "./view/door-view";
 import { HudView } from "./view/hud-view";
 import { LevelView } from "./view/level-view";
 import { MessageView } from "./view/message-view";
@@ -12,6 +13,7 @@ import { MessageView } from "./view/message-view";
  */
 export class PhaserView {
   private readonly levelView: LevelView;
+  private readonly door: DoorView;
   private readonly characters: CharacterView;
   private readonly hud: HudView;
   private readonly messages: MessageView;
@@ -21,6 +23,7 @@ export class PhaserView {
     this.characters = new CharacterView(scene);
     this.hud = new HudView(scene);
     this.levelView = new LevelView(scene);
+    this.door = new DoorView(scene);
   }
 
   showTitle(): void {
@@ -42,6 +45,7 @@ export class PhaserView {
   /** Rebuild the tilemap and HUD for a freshly created level. */
   buildLevel(game: Game): void {
     this.levelView.build(game.level);
+    this.door.hide();
     this.hud.ensureCreated();
   }
 
@@ -52,6 +56,7 @@ export class PhaserView {
 
   render(game: Game, levelIndex: number): void {
     this.levelView.setCamera(game.cameraX, game.cameraY);
+    this.door.render(game.door);
     this.characters.render(game.player, game.enemies, game.bullets);
     this.hud.render(game, levelIndex);
   }

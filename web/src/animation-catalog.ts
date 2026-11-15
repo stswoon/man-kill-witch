@@ -6,7 +6,7 @@
 export interface AnimationSpec {
   /** Animation key, also used by the view when it calls `play`. */
   readonly key: string;
-  /** Sprite sheet that holds the frames: `hero`, `chunk1` or `chunk2`. */
+  /** Sprite sheet that holds the frames: `hero`, `chunk1`, `chunk2` or `door`. */
   readonly texture: string;
   /** First frame of a contiguous range. */
   readonly start: number;
@@ -22,6 +22,8 @@ export interface AnimationSpec {
 const HERO_FPS = 14;
 /** 70 / 8 ticks per frame, from the old tick-based timing. */
 const ENEMY_FPS = 8.75;
+/** 70 / 5 ticks per frame: one opening frame per five-tick door step. */
+const DOOR_FPS = 14;
 /** Stills do not animate; Phaser still wants a positive rate. */
 const STILL_FPS = 1;
 
@@ -42,4 +44,6 @@ export const ANIMATIONS: readonly AnimationSpec[] = [
   { key: "enemy-10", texture: "chunk2", start: 5, end: 9, frameRate: ENEMY_FPS, repeat: -1 },
   { key: "enemy-11", texture: "chunk2", start: 10, end: 14, frameRate: ENEMY_FPS, repeat: -1 },
   { key: "enemy-12", texture: "chunk2", start: 15, end: 19, frameRate: ENEMY_FPS, repeat: -1 },
+
+  { key: "door-open", texture: "door", start: 0, end: 2, frameRate: DOOR_FPS, repeat: 0 },
 ];

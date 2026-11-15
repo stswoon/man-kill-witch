@@ -9,6 +9,11 @@ export const SPRITE_H = 160;
 export const TILE_TEXTURE = "tiles";
 export const TITLE_TEXTURE = "title";
 export const BULLET_TEXTURE = "bullet";
+export const DOOR_TEXTURE = "door";
+
+/** Door frame: a 2x3 block of tiles at `TILE = 80`, three frames side by side. */
+export const DOOR_W = 160;
+export const DOOR_H = 240;
 
 export const SPRITE_NAMES = ["hero", "chunk1", "chunk2"] as const;
 

@@ -256,26 +256,100 @@ describe("Pickups", () => {
 });
 
 describe("Exit door", () => {
-  test("plays three frames, completes the level and pays the bonus", () => {
+  /** Arena door at (2, 11): the opening block covers columns 1-2 and rows 10-12. */
+  const DOOR_BLOCK: Array<[number, number]> = [
+    [1, 10], [2, 10],
+    [1, 11], [2, 11],
+    [1, 12], [2, 12],
+  ];
+
+  test("clears the 2x3 block, steps the animation and completes after 15 ticks", () => {
     const game = new Game(makeArena({ tiles: [[2, 11, DOOR]] }));
     const input = fakeInput();
 
     tick(game, input, 1);
+    expect(game.door, "the trigger tick opens the door on step 0").toEqual({
+      tx: 2,
+      ty: 11,
+      step: 0,
+      timer: 0,
+    });
+    expect(game.levelComplete, "the level ends only on the third step").toBe(false);
+    expect(game.tilePatches, "the static 2x3 block is cleared on the trigger tick").toEqual(
+      DOOR_BLOCK.map(([x, y]) => ({ x, y, index: 0 })),
+    );
+    for (const [x, y] of DOOR_BLOCK) {
+      expect(game.level.tileAt(x, y), `tile (${x}, ${y}) must be cleared`).toBe(0);
+    }
+
+    tick(game, input, 4);
+    expect(game.door, "step 0 holds for its five ticks").toEqual({
+      tx: 2,
+      ty: 11,
+      step: 0,
+      timer: 4,
+    });
+
+    tick(game, input, 1);
+    expect(game.door, "step 1 comes five ticks after the trigger").toEqual({
+      tx: 2,
+      ty: 11,
+      step: 1,
+      timer: 0,
+    });
+
+    tick(game, input, 5);
+    expect(game.door, "step 2 comes ten ticks after the trigger").toEqual({
+      tx: 2,
+      ty: 11,
+      step: 2,
+      timer: 0,
+    });
     expect(game.levelComplete).toBe(false);
-    expect(game.tilePatches).toHaveLength(0);
 
     tick(game, input, 5);
-    expect(game.tilePatches).toHaveLength(6);
-    expect(game.levelComplete).toBe(false);
-
-    tick(game, input, 5);
-    expect(game.tilePatches).toHaveLength(12);
-
-    tick(game, input, 5);
-    expect(game.tilePatches).toHaveLength(12);
+    expect(game.door, "the door is gone at the fifteenth tick").toBeNull();
     expect(game.levelComplete).toBe(true);
     expect(game.score).toBe(1000);
-    expect(game.tilePatches[0]).toEqual({ x: 1, y: 10, index: 78 });
+    expect(game.tilePatches, "steps 1 and 2 change no tiles: the opening is a sprite").toHaveLength(6);
+  });
+
+  test("keeps the static door tiles until the trigger", () => {
+    const game = new Game(makeArena({ tiles: [[2, 11, DOOR]] }));
+    const input = fakeInput();
+    game.player.y = 760; // centre in (2, 10), one tile above the trigger
+
+    tick(game, input, 5);
+
+    expect(game.door).toBeNull();
+    expect(game.tilePatches, "the static tiles must not change before the trigger").toHaveLength(0);
+    expect(game.level.tileAt(2, 11)).toBe(DOOR);
+  });
+
+  test("triggers on the player center without requiring ground contact", () => {
+    const game = new Game(makeArena({ tiles: [[2, 11, DOOR]] }));
+    const input = fakeInput();
+    game.player.y = 820; // centre in (2, 11), feet still above the floor
+
+    tick(game, input, 1);
+
+    expect(game.player.onGround).toBe(false);
+    expect(game.door).toEqual({ tx: 2, ty: 11, step: 0, timer: 0 });
+  });
+
+  test("leaves cells outside the map alone", () => {
+    const game = new Game(makeArena({ tiles: [[0, 11, DOOR]] }));
+    const input = fakeInput();
+    game.player.x = 0; // centre x = 30, so tx = 0 and the block starts at x = -1
+
+    tick(game, input, 1);
+
+    expect(game.door).toEqual({ tx: 0, ty: 11, step: 0, timer: 0 });
+    expect(game.tilePatches).toEqual([
+      { x: 0, y: 10, index: 0 },
+      { x: 0, y: 11, index: 0 },
+      { x: 0, y: 12, index: 0 },
+    ]);
   });
 });
 

@@ -19,6 +19,7 @@ const EXPECTED_KEYS = [
   "enemy-10",
   "enemy-11",
   "enemy-12",
+  "door-open",
 ];
 
 /** Sprite id -> sprite sheet -> first frame; every group is five frames long. */
@@ -73,10 +74,21 @@ describe("animation catalog", () => {
     }
   });
 
-  test("every animation loops forever", () => {
+  test("every animation except the door loops forever", () => {
     for (const animation of ANIMATIONS) {
+      if (animation.key === "door-open") continue;
       expect(animation.repeat, animation.key).toBe(-1);
     }
+  });
+
+  test("door opens once: three frames at 14 fps", () => {
+    expect(spec("door-open")).toMatchObject({
+      texture: "door",
+      start: 0,
+      end: 2,
+      frameRate: 14,
+      repeat: 0,
+    });
   });
 
   test("frame ranges are ordered, positive and have a real frame rate", () => {

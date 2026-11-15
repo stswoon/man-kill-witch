@@ -1,5 +1,8 @@
 import Phaser from "phaser";
 import {
+  DOOR_H,
+  DOOR_TEXTURE,
+  DOOR_W,
   LEVEL_COUNT,
   SPRITE_H,
   SPRITE_NAMES,
@@ -34,6 +37,11 @@ export class BootScene extends Phaser.Scene {
         frameHeight: SPRITE_H,
       });
     }
+
+    this.load.spritesheet(DOOR_TEXTURE, `${base}sprites/s_door.png`, {
+      frameWidth: DOOR_W,
+      frameHeight: DOOR_H,
+    });
   }
 
   create(): void {

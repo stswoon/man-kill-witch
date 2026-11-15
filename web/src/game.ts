@@ -240,18 +240,19 @@ export class Bullet {
   constructor(public x: number, public y: number, public vx: number, public vy: number) {}
 }
 
-/** Door animation frames: 3 x 2 tiles per step, three steps. */
-const DOOR_FRAMES: number[][] = [
-  [148, 151, 149, 152, 150, 153],
-  [78, 79, 91, 92, 104, 105],
-  [833, 832, 724, 725, 737, 738],
-];
+/** Door opening: 2 tiles wide, 3 tall, top-left corner at `(tx-1, ty-1)`. */
+const DOOR_TILE_COLUMNS = 2;
+const DOOR_TILE_ROWS = 3;
+/** 70 / 5 ticks per shown frame; the third step ends the level, 15 ticks in total. */
+const DOOR_TICKS_PER_STEP = 5;
+const DOOR_STEPS = 3;
 
-interface DoorState {
-  tx: number;
-  ty: number;
-  step: number;
-  timer: number;
+/** Trigger tile and opening progress of the exit door. Read-only for the view. */
+export interface DoorState {
+  readonly tx: number;
+  readonly ty: number;
+  readonly step: number;
+  readonly timer: number;
 }
 
 export interface TilePatch { x: number; y: number; index: number }
@@ -270,12 +271,17 @@ export class Game {
   hurtFlash = 0;
   levelComplete = false;
   tilePatches: TilePatch[] = [];
-  private door: DoorState | null = null;
+  private doorState: DoorState | null = null;
   private nextExtraLife = 5000;
 
   constructor(level: Level) {
     this.level = level;
     this.spawn();
+  }
+
+  /** Active door opening; the view can read it but never write it. */
+  get door(): DoorState | null {
+    return this.doorState;
   }
 
   spawn(): void {
@@ -372,49 +378,69 @@ export class Game {
     }
   }
 
-  /** Doors open with a 3x2 tile animation; special tiles act as pickups. */
+  /** Doors open as a 2x3 sprite animation; special tiles act as pickups. */
   private interact(): void {
     const p = this.player;
     const tx = Math.floor((p.x + p.w / 2) / TILE);
     const ty = Math.floor((p.y + p.h / 2) / TILE);
 
-    if (!this.door) {
-      const beh = this.level.behaviorAt(tx, ty);
-      if (beh === 1 || beh === 2) {
-        this.door = { tx, ty, step: 0, timer: 0 };
-      } else if (beh === 52 || beh === 53 || beh === 54) {
-        this.score += beh === 52 ? 100 : beh === 53 ? 250 : 500;
-        this.level.setTile(tx, ty, 0);
-        this.tilePatches.push({ x: tx, y: ty, index: 0 });
-      } else if (beh >= 105 && beh <= 109) {
-        p.ammo = Math.min(8, p.ammo + 1);
-        this.level.setTile(tx, ty, 0);
-        this.tilePatches.push({ x: tx, y: ty, index: 0 });
-      }
+    if (this.doorState) {
+      this.advanceDoor();
       return;
     }
 
-    const d = this.door;
-    d.timer++;
-    if (d.timer < 5) return;
-    d.timer = 0;
-    d.step++;
-    if (d.step >= DOOR_FRAMES.length) {
-      this.levelComplete = true;
-      this.score += 1000; // level bonus
-      this.door = null;
-      return;
+    const beh = this.level.behaviorAt(tx, ty);
+    if (beh === 1 || beh === 2) {
+      this.openDoor(tx, ty);
+    } else if (beh === 52 || beh === 53 || beh === 54) {
+      this.score += beh === 52 ? 100 : beh === 53 ? 250 : 500;
+      this.level.setTile(tx, ty, 0);
+      this.tilePatches.push({ x: tx, y: ty, index: 0 });
+    } else if (beh >= 105 && beh <= 109) {
+      p.ammo = Math.min(8, p.ammo + 1);
+      this.level.setTile(tx, ty, 0);
+      this.tilePatches.push({ x: tx, y: ty, index: 0 });
     }
-    const frame = DOOR_FRAMES[d.step];
-    for (let r = 0; r < 3; r++) {
-      for (let c = 0; c < 2; c++) {
-        const x = d.tx - 1 + c;
-        const y = d.ty - 1 + r;
-        const index = frame[r * 2 + c];
-        this.level.setTile(x, y, index);
-        this.tilePatches.push({ x, y, index });
+  }
+
+  /**
+   * The center of the player entered an exit tile: remember the trigger and
+   * clear every in-map cell of the 2x3 block. The opening itself is the
+   * `door-open` sprite, so no other tiles change.
+   */
+  private openDoor(tx: number, ty: number): void {
+    this.doorState = { tx, ty, step: 0, timer: 0 };
+    for (let row = 0; row < DOOR_TILE_ROWS; row++) {
+      for (let column = 0; column < DOOR_TILE_COLUMNS; column++) {
+        const x = tx - 1 + column;
+        const y = ty - 1 + row;
+        if (this.level.tileAt(x, y) < 0) continue; // outside the map
+        this.level.setTile(x, y, 0);
+        this.tilePatches.push({ x, y, index: 0 });
       }
     }
+  }
+
+  /** Five ticks per sprite frame; the third step completes the level. */
+  private advanceDoor(): void {
+    const door = this.doorState;
+    if (!door) return;
+
+    const timer = door.timer + 1;
+    if (timer < DOOR_TICKS_PER_STEP) {
+      this.doorState = { ...door, timer };
+      return;
+    }
+
+    const step = door.step + 1;
+    if (step < DOOR_STEPS) {
+      this.doorState = { tx: door.tx, ty: door.ty, step, timer: 0 };
+      return;
+    }
+
+    this.levelComplete = true;
+    this.score += 1000; // level bonus
+    this.doorState = null;
   }
 
   private overlaps(a: Body, b: Body): boolean {

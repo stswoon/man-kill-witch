@@ -2,6 +2,8 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { describe, expect, test } from "vitest";
 import {
+  DOOR_H,
+  DOOR_W,
   LEVEL_COUNT,
   SCREEN_H,
   SCREEN_W,
@@ -11,6 +13,7 @@ import {
   type LevelData,
   type TileInfoData,
 } from "../web/src/assets";
+import { ANIMATIONS } from "../web/src/animation-catalog";
 import { Level, type Dir } from "../web/src/game";
 import { decodePng } from "./png";
 
@@ -123,6 +126,7 @@ describe("asset manifest", () => {
       "tileinfo.json",
       ...Array.from({ length: LEVEL_COUNT }, (_, i) => join("levels", `${String(i + 1).padStart(2, "0")}.json`)),
       ...SPRITE_NAMES.map((name) => join("sprites", `s_${name}.png`)),
+      join("sprites", "s_door.png"),
     ];
 
     for (const file of expected) {
@@ -147,6 +151,17 @@ describe("Png dimensions", () => {
     const png = decodePng(readFileSync(join(ASSETS, "tiles.png")));
     expect([png.width, png.height]).toEqual([32 * TILE, 27 * TILE]);
     expect([png.width, png.height]).toEqual([2560, 2160]);
+  });
+
+  test("door sheet is three 160x240 frames", () => {
+    const door = ANIMATIONS.find((animation) => animation.key === "door-open");
+    if (!door) throw new Error('missing animation "door-open"');
+    const frames = door.end - door.start + 1;
+    expect(frames, "door-open must show all three frames").toBe(3);
+
+    const png = decodePng(readFileSync(join(ASSETS, "sprites", "s_door.png")));
+    expect([png.width, png.height]).toEqual([frames * DOOR_W, DOOR_H]);
+    expect([png.width, png.height]).toEqual([480, 240]);
   });
 });
 
